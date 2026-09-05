@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="pa">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#083c2a" />
+    <meta name="description" content="ਪੰਜਾਬੀ ਖੇਤੀਬਾੜੀ ਅਤੇ ਸੁਸਾਇਟੀ ਨੋਟਿਸ ਪੋਸਟਰ ਬਣਾਉਣ ਵਾਲਾ ਸਾਧਨ" />
+    <title>MDC Agriculture Poster Maker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gurmukhi:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand-lockup">
+        <div class="brand-mark" aria-hidden="true">ਮ</div>
+        <div>
+          <p class="eyebrow">MR DHALIWAL CREATION</p>
+          <h1>Agriculture Poster Maker</h1>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="ghost-button" id="modulesButton" type="button">ਸਾਰੇ Modules</button>
+        <button class="donate-button" id="donateButton" type="button">❤ Donate</button>
+        <button class="ghost-button" id="resetButton" type="button">ਨਵਾਂ ਪੋਸਟਰ</button>
+      </div>
+    </header>
+
+    <section class="module-hub" id="moduleHub" aria-labelledby="moduleHubTitle">
+      <div class="module-hub-heading">
+        <div>
+          <p class="eyebrow">MR DHALIWAL CREATION</p>
+          <h2 id="moduleHubTitle">ਕਿਸ ਕੰਮ ਲਈ Poster ਬਣਾਉਣਾ ਹੈ?</h2>
+        </div>
+        <p>Group ਚੁਣੋ, ਫਿਰ ਉਸ ਕੰਮ ਦਾ module ਖੋਲ੍ਹੋ। ਨਵੇਂ modules ਇਸੇ software ਵਿੱਚ add ਹੁੰਦੇ ਰਹਿਣਗੇ।</p>
+      </div>
+      <div id="moduleGroups" class="module-groups"></div>
+    </section>
+
+    <main class="workspace is-hidden" id="posterWorkspace">
+      <section class="editor-panel" aria-label="ਪੋਸਟਰ ਦੀ ਜਾਣਕਾਰੀ">
+        <div class="panel-intro">
+          <div>
+            <span class="step-pill">ACTIVE MODULE</span>
+            <h2 id="activeModuleTitle">Agri Implement Sale Notice</h2>
+          </div>
+          <p>ਲਿਖਤ ਜਾਂ ਫੋਟੋ ਬਦਲਦੇ ਹੀ ਪੋਸਟਰ ਆਪਣੇ ਆਪ ਤਿਆਰ ਹੋਵੇਗਾ।</p>
+        </div>
+
+        <details class="smart-paste" open>
+          <summary>
+            <span class="summary-icon">✦</span>
+            WhatsApp ਵੇਰਵਾ ਇੱਕੋ ਵਾਰ Paste ਕਰੋ
+          </summary>
+          <div class="details-body">
+            <label for="smartText">ਮਿਲਿਆ ਹੋਇਆ ਪੂਰਾ message</label>
+            <textarea id="smartText" rows="5" placeholder="ਸੋਸਾਇਟੀ ਦਾ ਨਾਮ, ਤਾਰੀਖ਼, ਸਮਾਂ, ਸਥਾਨ ਅਤੇ ਫੋਨ ਨੰਬਰ ਇੱਥੇ paste ਕਰੋ…"></textarea>
+            <button class="secondary-button full-width" id="smartFillButton" type="button">ਵੇਰਵਾ ਸਮਝ ਕੇ ਭਰੋ</button>
+          </div>
+        </details>
+
+        <details open>
+          <summary><span class="section-number">1</span> Design Layout ਚੁਣੋ</summary>
+          <div class="details-body">
+            <div class="template-select" id="templateSelect">
+              <button class="template-select-button" id="templateSelectButton" type="button" aria-haspopup="listbox" aria-expanded="false">
+                <span id="selectedTemplateLook"></span>
+                <span class="template-select-copy"><strong id="selectedTemplateName"></strong><small id="selectedTemplateTier"></small></span>
+                <span class="select-arrow" aria-hidden="true">⌄</span>
+              </button>
+              <div class="template-menu" id="templateMenu" role="listbox" aria-label="1 ਤੋਂ 20 poster templates"></div>
+            </div>
+            <p class="template-help">Dropdown ਖੋਲ੍ਹ ਕੇ 1 ਤੋਂ 20 ਤੱਕ scroll ਕਰੋ। 11–20 Premium designs ਹਨ।</p>
+          </div>
+        </details>
+
+        <details open>
+          <summary><span class="section-number">2</span> ਮੁੱਖ ਜਾਣਕਾਰੀ</summary>
+          <div class="details-body form-grid">
+            <label class="field field-wide">
+              <span>ਉੱਪਰਲੀ ਲਾਈਨ</span>
+              <input data-key="topLine" type="text" />
+            </label>
+            <label class="field">
+              <span>ਪੋਸਟਰ ਸਿਰਲੇਖ</span>
+              <input data-key="title" type="text" />
+            </label>
+            <label class="field">
+              <span>ਛੋਟੀ ਜਾਣਕਾਰੀ</span>
+              <input data-key="subtitle" type="text" />
+            </label>
+            <label class="field field-wide">
+              <span>ਸੁਸਾਇਟੀ ਦਾ ਨਾਮ</span>
+              <textarea data-key="societyName" rows="2"></textarea>
+            </label>
+            <label class="field field-wide">
+              <span>ਨੋਟਿਸ ਦਾ ਵੇਰਵਾ</span>
+              <textarea data-key="noticeText" rows="3"></textarea>
+            </label>
+            <div class="field field-wide">
+              <span>Poster ਦੇ ਸਾਈਡ Logo / Photo</span>
+              <div class="logo-upload-grid">
+                <label class="logo-upload"><span id="leftLogoPreview">ਖੱਬਾ Logo</span><input id="leftLogoInput" type="file" accept="image/*" /></label>
+                <label class="logo-upload"><span id="rightLogoPreview">ਸੱਜਾ Logo</span><input id="rightLogoInput" type="file" accept="image/*" /></label>
+                <button class="secondary-button same-logo-button" id="sameLogoButton" type="button">ਖੱਬਾ Logo ਦੋਵੇਂ ਪਾਸੇ ਲਗਾਓ</button>
+              </div>
+              <div class="logo-size-grid">
+                <label class="range-control">
+                  <span>ਖੱਬੇ Logo ਦਾ Size <output id="leftLogoScaleValue">100%</output></span>
+                  <input id="leftLogoScale" type="range" min="50" max="160" value="100" />
+                </label>
+                <label class="range-control">
+                  <span>ਸੱਜੇ Logo ਦਾ Size <output id="rightLogoScaleValue">100%</output></span>
+                  <input id="rightLogoScale" type="range" min="50" max="160" value="100" />
+                </label>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details open>
+          <summary><span class="section-number">3</span> ਖੇਤੀਬਾੜੀ ਸੰਦ</summary>
+          <div class="details-body">
+            <p class="helper-text">Photo upload ਕਰਕੇ Original, AI BG Remove ਜਾਂ 3D Touch ਚੁਣੋ। ਵੱਧ ਤੋਂ ਵੱਧ 10 ਸੰਦ ਜੋੜ ਸਕਦੇ ਹੋ।</p>
+            <div id="itemsEditor" class="items-editor"></div>
+            <button class="add-item-button" id="addItemButton" type="button"><span>＋</span> ਹੋਰ ਸੰਦ ਜੋੜੋ</button>
+          </div>
+        </details>
+
+        <details>
+          <summary><span class="section-number">4</span> ਤਾਰੀਖ਼, ਸਮਾਂ ਅਤੇ ਸਥਾਨ</summary>
+          <div class="details-body form-grid">
+            <label class="field">
+              <span>ਤਾਰੀਖ਼</span>
+              <input data-key="date" type="text" />
+            </label>
+            <label class="field">
+              <span>ਸਮਾਂ</span>
+              <input data-key="time" type="text" />
+            </label>
+            <label class="field field-wide">
+              <span>ਸਥਾਨ</span>
+              <textarea data-key="venue" rows="2"></textarea>
+            </label>
+          </div>
+        </details>
+
+        <details>
+          <summary><span class="section-number">5</span> ਸ਼ਰਤਾਂ ਅਤੇ ਸੰਪਰਕ</summary>
+          <div class="details-body">
+            <label class="field field-wide">
+              <span>ਸ਼ਰਤਾਂ — ਹਰ ਨਵੀਂ ਲਾਈਨ ਇੱਕ ਨਵਾਂ point ਬਣੇਗੀ</span>
+              <textarea data-key="conditions" rows="5"></textarea>
+            </label>
+            <div class="contact-heading">ਸੰਪਰਕ ਵਿਅਕਤੀ</div>
+            <div id="contactsEditor" class="contacts-editor"></div>
+          </div>
+        </details>
+
+        <details>
+          <summary><span class="section-number">6</span> Poster ਦਾ ਮੁੱਖ ਰੰਗ</summary>
+          <div class="details-body">
+            <div class="theme-picker" role="radiogroup" aria-label="ਪੋਸਟਰ ਦਾ ਰੰਗ">
+              <button class="theme-chip active" data-theme="green" type="button"><span class="swatch green"></span> ਹਰਾ</button>
+              <button class="theme-chip" data-theme="blue" type="button"><span class="swatch blue"></span> ਨੀਲਾ</button>
+              <button class="theme-chip" data-theme="maroon" type="button"><span class="swatch maroon"></span> ਮੈਰੂਨ</button>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section class="preview-panel" aria-label="ਪੋਸਟਰ preview">
+        <div class="preview-toolbar">
+          <div>
+            <p class="eyebrow">LIVE PREVIEW</p>
+            <h2>ਤੁਹਾਡਾ ਪੋਸਟਰ</h2>
+          </div>
+          <div class="toolbar-actions">
+            <button class="zoom-button" id="zoomButton" type="button" aria-label="ਪੋਸਟਰ ਵੱਡਾ ਵੇਖੋ">ਵੱਡਾ ਵੇਖੋ</button>
+            <button class="primary-button" id="downloadButton" type="button">PNG Download</button>
+          </div>
+        </div>
+        <div class="poster-stage" id="posterStage">
+          <canvas id="posterCanvas" width="1080" height="1620" aria-label="ਤਿਆਰ ਪੋਸਟਰ"></canvas>
+        </div>
+        <p class="preview-note">1080 × 1620 px • WhatsApp ਅਤੇ Social Media ਲਈ ਤਿਆਰ</p>
+      </section>
+    </main>
+
+    <div class="modal" id="posterModal" aria-hidden="true">
+      <button class="modal-close" id="modalClose" type="button" aria-label="ਬੰਦ ਕਰੋ">×</button>
+      <canvas id="modalCanvas" width="1080" height="1620"></canvas>
+    </div>
+
+    <div class="donate-modal" id="donateModal" aria-hidden="true">
+      <div class="donate-card" role="dialog" aria-modal="true" aria-labelledby="donateTitle">
+        <button class="donate-close" id="donateClose" type="button" aria-label="ਬੰਦ ਕਰੋ">×</button>
+        <span class="donate-heart" aria-hidden="true">❤</span>
+        <h2 id="donateTitle">Software ਨੂੰ Support ਕਰੋ</h2>
+        <p>ਜੇ ਇਹ software ਤੁਹਾਡੇ ਕੰਮ ਆਇਆ, ਤੁਸੀਂ ਆਪਣੀ ਖੁਸ਼ੀ ਨਾਲ support ਕਰ ਸਕਦੇ ਹੋ।</p>
+        <div class="qr-placeholder" aria-label="Donation QR placeholder">
+          <strong>Donation QR</strong>
+          <small>Owner QR add ਹੋਣ ਤੋਂ ਬਾਅਦ ਇੱਥੇ scan ਹੋਵੇਗਾ</small>
+        </div>
+        <p class="donate-note">QR ਅਤੇ payment details ਸਿਰਫ਼ secure Owner Settings ਤੋਂ ਬਦਲਣਗੀਆਂ।</p>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

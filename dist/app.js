@@ -60,7 +60,7 @@ const moduleGroups = [
       { id: "agri-sale", name: "Agri Implement Sale Notice", punjabi: "ਖੇਤੀਬਾੜੀ ਸੰਦਾਂ ਦੀ ਨਿਲਾਮੀ", icon: "🌾", available: true },
       { id: "vehicle-sale", name: "Car / Bike Sale", punjabi: "ਕਾਰ ਜਾਂ ਮੋਟਰਸਾਈਕਲ ਵੇਚਣ ਦਾ Poster", icon: "🚗" },
       { id: "animal-sale", name: "Dog / Animal Sale", punjabi: "ਕੁੱਤਾ ਜਾਂ ਹੋਰ ਪਸ਼ੂ ਵੇਚਣ ਦਾ Poster", icon: "🐕" },
-      { id: "general-sale", name: "General Item Sale", punjabi: "ਕਿਸੇ ਵੀ ਸਮਾਨ ਦੀ Sale", icon: "📦" }
+      { id: "general-sale", name: "General Item Sale", punjabi: "ਕਿਸੇ ਵੀ ਸਮਾਨ ਦੀ Sale", icon: "📦", available: true }
     ]
   },
   {
@@ -172,6 +172,10 @@ function openModule(moduleId) {
   const selected = moduleGroups.flatMap((group) => group.modules).find((module) => module.id === moduleId);
   if (!selected?.available) {
     showToast(`${selected?.name || "ਇਹ module"} ਅਗਲੀ update ਵਿੱਚ ਬਣੇਗਾ।`);
+    return;
+  }
+  if (moduleId === "general-sale") {
+    window.location.href = "general-sale.html";
     return;
   }
   document.getElementById("activeModuleTitle").textContent = selected.name;

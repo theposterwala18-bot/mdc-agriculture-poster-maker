@@ -1,10 +1,10 @@
 {
   "name": "mdc-agriculture-poster-maker",
-  "version": "3.1.0",
+  "version": "4.0.0",
   "private": true,
   "scripts": {
     "dev": "vite dist --host 0.0.0.0 --port 4173",
-    "build": "vite build dist --outDir ../preview-build"
+    "build": "vite build --config vite.config.mjs"
   },
   "devDependencies": {
     "vite": "8.0.13"

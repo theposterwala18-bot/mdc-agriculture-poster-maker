@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="pa">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#172017" />
+    <meta name="description" content="ਕਿਸੇ ਵੀ product ਜਾਂ shop offer ਲਈ professional sale poster ਬਣਾਓ" />
+    <title>General Item Sale Poster Maker — MDC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gurmukhi:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="general-sale.css" />
+  </head>
+  <body class="general-sale-page">
+    <header class="topbar gs-topbar">
+      <div class="brand-lockup">
+        <div class="brand-mark" aria-hidden="true">ਮ</div>
+        <div>
+          <p class="eyebrow">MR DHALIWAL CREATION</p>
+          <h1>General Item Sale Poster Maker</h1>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <a class="ghost-button gs-module-link" href="index.html">ਸਾਰੇ Modules</a>
+        <button class="donate-button" id="donateButton" type="button"><span class="payment-icon" aria-hidden="true">₹</span><span>Donate</span></button>
+        <button class="ghost-button" id="gsResetButton" type="button">ਨਵਾਂ ਪੋਸਟਰ</button>
+      </div>
+    </header>
+
+    <main class="workspace gs-workspace">
+      <section class="editor-panel gs-editor" aria-label="General sale poster ਦੀ ਜਾਣਕਾਰੀ">
+        <div class="panel-intro">
+          <div>
+            <span class="step-pill">ACTIVE MODULE</span>
+            <h2>General Item Sale</h2>
+          </div>
+          <p>Product, offer ਅਤੇ shop details ਬਦਲਦੇ ਹੀ live poster ਤਿਆਰ ਹੋਵੇਗਾ।</p>
+        </div>
+
+        <details class="smart-paste" open>
+          <summary><span class="summary-icon">✦</span>ਸਾਰੀ Details ਇੱਕੋ ਵਾਰ Paste ਕਰੋ</summary>
+          <div class="details-body">
+            <label for="gsSmartText">WhatsApp ਜਾਂ client ਵੱਲੋਂ ਮਿਲਿਆ message</label>
+            <textarea id="gsSmartText" rows="8" placeholder="Shop Name: Glow & Care Cosmetics&#10;Tagline: Beauty • Skin Care • Personal Care&#10;Product: Mamaearth Vitamin C Face Wash&#10;Headline: Fresh Skin. Daily Glow.&#10;MRP: ₹299&#10;Sale Price: ₹199&#10;Offer: 33% OFF&#10;Features: Cleanses gently, Brightens skin, Made safe&#10;Address: Main Bazaar, Bhikhi (Mansa)&#10;Phone: +91 98765 43210&#10;Instagram: @glowandcare"></textarea>
+            <button class="secondary-button full-width" id="gsSmartFillButton" type="button">ਵੇਰਵਾ ਸਮਝ ਕੇ Fields ਭਰੋ</button>
+          </div>
+        </details>
+
+        <details open>
+          <summary><span class="section-number">1</span>Professional Template ਚੁਣੋ</summary>
+          <div class="details-body">
+            <div class="template-select gs-template-select" id="gsTemplateSelect">
+              <button class="template-select-button" id="gsTemplateSelectButton" type="button" aria-haspopup="listbox" aria-expanded="false">
+                <span id="gsSelectedTemplateLook"></span>
+                <span class="template-select-copy"><strong id="gsSelectedTemplateName"></strong><small id="gsSelectedTemplateNote"></small></span>
+                <span class="select-arrow" aria-hidden="true">⌄</span>
+              </button>
+              <div class="template-menu gs-template-menu" id="gsTemplateMenu" role="listbox" aria-label="12 general sale poster templates"></div>
+            </div>
+            <p class="template-help">12 designs ਵਿੱਚੋਂ ਚੁਣੋ—ਹਰ template ਦੀ composition, colours ਅਤੇ price placement ਵੱਖਰੀ ਹੈ।</p>
+          </div>
+        </details>
+
+        <details open>
+          <summary><span class="section-number">2</span>Shop ਅਤੇ Brand</summary>
+          <div class="details-body form-grid">
+            <label class="field field-wide">
+              <span>Shop / Business ਦਾ ਨਾਮ</span>
+              <input data-gs-key="shopName" type="text" />
+            </label>
+            <label class="field field-wide">
+              <span>Tagline / Shop ਕੀ ਕੁਝ deal ਕਰਦੀ ਹੈ</span>
+              <input data-gs-key="tagline" type="text" />
+            </label>
+            <label class="field field-wide">
+              <span>Shop Logo</span>
+              <span class="gs-file-card" id="gsLogoCard">
+                <strong>Logo Upload ਕਰੋ</strong>
+                <small>PNG ਜਾਂ JPG</small>
+                <input id="gsLogoInput" type="file" accept="image/*" />
+              </span>
+            </label>
+            <label class="range-control field-wide">
+              <span>Logo Size <output id="gsLogoScaleValue">100%</output></span>
+              <input id="gsLogoScale" type="range" min="45" max="170" value="100" />
+            </label>
+          </div>
+        </details>
+
+        <details open>
+          <summary><span class="section-number">3</span>Product ਅਤੇ Offer</summary>
+          <div class="details-body form-grid">
+            <label class="field field-wide">
+              <span>Product ਦਾ ਨਾਮ</span>
+              <input data-gs-key="productName" type="text" />
+            </label>
+            <label class="field">
+              <span>Category</span>
+              <input data-gs-key="category" type="text" placeholder="Cosmetics, Electronics…" />
+            </label>
+            <label class="field">
+              <span>ਵੱਡੀ Headline</span>
+              <input data-gs-key="headline" type="text" />
+            </label>
+            <label class="field">
+              <span>Regular Price / MRP</span>
+              <input data-gs-key="regularPrice" type="text" inputmode="decimal" />
+            </label>
+            <label class="field">
+              <span>Sale Price</span>
+              <input data-gs-key="salePrice" type="text" inputmode="decimal" />
+            </label>
+            <label class="field">
+              <span>Discount</span>
+              <input data-gs-key="discount" type="text" placeholder="33% OFF" />
+            </label>
+            <label class="field">
+              <span>Offer ਦੀ ਛੋਟੀ line</span>
+              <input data-gs-key="offerText" type="text" placeholder="Limited Time Offer" />
+            </label>
+            <label class="field field-wide">
+              <span>Product Benefits — ਹਰ line ਵੱਖਰਾ point</span>
+              <textarea data-gs-key="features" rows="4"></textarea>
+            </label>
+            <label class="field field-wide">
+              <span>Button / Call to Action</span>
+              <input data-gs-key="cta" type="text" placeholder="SHOP NOW" />
+            </label>
+          </div>
+        </details>
+
+        <details open>
+          <summary><span class="section-number">4</span>Product ਅਤੇ Model Photos</summary>
+          <div class="details-body">
+            <div class="gs-photo-upload-grid">
+              <label class="gs-file-card gs-photo-card" id="gsProductCard">
+                <strong>Product Photo Upload</strong>
+                <small>Transparent PNG ਸਭ ਤੋਂ ਵਧੀਆ</small>
+                <input id="gsProductInput" type="file" accept="image/*" />
+              </label>
+              <label class="gs-file-card gs-photo-card" id="gsModelCard">
+                <strong>ਕੁੜੀ / Model Photo</strong>
+                <small>Optional photo</small>
+                <input id="gsModelInput" type="file" accept="image/*" />
+              </label>
+            </div>
+            <div class="gs-photo-actions">
+              <button class="secondary-button" id="gsRemoveProduct" type="button">Product Photo ਹਟਾਓ</button>
+              <button class="secondary-button" id="gsRemoveModel" type="button">Model Photo ਹਟਾਓ</button>
+            </div>
+            <p class="helper-text">Model photo Template 01, 04 ਅਤੇ 09 ਵਿੱਚ ਖਾਸ ਤੌਰ ’ਤੇ ਦਿਖੇਗੀ; ਬਾਕੀ templates product-focused ਹਨ।</p>
+
+            <div class="gs-image-controls">
+              <label class="range-control">
+                <span>Product Size <output id="gsProductScaleValue">100%</output></span>
+                <input id="gsProductScale" type="range" min="55" max="175" value="100" />
+              </label>
+              <label class="range-control">
+                <span>Product Left / Right <output id="gsProductXValue">0</output></span>
+                <input id="gsProductX" type="range" min="-180" max="180" value="0" />
+              </label>
+              <label class="range-control">
+                <span>Product Up / Down <output id="gsProductYValue">0</output></span>
+                <input id="gsProductY" type="range" min="-180" max="180" value="0" />
+              </label>
+              <label class="range-control">
+                <span>Model Size <output id="gsModelScaleValue">100%</output></span>
+                <input id="gsModelScale" type="range" min="55" max="175" value="100" />
+              </label>
+            </div>
+
+            <div class="gs-online-search">
+              <div class="gs-online-heading">
+                <div><strong>Online Photo Search</strong><small>Wikimedia Commons ਦੇ reusable results</small></div>
+                <span class="gs-online-badge">OPTIONAL</span>
+              </div>
+              <div class="gs-search-row">
+                <select id="gsSearchKind" aria-label="ਕਿਸ photo ਲਈ search ਕਰਨੀ ਹੈ">
+                  <option value="product">Product Photo</option>
+                  <option value="model">Model / Person Photo</option>
+                </select>
+                <input id="gsImageQuery" type="search" placeholder="Product name, ਜਿਵੇਂ face wash" />
+                <button class="primary-button" id="gsImageSearchButton" type="button">Search</button>
+              </div>
+              <p class="helper-text">Exact branded product ਨਾ ਮਿਲੇ ਤਾਂ ਆਪਣੀ original photo upload ਕਰੋ। PNG result ਉੱਤੇ PNG badge ਦਿਖੇਗਾ।</p>
+              <div class="gs-search-status" id="gsSearchStatus" role="status"></div>
+              <div class="gs-search-results" id="gsSearchResults"></div>
+              <button class="secondary-button full-width is-hidden" id="gsMoreResults" type="button">ਹੋਰ Photos ਵੇਖੋ</button>
+              <div class="gs-selected-credit" id="gsSelectedCredit"></div>
+            </div>
+          </div>
+        </details>
+
+        <details open>
+          <summary><span class="section-number">5</span>Automatic Background</summary>
+          <div class="details-body">
+            <p class="helper-text">Auto Match product ਦੀ photo ਵਿੱਚੋਂ colour ਲੈ ਕੇ background ਬਣਾਉਂਦਾ ਹੈ। Regenerate ਨਾਲ ਨਵੀਂ variation ਮਿਲੇਗੀ।</p>
+            <div class="gs-bg-picker" id="gsBackgroundPicker" role="radiogroup" aria-label="Background style">
+              <button class="gs-bg-chip active" data-gs-bg="auto" type="button">Auto Match</button>
+              <button class="gs-bg-chip" data-gs-bg="natural" type="button">Natural</button>
+              <button class="gs-bg-chip" data-gs-bg="clean" type="button">Clean Studio</button>
+              <button class="gs-bg-chip" data-gs-bg="luxury" type="button">Luxury</button>
+              <button class="gs-bg-chip" data-gs-bg="bold" type="button">Bold Sale</button>
+              <button class="gs-bg-chip" data-gs-bg="neon" type="button">Neon</button>
+              <button class="gs-bg-chip" data-gs-bg="festive" type="button">Festive</button>
+            </div>
+            <div class="gs-background-actions">
+              <button class="primary-button" id="gsRegenerateBackground" type="button">↻ Background Regenerate</button>
+              <label class="secondary-button gs-upload-background">
+                ਆਪਣਾ Background Upload
+                <input id="gsBackgroundInput" type="file" accept="image/*" />
+              </label>
+              <button class="secondary-button" id="gsRemoveBackground" type="button">Uploaded Background ਹਟਾਓ</button>
+            </div>
+          </div>
+        </details>
+
+        <details>
+          <summary><span class="section-number">6</span>Contact ਅਤੇ Social Details</summary>
+          <div class="details-body form-grid">
+            <label class="field field-wide">
+              <span>Shop Address</span>
+              <textarea data-gs-key="address" rows="2"></textarea>
+            </label>
+            <label class="field">
+              <span>Phone / WhatsApp — Optional</span>
+              <input data-gs-key="phone" type="tel" />
+            </label>
+            <label class="field">
+              <span>Email — Optional</span>
+              <input data-gs-key="email" type="email" />
+            </label>
+            <label class="field field-wide">
+              <span>Instagram ID — Optional</span>
+              <input data-gs-key="instagram" type="text" />
+            </label>
+          </div>
+        </details>
+      </section>
+
+      <section class="preview-panel gs-preview-panel" aria-label="General sale poster preview">
+        <div class="preview-toolbar">
+          <div>
+            <p class="eyebrow">LIVE PREVIEW</p>
+            <h2>General Sale Poster</h2>
+          </div>
+          <div class="toolbar-actions">
+            <button class="zoom-button" id="gsZoomButton" type="button">ਵੱਡਾ ਵੇਖੋ</button>
+            <button class="primary-button" id="gsDownloadButton" type="button">PNG Download</button>
+          </div>
+        </div>
+        <div class="poster-stage gs-poster-stage">
+          <canvas id="gsPosterCanvas" width="1080" height="1350" aria-label="ਤਿਆਰ general sale poster"></canvas>
+        </div>
+        <p class="preview-note">1080 × 1350 px • Instagram, Facebook ਅਤੇ WhatsApp ਲਈ</p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>MR DHALIWAL CREATION</span>
+      <a href="mailto:dhaliwalballi18@gmail.com">✉ dhaliwalballi18@gmail.com</a>
+    </footer>
+
+    <div class="modal gs-modal" id="gsPosterModal" aria-hidden="true">
+      <button class="modal-close" id="gsModalClose" type="button" aria-label="ਬੰਦ ਕਰੋ">×</button>
+      <canvas id="gsModalCanvas" width="1080" height="1350"></canvas>
+    </div>
+
+    <div class="donate-modal" id="donateModal" aria-hidden="true">
+      <div class="donate-card" role="dialog" aria-modal="true" aria-labelledby="donateTitle">
+        <button class="donate-close" id="donateClose" type="button" aria-label="ਬੰਦ ਕਰੋ">×</button>
+        <span class="donate-payment-icon" aria-hidden="true">₹</span>
+        <h2 id="donateTitle">Software ਨੂੰ Support ਕਰੋ</h2>
+        <p>ਜੇ ਇਹ software ਤੁਹਾਡੇ ਕੰਮ ਆਇਆ, ਤੁਸੀਂ ਆਪਣੀ ਖੁਸ਼ੀ ਨਾਲ support ਕਰ ਸਕਦੇ ਹੋ।</p>
+        <figure class="donation-qr-frame">
+          <img src="assets/donation-qr.jpeg" width="921" height="1280" alt="The Poster Wala UPI donation QR code" />
+        </figure>
+        <a class="upi-pay-button" href="upi://pay?pa=theposterwala18%40okhdfcbank&amp;pn=The%20Poster%20Wala&amp;cu=INR"><span aria-hidden="true">₹</span> UPI App ਨਾਲ Pay ਕਰੋ</a>
+        <p class="upi-id"><strong>UPI ID:</strong> theposterwala18@okhdfcbank</p>
+        <a class="support-email" href="mailto:dhaliwalballi18@gmail.com">✉ dhaliwalballi18@gmail.com</a>
+      </div>
+    </div>
+
+    <div class="toast" id="gsToast" role="status" aria-live="polite"></div>
+    <script type="module" src="general-sale.js"></script>
+  </body>
+</html>

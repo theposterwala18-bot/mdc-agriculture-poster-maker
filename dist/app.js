@@ -47,7 +47,8 @@ const templates = [
   { id: 17, name: "Field Feature Duo", note: "ਦੋ hero photos ਅਤੇ premium contact focus", layout: "bold", itemLayout: "duo", look: "premium", theme: "emerald", premium: true },
   { id: 18, name: "Legal Auction Cards", note: "4 large cards, strong date ਅਤੇ terms", layout: "classic", itemLayout: "legal", look: "bold", theme: "crimson", premium: true },
   { id: 19, name: "Farm Scene Catalog", note: "green-gold catalog with strong hierarchy", layout: "modern", itemLayout: "catalog", look: "modern", theme: "copper", premium: true },
-  { id: 20, name: "Black Gold Elite", note: "premium 5 × 2 catalogue look", layout: "bold", itemLayout: "catalog", look: "premium", theme: "blackgold", premium: true }
+  { id: 20, name: "Black Gold Elite", note: "premium 5 × 2 catalogue look", layout: "bold", itemLayout: "catalog", look: "premium", theme: "blackgold", premium: true },
+  { id: 21, name: "Hero Implement Spotlight", note: "ਇੱਕ ਖਾਸ ਸੰਦ ਵੱਡਾ, ਬਾਕੀ compact cards ਵਿੱਚ", layout: "classic", itemLayout: "spotlight", look: "spotlight", theme: "emerald", premium: true }
 ];
 
 const moduleGroups = [
@@ -103,6 +104,7 @@ const defaultState = {
   rightLogo: null,
   leftLogoScale: 1,
   rightLogoScale: 1,
+  featuredItemIndex: 0,
   topLine: "ਪਿੰਡ ਮੋਹਰ ਸਿੰਘ ਵਾਲਾ ਤਹਿਸੀਲ ਤੇ ਜ਼ਿਲ੍ਹਾ ਮਾਨਸਾ",
   title: "ਨਿਲਾਮੀ ਨੋਟਿਸ",
   subtitle: "ਆਮ ਅਤੇ ਖਾਸ ਵਿਅਕਤੀਆਂ ਨੂੰ ਇਸ ਇਸ਼ਤਿਹਾਰ ਰਾਹੀਂ ਸੂਚਿਤ ਕੀਤਾ ਜਾਂਦਾ ਹੈ ਕਿ",
@@ -850,12 +852,83 @@ function drawStripLayout(theme, items) {
   ctx.fillRect(42, 593, W - 84, 6);
 }
 
+function drawSpotlightLayout(theme, items) {
+  if (!items.length) return;
+  const requestedIndex = Number(state.featuredItemIndex);
+  const featuredIndex = Number.isInteger(requestedIndex) && requestedIndex >= 0 && requestedIndex < items.length ? requestedIndex : 0;
+  const featured = items[featuredIndex];
+  const remaining = items
+    .map((item, index) => ({ item, index }))
+    .filter((entry) => entry.index !== featuredIndex);
+  const areaX = 42;
+  const areaY = 605;
+  const areaW = W - 84;
+  const areaH = 372;
+  const gap = 12;
+  const heroW = remaining.length ? (remaining.length > 6 ? 540 : 595) : areaW;
+  const heroX = remaining.length ? areaX : (W - heroW) / 2;
+
+  ctx.save();
+  ctx.shadowColor = "rgba(0,0,0,.20)";
+  ctx.shadowBlur = 18;
+  ctx.shadowOffsetY = 7;
+  fillRound(ctx, heroX, areaY, heroW, areaH, 20, "rgba(255,255,255,.98)");
+  ctx.restore();
+  strokeRound(ctx, heroX, areaY, heroW, areaH, 20, theme.gold, 4);
+  fillRound(ctx, heroX + 14, areaY + 14, 154, 39, 19, theme.accent);
+  ctx.fillStyle = "#fff";
+  setFont(ctx, 18, 900);
+  ctx.textAlign = "center";
+  ctx.fillText("★ ਖਾਸ ਸੰਦ", heroX + 91, areaY + 41);
+  drawItemArtwork(ctx, featured, featuredIndex, heroX + 18, areaY + 52, heroW - 36, areaH - 119);
+  fillRound(ctx, heroX + 18, areaY + areaH - 60, heroW - 36, 46, 13, theme.dark);
+  ctx.fillStyle = "#fff";
+  const heroLabel = `${featured.name} — ${featured.qty}`;
+  setFont(ctx, fitFont(ctx, heroLabel, heroW - 70, 26, 17, 900), 900);
+  ctx.textAlign = "center";
+  ctx.fillText(heroLabel, heroX + heroW / 2, areaY + areaH - 29);
+
+  if (!remaining.length) return;
+  const miniX = heroX + heroW + gap;
+  const miniW = areaX + areaW - miniX;
+  const cols = remaining.length <= 3 ? 1 : remaining.length <= 6 ? 2 : 3;
+  const rows = Math.ceil(remaining.length / cols);
+  const miniGap = 7;
+  const cardW = (miniW - miniGap * (cols - 1)) / cols;
+  const cardH = (areaH - miniGap * (rows - 1)) / rows;
+
+  remaining.forEach((entry, offset) => {
+    const col = offset % cols;
+    const row = Math.floor(offset / cols);
+    const rowCount = Math.min(cols, remaining.length - row * cols);
+    const rowWidth = rowCount * cardW + (rowCount - 1) * miniGap;
+    const rowStart = miniX + (miniW - rowWidth) / 2;
+    const x = rowStart + col * (cardW + miniGap);
+    const y = areaY + row * (cardH + miniGap);
+    fillRound(ctx, x, y, cardW, cardH, 10, "rgba(255,255,255,.95)");
+    strokeRound(ctx, x, y, cardW, cardH, 10, theme.dark, 1.6);
+    const footerH = Math.min(34, Math.max(24, cardH * .28));
+    drawItemArtwork(ctx, entry.item, entry.index, x + 5, y + 5, cardW - 10, cardH - footerH - 7);
+    fillRound(ctx, x + 4, y + cardH - footerH, cardW - 8, footerH - 4, 7, theme.dark);
+    ctx.fillStyle = "#fff";
+    const miniLabel = remaining.length > 6 ? String(entry.index + 1) : entry.item.name;
+    setFont(ctx, fitFont(ctx, miniLabel, cardW - 15, Math.min(16, footerH * .55), 10, 850), 850);
+    ctx.textAlign = "center";
+    ctx.fillText(miniLabel, x + cardW / 2, y + cardH - Math.max(10, footerH * .34));
+  });
+}
+
 function drawItems(theme) {
   const items = state.items.slice(0, 10);
   const activeTemplate = getActiveTemplate();
   const premium = Boolean(activeTemplate.premium);
   const areaY = 605;
   const areaH = 372;
+
+  if (activeTemplate.itemLayout === "spotlight") {
+    drawSpotlightLayout(theme, items);
+    return;
+  }
 
   if (activeTemplate.itemLayout === "list-grid") {
     drawListGridLayout(theme, items);
@@ -1218,6 +1291,7 @@ function renderItemEditors() {
         <button class="photo-mode ${item.mode === "original" ? "active" : ""}" data-item-mode="original" data-mode-index="${index}" type="button">Original</button>
         <button class="photo-mode ${item.mode === "cutout" ? "active" : ""} ${item.processing ? "processing" : ""}" data-item-mode="cutout" data-mode-index="${index}" type="button" ${item.processing ? "disabled" : ""}>BG Remove</button>
         <button class="photo-mode ${item.mode === "3d" ? "active" : ""} ${item.processing ? "processing" : ""}" data-item-mode="3d" data-mode-index="${index}" type="button" ${item.processing ? "disabled" : ""}>3D Touch</button>
+        <button class="feature-item-button ${Number(state.featuredItemIndex) === index ? "active" : ""}" data-feature-item="${index}" type="button" aria-pressed="${Number(state.featuredItemIndex) === index}">★ ${Number(state.featuredItemIndex) === index ? "Highlight ਚੁਣਿਆ" : "ਖਾਸ Highlight"}</button>
         <label class="photo-bg-color">Background <input type="color" value="${escapeAttribute(item.bg || "#ffffff")}" data-item-bg="${index}" aria-label="ਸੰਦ ${index + 1} ਦਾ background colour" /></label>
         <label class="photo-size-control">
           <span>Photo Size</span>
@@ -1268,6 +1342,9 @@ function renderItemEditors() {
   holder.querySelectorAll("[data-item-mode]").forEach((button) => {
     button.addEventListener("click", () => setItemMode(Number(button.dataset.modeIndex), button.dataset.itemMode));
   });
+  holder.querySelectorAll("[data-feature-item]").forEach((button) => {
+    button.addEventListener("click", () => setFeaturedItem(Number(button.dataset.featureItem)));
+  });
   holder.querySelectorAll("[data-item-bg]").forEach((input) => {
     input.addEventListener("input", () => {
       const index = Number(input.dataset.itemBg);
@@ -1315,9 +1392,19 @@ function addItem() {
   showToast(`ਸੰਦ ${state.items.length} ਜੋੜ ਦਿੱਤਾ ਗਿਆ।`);
 }
 
+function setFeaturedItem(index) {
+  if (!state.items[index]) return;
+  state.featuredItemIndex = index;
+  renderItemEditors();
+  renderPoster();
+  showToast(`ਸੰਦ ${index + 1} ਨੂੰ ਖਾਸ Highlight ਲਈ ਚੁਣ ਲਿਆ।`);
+}
+
 function removeItem(index) {
   if (state.items.length <= 1) return;
   state.items.splice(index, 1);
+  if (Number(state.featuredItemIndex) === index) state.featuredItemIndex = 0;
+  else if (Number(state.featuredItemIndex) > index) state.featuredItemIndex -= 1;
   renderItemEditors();
   renderPoster();
   showToast("ਸੰਦ poster ਵਿੱਚੋਂ ਹਟਾ ਦਿੱਤਾ ਗਿਆ।");

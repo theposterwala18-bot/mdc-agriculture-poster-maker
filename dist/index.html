@@ -22,7 +22,7 @@
       </div>
       <div class="topbar-actions">
         <button class="ghost-button" id="modulesButton" type="button">ਸਾਰੇ Modules</button>
-        <button class="donate-button" id="donateButton" type="button">❤ Donate</button>
+        <button class="donate-button" id="donateButton" type="button"><span class="payment-icon" aria-hidden="true">₹</span><span>Donate</span></button>
         <button class="ghost-button" id="resetButton" type="button">ਨਵਾਂ ਪੋਸਟਰ</button>
       </div>
     </header>
@@ -69,9 +69,9 @@
                 <span class="template-select-copy"><strong id="selectedTemplateName"></strong><small id="selectedTemplateTier"></small></span>
                 <span class="select-arrow" aria-hidden="true">⌄</span>
               </button>
-              <div class="template-menu" id="templateMenu" role="listbox" aria-label="1 ਤੋਂ 20 poster templates"></div>
+              <div class="template-menu" id="templateMenu" role="listbox" aria-label="1 ਤੋਂ 21 poster templates"></div>
             </div>
-            <p class="template-help">Dropdown ਖੋਲ੍ਹ ਕੇ 1 ਤੋਂ 20 ਤੱਕ scroll ਕਰੋ। 11–20 Premium designs ਹਨ।</p>
+            <p class="template-help">Dropdown ਖੋਲ੍ਹ ਕੇ 1 ਤੋਂ 21 ਤੱਕ scroll ਕਰੋ। Template 21 ਇੱਕ ਖਾਸ ਸੰਦ ਨੂੰ ਵੱਡਾ highlight ਕਰਦਾ ਹੈ।</p>
           </div>
         </details>
 
@@ -122,7 +122,7 @@
         <details open>
           <summary><span class="section-number">3</span> ਖੇਤੀਬਾੜੀ ਸੰਦ</summary>
           <div class="details-body">
-            <p class="helper-text">Photo upload ਕਰਕੇ Original, AI BG Remove ਜਾਂ 3D Touch ਚੁਣੋ। ਵੱਧ ਤੋਂ ਵੱਧ 10 ਸੰਦ ਜੋੜ ਸਕਦੇ ਹੋ।</p>
+            <p class="helper-text">Photo upload ਕਰਕੇ Original, AI BG Remove ਜਾਂ 3D Touch ਚੁਣੋ। “ਖਾਸ Highlight” ਨਾਲ Template 21 ਲਈ ਇੱਕ hero ਸੰਦ ਚੁਣੋ।</p>
             <div id="itemsEditor" class="items-editor"></div>
             <button class="add-item-button" id="addItemButton" type="button"><span>＋</span> ਹੋਰ ਸੰਦ ਜੋੜੋ</button>
           </div>
@@ -188,6 +188,11 @@
       </section>
     </main>
 
+    <footer class="site-footer">
+      <span>MR DHALIWAL CREATION</span>
+      <a href="mailto:dhaliwalballi18@gmail.com" aria-label="Email Mr Dhaliwal Creation">✉ dhaliwalballi18@gmail.com</a>
+    </footer>
+
     <div class="modal" id="posterModal" aria-hidden="true">
       <button class="modal-close" id="modalClose" type="button" aria-label="ਬੰਦ ਕਰੋ">×</button>
       <canvas id="modalCanvas" width="1080" height="1620"></canvas>
@@ -196,14 +201,16 @@
     <div class="donate-modal" id="donateModal" aria-hidden="true">
       <div class="donate-card" role="dialog" aria-modal="true" aria-labelledby="donateTitle">
         <button class="donate-close" id="donateClose" type="button" aria-label="ਬੰਦ ਕਰੋ">×</button>
-        <span class="donate-heart" aria-hidden="true">❤</span>
+        <span class="donate-payment-icon" aria-hidden="true">₹</span>
         <h2 id="donateTitle">Software ਨੂੰ Support ਕਰੋ</h2>
         <p>ਜੇ ਇਹ software ਤੁਹਾਡੇ ਕੰਮ ਆਇਆ, ਤੁਸੀਂ ਆਪਣੀ ਖੁਸ਼ੀ ਨਾਲ support ਕਰ ਸਕਦੇ ਹੋ।</p>
-        <div class="qr-placeholder" aria-label="Donation QR placeholder">
-          <strong>Donation QR</strong>
-          <small>Owner QR add ਹੋਣ ਤੋਂ ਬਾਅਦ ਇੱਥੇ scan ਹੋਵੇਗਾ</small>
-        </div>
-        <p class="donate-note">QR ਅਤੇ payment details ਸਿਰਫ਼ secure Owner Settings ਤੋਂ ਬਦਲਣਗੀਆਂ।</p>
+        <figure class="donation-qr-frame">
+          <img src="assets/donation-qr.jpeg" width="921" height="1280" alt="The Poster Wala UPI donation QR code — UPI ID theposterwala18@okhdfcbank" />
+        </figure>
+        <a class="upi-pay-button" href="upi://pay?pa=theposterwala18%40okhdfcbank&amp;pn=The%20Poster%20Wala&amp;cu=INR"><span aria-hidden="true">₹</span> UPI App ਨਾਲ Pay ਕਰੋ</a>
+        <p class="upi-id"><strong>UPI ID:</strong> theposterwala18@okhdfcbank</p>
+        <a class="support-email" href="mailto:dhaliwalballi18@gmail.com">✉ dhaliwalballi18@gmail.com</a>
+        <p class="donate-note">Mobile ’ਤੇ UPI button ਦਬਾਓ ਜਾਂ ਦੂਜੇ phone ਤੋਂ QR scan ਕਰੋ।</p>
       </div>
     </div>
 

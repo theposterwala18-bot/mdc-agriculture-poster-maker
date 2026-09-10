@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gurmukhi:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="mobile-poster-fixes.css" />
   </head>
   <body>
     <header class="topbar">
@@ -191,6 +192,10 @@
     <footer class="site-footer">
       <span>MR DHALIWAL CREATION</span>
       <a href="mailto:dhaliwalballi18@gmail.com" aria-label="Email Mr Dhaliwal Creation">✉ dhaliwalballi18@gmail.com</a>
+      <span class="public-counters" aria-label="Website visitor count">
+        <img class="public-counter-badge" data-visitor-counter alt="Website visitor count" />
+        <small class="counter-fallback" hidden>Visitor count unavailable</small>
+      </span>
     </footer>
 
     <div class="modal" id="posterModal" aria-hidden="true">
@@ -207,6 +212,10 @@
         <figure class="donation-qr-frame">
           <img src="assets/donation-qr.jpeg" width="921" height="1280" alt="The Poster Wala UPI donation QR code — UPI ID theposterwala18@okhdfcbank" />
         </figure>
+        <div class="qr-view-counter" aria-live="polite">
+          <img data-qr-view-counter hidden alt="Donation QR view count" />
+          <span class="counter-fallback" hidden>QR count unavailable</span>
+        </div>
         <a class="upi-pay-button" href="upi://pay?pa=theposterwala18%40okhdfcbank&amp;pn=The%20Poster%20Wala&amp;cu=INR"><span aria-hidden="true">₹</span> UPI App ਨਾਲ Pay ਕਰੋ</a>
         <p class="upi-id"><strong>UPI ID:</strong> theposterwala18@okhdfcbank</p>
         <a class="support-email" href="mailto:dhaliwalballi18@gmail.com">✉ dhaliwalballi18@gmail.com</a>
@@ -217,6 +226,7 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <script type="module" src="analytics-config.js"></script>
     <script type="module" src="analytics.js"></script>
+    <script type="module" src="public-counter.js"></script>
     <script type="module" src="app.js"></script>
     <script type="module" src="death-link.js"></script>
   </body>

@@ -1,0 +1,107 @@
+.preview-panel {
+  min-width: 0;
+  width: 100%;
+}
+
+.poster-stage {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+#posterCanvas,
+#bhogPosterCanvas {
+  max-width: 100%;
+  height: auto;
+}
+
+.public-counters {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.public-counter-badge {
+  display: block;
+  max-width: 150px;
+  height: 22px;
+}
+
+.qr-view-counter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 28px;
+  margin: -5px 0 14px;
+  color: #5a493d;
+  font: 800 .72rem/1.3 system-ui, sans-serif;
+}
+
+.qr-view-counter img {
+  display: block;
+  max-width: 145px;
+  height: 22px;
+}
+
+.counter-fallback {
+  color: #7b7068;
+  font-size: .68rem;
+}
+
+@media (max-width: 760px) {
+  .topbar {
+    position: relative;
+  }
+
+  .workspace,
+  .bhog-workspace {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .editor-panel,
+  .preview-panel,
+  .bhog-preview-panel {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .poster-stage,
+  .bhog-poster-stage {
+    padding: 6px;
+  }
+
+  #posterCanvas,
+  #bhogPosterCanvas {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 430px) {
+  .topbar h1,
+  .bhog-topbar h1 {
+    font-size: .86rem;
+    line-height: 1.3;
+  }
+
+  .brand-lockup {
+    gap: 9px;
+  }
+
+  .poster-stage,
+  .bhog-poster-stage {
+    padding: 4px;
+  }
+
+  .preview-note {
+    padding-inline: 8px;
+    font-size: .66rem;
+  }
+}

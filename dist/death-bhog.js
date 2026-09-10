@@ -7,6 +7,24 @@ const W = 1080;
 const H = 1620;
 const FONT = '"Noto Sans Gurmukhi", "Raavi", sans-serif';
 
+function installStableTextAlignment(context) {
+  const nativeFillText = CanvasRenderingContext2D.prototype.fillText;
+  context.fillText = function stableFillText(text, x, y, maxWidth) {
+    const align = this.textAlign;
+    const measuredWidth = this.measureText(String(text ?? "")).width;
+    let drawX = x;
+    if (align === "center") drawX -= measuredWidth / 2;
+    else if (align === "right" || align === "end") drawX -= measuredWidth;
+    this.save();
+    this.textAlign = "left";
+    if (Number.isFinite(maxWidth)) nativeFillText.call(this, text, drawX, y, maxWidth);
+    else nativeFillText.call(this, text, drawX, y);
+    this.restore();
+  };
+}
+
+installStableTextAlignment(ctx);
+
 const templates = [
   { id: 1, name: "Cream Floral Tribute", note: "Cream, navy ਅਤੇ gold — centered portrait", look: "center", bg: "#fff8e6", border: "#b88724", accent: "#072a45", text: "#4b120f", gold: "#bf8a25" },
   { id: 2, name: "Black Gold Memorial", note: "Dark premium layout — ਵੱਡੀ photo ਅਤੇ gold details", look: "center", bg: "#101010", border: "#cf9d2e", accent: "#76150d", text: "#e8bb43", gold: "#e0b23e" },

@@ -7,6 +7,24 @@ const W = 1080;
 const H = 1620;
 const FONT = '"Noto Sans Gurmukhi", "Raavi", sans-serif';
 
+function installStableTextAlignment(context) {
+  const nativeFillText = CanvasRenderingContext2D.prototype.fillText;
+  context.fillText = function stableFillText(text, x, y, maxWidth) {
+    const align = this.textAlign;
+    const measuredWidth = this.measureText(String(text ?? "")).width;
+    let drawX = x;
+    if (align === "center") drawX -= measuredWidth / 2;
+    else if (align === "right" || align === "end") drawX -= measuredWidth;
+    this.save();
+    this.textAlign = "left";
+    if (Number.isFinite(maxWidth)) nativeFillText.call(this, text, drawX, y, maxWidth);
+    else nativeFillText.call(this, text, drawX, y);
+    this.restore();
+  };
+}
+
+installStableTextAlignment(ctx);
+
 const themes = {
   green: { dark: "#073e2b", mid: "#0c5a3b", accent: "#bc1418", gold: "#d7aa3d", paper: "#fbf8eb" },
   blue: { dark: "#10385e", mid: "#17598d", accent: "#ad181d", gold: "#d9aa3b", paper: "#f8f8ee" },

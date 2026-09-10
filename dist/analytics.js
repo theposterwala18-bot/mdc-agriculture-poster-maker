@@ -38,8 +38,6 @@ document.addEventListener("click", (event) => {
   if (moduleCard) safeTrack("module_open", { selected_module: moduleCard.dataset.moduleId || "unknown" });
 
   if (event.target.closest?.("#donateButton")) safeTrack("donation_qr_view");
-  if (event.target.closest?.(".upi-pay-button")) safeTrack("donation_intent", { payment_method: "upi" });
-
   if (event.target.closest?.("#downloadButton, #gsDownloadButton, #bhogDownloadButton")) safeTrack("poster_download");
   if (event.target.closest?.("#smartFillButton, #gsSmartFillButton, #bhogSmartFillButton")) safeTrack("smart_fill_used");
 

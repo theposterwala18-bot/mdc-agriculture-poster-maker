@@ -10,7 +10,8 @@ export default {
     rollupOptions: {
       input: {
         main: resolve(projectRoot, "dist/index.html"),
-        "general-sale": resolve(projectRoot, "dist/general-sale.html")
+        "general-sale": resolve(projectRoot, "dist/general-sale.html"),
+        "death-bhog": resolve(projectRoot, "dist/death-bhog.html")
       }
     }
   }

@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="pa">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#24150f" />
+    <meta name="description" content="ਪਾਠ ਦਾ ਭੋਗ ਅਤੇ ਅੰਤਿਮ ਅਰਦਾਸ ਲਈ ਪੰਜਾਬੀ notice poster ਬਣਾਓ" />
+    <title>Bhog & Antim Ardas Notice Maker — MDC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gurmukhi:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="death-bhog.css" />
+  </head>
+  <body class="bhog-page">
+    <header class="topbar bhog-topbar">
+      <div class="brand-lockup">
+        <div class="brand-mark" aria-hidden="true">ਮ</div>
+        <div>
+          <p class="eyebrow">MR DHALIWAL CREATION</p>
+          <h1>Bhog & Antim Ardas Notice Maker</h1>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <a class="ghost-button bhog-module-link" href="index.html">ਸਾਰੇ Modules</a>
+        <button class="donate-button" id="donateButton" type="button"><span class="payment-icon" aria-hidden="true">₹</span><span>Donate</span></button>
+        <button class="ghost-button" id="bhogResetButton" type="button">ਨਵਾਂ ਪੋਸਟਰ</button>
+      </div>
+    </header>
+
+    <main class="workspace bhog-workspace">
+      <section class="editor-panel bhog-editor" aria-label="ਭੋਗ notice ਦੀ ਜਾਣਕਾਰੀ">
+        <div class="panel-intro bhog-intro">
+          <div>
+            <span class="step-pill">ACTIVE MODULE</span>
+            <h2>Bhog & Antim Ardas Notice</h2>
+          </div>
+          <p>ਵੇਰਵਾ ਜਾਂ ਫੋਟੋ ਬਦਲਦੇ ਹੀ ਸਤਿਕਾਰਯੋਗ poster live ਤਿਆਰ ਹੋਵੇਗਾ।</p>
+        </div>
+
+        <details class="smart-paste" open>
+          <summary><span class="summary-icon">✦</span>ਸਾਰੀ Details ਇੱਕੋ ਵਾਰ Paste ਕਰੋ</summary>
+          <div class="details-body">
+            <label for="bhogSmartText">WhatsApp ਜਾਂ client ਵੱਲੋਂ ਮਿਲਿਆ ਪੂਰਾ message</label>
+            <textarea id="bhogSmartText" rows="10" placeholder="ਨਾਮ: ਸਵ. ਨਾਮ ਇੱਥੇ ਲਿਖੋ&#10;ਪਛਾਣ: ਪਿੰਡ / ਅਹੁਦਾ&#10;ਅਕਾਲ ਚਲਾਣਾ: DD-MM-YYYY&#10;ਸਮਾਗਮ: ਸਹਿਜ ਪਾਠ ਦਾ ਭੋਗ ਅਤੇ ਅੰਤਿਮ ਅਰਦਾਸ&#10;ਮਿਤੀ: DD-MM-YYYY&#10;ਦਿਨ: ਮੰਗਲਵਾਰ&#10;ਸਮਾਂ: ਦੁਪਹਿਰ 12:00 ਤੋਂ 1:00 ਵਜੇ ਤੱਕ&#10;ਸਥਾਨ: ਗੁਰਦੁਆਰਾ ਸਾਹਿਬ, ਪਿੰਡ ...&#10;ਦੁਖੀ ਹਿਰਦੇ: ਸਮੂਹ ਪਰਿਵਾਰ ਅਤੇ ਰਿਸ਼ਤੇਦਾਰ&#10;ਮੋਬਾਇਲ: 98XXX XXXXX"></textarea>
+            <button class="secondary-button full-width" id="bhogSmartFillButton" type="button">ਵੇਰਵਾ ਸਮਝ ਕੇ Fields ਭਰੋ</button>
+          </div>
+        </details>
+
+        <details open>
+          <summary><span class="section-number">1</span>Design Template ਚੁਣੋ</summary>
+          <div class="details-body">
+            <div class="template-select bhog-template-select" id="bhogTemplateSelect">
+              <button class="template-select-button" id="bhogTemplateSelectButton" type="button" aria-haspopup="listbox" aria-expanded="false">
+                <span id="bhogSelectedTemplateLook"></span>
+                <span class="template-select-copy"><strong id="bhogSelectedTemplateName"></strong><small id="bhogSelectedTemplateNote"></small></span>
+                <span class="select-arrow" aria-hidden="true">⌄</span>
+              </button>
+              <div class="template-menu bhog-template-menu" id="bhogTemplateMenu" role="listbox" aria-label="4 ਭੋਗ notice templates"></div>
+            </div>
+            <p class="template-help">ਚਾਰਾਂ samples ਤੋਂ ਬਣੇ 4 ਵੱਖਰੇ layouts—Cream Floral, Black Gold, Photo Left ਅਤੇ Maroon Classic।</p>
+          </div>
+        </details>
+
+        <details open>
+          <summary><span class="section-number">2</span>ਫੋਟੋ ਅਤੇ ਧਾਰਮਿਕ Style</summary>
+          <div class="details-body">
+            <div class="bhog-photo-grid">
+              <label class="bhog-file-card" id="bhogPortraitCard">
+                <strong>ਮੁੱਖ ਫੋਟੋ Upload ਕਰੋ</strong>
+                <small>JPG ਜਾਂ PNG</small>
+                <input id="bhogPortraitInput" type="file" accept="image/*" />
+              </label>
+              <label class="bhog-file-card" id="bhogVenueCard">
+                <strong>ਗੁਰਦੁਆਰਾ / ਸਥਾਨ ਦੀ ਫੋਟੋ</strong>
+                <small>Optional — Template 3</small>
+                <input id="bhogVenueInput" type="file" accept="image/*" />
+              </label>
+            </div>
+            <div class="bhog-photo-actions">
+              <button class="secondary-button" id="bhogRemovePortrait" type="button">ਮੁੱਖ ਫੋਟੋ ਹਟਾਓ</button>
+              <button class="secondary-button" id="bhogRemoveVenue" type="button">ਸਥਾਨ ਫੋਟੋ ਹਟਾਓ</button>
+            </div>
+            <div class="bhog-image-controls">
+              <label class="range-control"><span>Photo Zoom <output id="bhogPortraitScaleValue">100%</output></span><input id="bhogPortraitScale" type="range" min="70" max="190" value="100" /></label>
+              <label class="range-control"><span>Photo Left / Right <output id="bhogPortraitXValue">0</output></span><input id="bhogPortraitX" type="range" min="-180" max="180" value="0" /></label>
+              <label class="range-control"><span>Photo Up / Down <output id="bhogPortraitYValue">0</output></span><input id="bhogPortraitY" type="range" min="-180" max="180" value="0" /></label>
+              <label class="field compact-field"><span>ਧਾਰਮਿਕ ਨਿਸ਼ਾਨ</span><select data-bhog-key="symbol"><option value="☬">☬ ਖੰਡਾ</option><option value="ੴ">ੴ ਇਕ ਓਅੰਕਾਰ</option><option value="">ਕੋਈ ਨਿਸ਼ਾਨ ਨਹੀਂ</option></select></label>
+            </div>
+          </div>
+        </details>
+
+        <details open>
+          <summary><span class="section-number">3</span>ਨਾਮ ਅਤੇ ਮੁੱਖ ਜਾਣਕਾਰੀ</summary>
+          <div class="details-body form-grid">
+            <label class="field field-wide"><span>ਉੱਪਰਲੀ ਧਾਰਮਿਕ ਪੰਕਤੀ</span><textarea data-bhog-key="prayer" rows="2"></textarea></label>
+            <label class="field"><span>Notice Title</span><input data-bhog-key="noticeTitle" type="text" /></label>
+            <label class="field"><span>ਸਵਰਗਵਾਸੀ ਦਾ ਨਾਮ</span><input data-bhog-key="personName" type="text" /></label>
+            <label class="field"><span>ਪਛਾਣ / ਅਹੁਦਾ / ਪਿੰਡ</span><input data-bhog-key="identityLine" type="text" /></label>
+            <label class="field"><span>ਅਕਾਲ ਚਲਾਣੇ ਦੀ ਮਿਤੀ</span><input data-bhog-key="passingDate" type="text" /></label>
+            <label class="field field-wide"><span>ਛੋਟਾ ਦੁੱਖ ਸੰਦੇਸ਼ / ਵੇਰਵਾ</span><textarea data-bhog-key="introText" rows="4"></textarea></label>
+          </div>
+        </details>
+
+        <details open>
+          <summary><span class="section-number">4</span>ਭੋਗ ਅਤੇ ਅੰਤਿਮ ਅਰਦਾਸ</summary>
+          <div class="details-body form-grid">
+            <label class="field field-wide"><span>ਸਮਾਗਮ ਦਾ ਸਿਰਲੇਖ</span><input data-bhog-key="eventTitle" type="text" /></label>
+            <label class="field"><span>ਮਿਤੀ</span><input data-bhog-key="eventDate" type="text" /></label>
+            <label class="field"><span>ਦਿਨ</span><input data-bhog-key="eventDay" type="text" /></label>
+            <label class="field field-wide"><span>ਸਮਾਂ</span><input data-bhog-key="eventTime" type="text" /></label>
+            <label class="field field-wide"><span>ਸਥਾਨ</span><textarea data-bhog-key="venue" rows="3"></textarea></label>
+            <label class="field field-wide"><span>ਬੇਨਤੀ / Invitation Line</span><textarea data-bhog-key="invitationText" rows="3"></textarea></label>
+          </div>
+        </details>
+
+        <details open>
+          <summary><span class="section-number">5</span>ਪਰਿਵਾਰ ਅਤੇ ਸੰਪਰਕ</summary>
+          <div class="details-body form-grid">
+            <label class="field field-wide"><span>ਦੁਖੀ ਹਿਰਦੇ / ਪਰਿਵਾਰ — ਹਰ ਨਾਮ ਨਵੀਂ line</span><textarea data-bhog-key="familyNames" rows="5"></textarea></label>
+            <label class="field"><span>ਮੋਬਾਇਲ ਨੰਬਰ</span><input data-bhog-key="phone" type="text" inputmode="tel" /></label>
+            <label class="field"><span>ਦੂਜਾ ਨੰਬਰ — Optional</span><input data-bhog-key="phone2" type="text" inputmode="tel" /></label>
+            <label class="field field-wide"><span>ਹੇਠਾਂ Note — Optional</span><input data-bhog-key="footerNote" type="text" /></label>
+          </div>
+        </details>
+      </section>
+
+      <section class="preview-panel bhog-preview-panel" aria-label="ਭੋਗ notice poster preview">
+        <div class="preview-toolbar">
+          <div><p class="eyebrow">LIVE PREVIEW</p><h2>Bhog Notice Poster</h2></div>
+          <div class="toolbar-actions">
+            <button class="zoom-button" id="bhogZoomButton" type="button">ਵੱਡਾ ਵੇਖੋ</button>
+            <button class="primary-button" id="bhogDownloadButton" type="button">PNG Download</button>
+          </div>
+        </div>
+        <div class="poster-stage bhog-poster-stage"><canvas id="bhogPosterCanvas" width="1080" height="1620" aria-label="ਤਿਆਰ ਭੋਗ notice poster"></canvas></div>
+        <p class="preview-note">1080 × 1620 px • WhatsApp ਅਤੇ Social Media ਲਈ</p>
+      </section>
+    </main>
+
+    <footer class="site-footer"><span>MR DHALIWAL CREATION</span><a href="mailto:dhaliwalballi18@gmail.com">✉ dhaliwalballi18@gmail.com</a></footer>
+
+    <div class="modal" id="bhogPosterModal" aria-hidden="true">
+      <button class="modal-close" id="bhogModalClose" type="button" aria-label="ਬੰਦ ਕਰੋ">×</button>
+      <canvas id="bhogModalCanvas" width="1080" height="1620"></canvas>
+    </div>
+
+    <div class="donate-modal" id="donateModal" aria-hidden="true">
+      <div class="donate-card" role="dialog" aria-modal="true" aria-labelledby="donateTitle">
+        <button class="donate-close" id="donateClose" type="button" aria-label="ਬੰਦ ਕਰੋ">×</button>
+        <span class="donate-payment-icon" aria-hidden="true">₹</span>
+        <h2 id="donateTitle">Software ਨੂੰ Support ਕਰੋ</h2>
+        <p>ਜੇ ਇਹ software ਤੁਹਾਡੇ ਕੰਮ ਆਇਆ, ਤੁਸੀਂ ਆਪਣੀ ਖੁਸ਼ੀ ਨਾਲ support ਕਰ ਸਕਦੇ ਹੋ।</p>
+        <figure class="donation-qr-frame"><img src="assets/donation-qr.jpeg" width="921" height="1280" alt="The Poster Wala UPI donation QR code" /></figure>
+        <a class="upi-pay-button" href="upi://pay?pa=theposterwala18%40okhdfcbank&amp;pn=The%20Poster%20Wala&amp;cu=INR"><span aria-hidden="true">₹</span> UPI App ਨਾਲ Pay ਕਰੋ</a>
+        <p class="upi-id"><strong>UPI ID:</strong> theposterwala18@okhdfcbank</p>
+        <a class="support-email" href="mailto:dhaliwalballi18@gmail.com">✉ dhaliwalballi18@gmail.com</a>
+      </div>
+    </div>
+
+    <div class="toast" id="bhogToast" role="status" aria-live="polite"></div>
+    <script type="module" src="analytics-config.js"></script>
+    <script type="module" src="analytics.js"></script>
+    <script type="module" src="death-bhog.js"></script>
+  </body>
+</html>

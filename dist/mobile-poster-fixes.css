@@ -29,6 +29,14 @@
   height: 22px;
 }
 
+.header-counter {
+  min-height: 42px;
+  padding: 7px 10px;
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 11px;
+  background: rgba(255,255,255,.08);
+}
+
 .qr-view-counter {
   display: flex;
   align-items: center;
@@ -81,6 +89,13 @@
     width: 100%;
     max-width: 100%;
     min-width: 0;
+  }
+
+  .topbar-actions .header-counter {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-height: 34px;
+    padding: 5px 8px;
   }
 }
 

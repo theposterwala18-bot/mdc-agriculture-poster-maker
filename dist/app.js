@@ -76,8 +76,8 @@ const moduleGroups = [
     icon: "🏷️",
     modules: [
       { id: "agri-sale", name: "Agri Implement Sale Notice", punjabi: "ਖੇਤੀਬਾੜੀ ਸੰਦਾਂ ਦੀ ਨਿਲਾਮੀ", icon: "🌾", available: true },
-      { id: "vehicle-sale", name: "Car / Bike Sale", punjabi: "ਕਾਰ ਜਾਂ ਮੋਟਰਸਾਈਕਲ ਵੇਚਣ ਦਾ Poster", icon: "🚗" },
-      { id: "animal-sale", name: "Dog / Animal Sale", punjabi: "ਕੁੱਤਾ ਜਾਂ ਹੋਰ ਪਸ਼ੂ ਵੇਚਣ ਦਾ Poster", icon: "🐕" },
+      { id: "vehicle-sale", name: "Car / Bike Sale", punjabi: "ਕਾਰ ਜਾਂ ਮੋਟਰਸਾਈਕਲ ਵੇਚਣ ਦਾ Poster", icon: "🚗", available: true },
+      { id: "animal-sale", name: "Dog / Animal Sale", punjabi: "ਕੁੱਤਾ ਜਾਂ ਹੋਰ ਪਸ਼ੂ ਵੇਚਣ ਦਾ Poster", icon: "🐕", available: true },
       { id: "general-sale", name: "General Item Sale", punjabi: "ਕਿਸੇ ਵੀ ਸਮਾਨ ਦੀ Sale", icon: "📦", available: true }
     ]
   },
@@ -86,9 +86,9 @@ const moduleGroups = [
     name: "ਖੁਸ਼ੀ ਅਤੇ Invitation",
     icon: "✨",
     modules: [
-      { id: "wedding", name: "Wedding Invitation", punjabi: "ਵਿਆਹ ਦਾ ਸੱਦਾ", icon: "💍" },
-      { id: "path", name: "Akhand Path / Sukhmani Sahib", punjabi: "ਧਾਰਮਿਕ ਸਮਾਗਮ ਦਾ ਸੱਦਾ", icon: "🙏" },
-      { id: "general-invite", name: "General Invitation", punjabi: "ਕਿਸੇ ਵੀ ਖੁਸ਼ੀ ਦਾ Invitation", icon: "💌" }
+      { id: "wedding", name: "Wedding Invitation", punjabi: "ਵਿਆਹ ਦਾ ਸੱਦਾ", icon: "💍", available: true },
+      { id: "path", name: "Akhand Path / Sukhmani Sahib", punjabi: "ਧਾਰਮਿਕ ਸਮਾਗਮ ਦਾ ਸੱਦਾ", icon: "🙏", available: true },
+      { id: "general-invite", name: "General Invitation", punjabi: "ਕਿਸੇ ਵੀ ਖੁਸ਼ੀ ਦਾ Invitation", icon: "💌", available: true }
     ]
   },
   {
@@ -96,9 +96,9 @@ const moduleGroups = [
     name: "ਗਮੀ, ਅਫਸੋਸ ਅਤੇ ਮਦਦ",
     icon: "🕊️",
     modules: [
-      { id: "missing", name: "Missing Person Notice", punjabi: "ਗੁੰਮਸ਼ੁਦਾ ਦੀ ਤਲਾਸ਼", icon: "🔎" },
-      { id: "death", name: "Death / Bhog Notice", punjabi: "ਮੌਤ, ਅਫਸੋਸ ਅਤੇ ਭੋਗ ਦਾ Poster", icon: "🕯️" },
-      { id: "condolence", name: "Condolence Notice", punjabi: "ਸ਼ੋਕ ਅਤੇ ਅਫਸੋਸ ਸੰਦੇਸ਼", icon: "🤍" }
+      { id: "missing", name: "Missing Person Notice", punjabi: "ਗੁੰਮਸ਼ੁਦਾ ਦੀ ਤਲਾਸ਼", icon: "🔎", available: true },
+      { id: "death", name: "Death / Bhog Notice", punjabi: "ਮੌਤ, ਅਫਸੋਸ ਅਤੇ ਭੋਗ ਦਾ Poster", icon: "🕯️", available: true },
+      { id: "condolence", name: "Condolence Notice", punjabi: "ਸ਼ੋਕ ਅਤੇ ਅਫਸੋਸ ਸੰਦੇਸ਼", icon: "🤍", available: true }
     ]
   },
   {
@@ -106,9 +106,9 @@ const moduleGroups = [
     name: "Meeting ਅਤੇ Public Notice",
     icon: "📣",
     modules: [
-      { id: "meeting", name: "Meeting Notice", punjabi: "ਮੀਟਿੰਗ ਦੀ ਜਾਣਕਾਰੀ", icon: "🤝" },
-      { id: "protest", name: "Dharna / Strike Notice", punjabi: "ਧਰਨਾ, ਹੜਤਾਲ ਜਾਂ ਇਕੱਠ", icon: "✊" },
-      { id: "announcement", name: "Public Announcement", punjabi: "ਆਮ ਜਨਤਕ ਸੂਚਨਾ", icon: "📢" }
+      { id: "meeting", name: "Meeting Notice", punjabi: "ਮੀਟਿੰਗ ਦੀ ਜਾਣਕਾਰੀ", icon: "🤝", available: true },
+      { id: "protest", name: "Dharna / Strike Notice", punjabi: "ਧਰਨਾ, ਹੜਤਾਲ ਜਾਂ ਇਕੱਠ", icon: "✊", available: true },
+      { id: "announcement", name: "Public Announcement", punjabi: "ਆਮ ਜਨਤਕ ਸੂਚਨਾ", icon: "📢", available: true }
     ]
   }
 ];
@@ -193,6 +193,14 @@ function openModule(moduleId) {
   }
   if (moduleId === "general-sale") {
     window.location.href = "general-sale.html";
+    return;
+  }
+  if (moduleId === "death") {
+    window.location.href = "death-bhog.html";
+    return;
+  }
+  if (moduleId !== "agri-sale") {
+    window.location.href = `universal-poster.html?module=${encodeURIComponent(moduleId)}`;
     return;
   }
   document.getElementById("activeModuleTitle").textContent = selected.name;

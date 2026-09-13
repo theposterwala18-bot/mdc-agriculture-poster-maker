@@ -4,6 +4,7 @@ function moduleNameFromPage() {
   const page = location.pathname.split("/").pop() || "index.html";
   if (page === "general-sale.html") return "general_sale";
   if (page === "death-bhog.html") return "death_bhog";
+  if (page === "universal-poster.html") return new URLSearchParams(location.search).get("module") || "universal_poster";
   return "module_hub";
 }
 
@@ -38,8 +39,8 @@ document.addEventListener("click", (event) => {
   if (moduleCard) safeTrack("module_open", { selected_module: moduleCard.dataset.moduleId || "unknown" });
 
   if (event.target.closest?.("#donateButton")) safeTrack("donation_qr_view");
-  if (event.target.closest?.("#downloadButton, #gsDownloadButton, #bhogDownloadButton")) safeTrack("poster_download");
-  if (event.target.closest?.("#smartFillButton, #gsSmartFillButton, #bhogSmartFillButton")) safeTrack("smart_fill_used");
+  if (event.target.closest?.("#downloadButton, #gsDownloadButton, #bhogDownloadButton, #universalDownloadButton")) safeTrack("poster_download");
+  if (event.target.closest?.("#smartFillButton, #gsSmartFillButton, #bhogSmartFillButton, #universalSmartFillButton")) safeTrack("smart_fill_used");
 
   const template = event.target.closest?.("[data-template-id], [data-gs-template], [data-bhog-template]");
   if (template) {

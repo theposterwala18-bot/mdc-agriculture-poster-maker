@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="pa">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#172c3a" />
+    <meta name="description" content="MR Dhaliwal Creation multi-purpose Punjabi poster maker" />
+    <title>Poster Studio — MR Dhaliwal Creation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gurmukhi:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="universal-poster.css" />
+  </head>
+  <body class="universal-page">
+    <header class="topbar universal-topbar" id="universalTopbar">
+      <div class="brand-lockup">
+        <div class="brand-mark" id="moduleIcon" aria-hidden="true">✦</div>
+        <div>
+          <p class="eyebrow">MR DHALIWAL CREATION</p>
+          <h1 id="modulePageTitle">Professional Poster Maker</h1>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <a class="ghost-button universal-module-link" href="index.html">ਸਾਰੇ Modules</a>
+        <button class="donate-button" id="donateButton" type="button"><span class="payment-icon" aria-hidden="true">₹</span><span>Donate</span></button>
+        <button class="ghost-button" id="universalResetButton" type="button">ਨਵਾਂ ਪੋਸਟਰ</button>
+        <span class="public-counters header-counter" aria-label="Website visitor count">
+          <img class="public-counter-badge" data-visitor-counter alt="Website visitor count" />
+          <small class="counter-fallback" hidden>Visitor count unavailable</small>
+        </span>
+      </div>
+    </header>
+
+    <main class="workspace universal-workspace">
+      <section class="editor-panel universal-editor" aria-label="Poster details editor">
+        <div class="panel-intro universal-intro">
+          <div>
+            <span class="step-pill">ACTIVE MODULE</span>
+            <h2 id="editorModuleTitle">Poster Maker</h2>
+          </div>
+          <p id="moduleDescription">Details ਬਦਲਦੇ ਹੀ live poster ਤਿਆਰ ਹੋਵੇਗਾ।</p>
+        </div>
+
+        <details class="smart-paste" open>
+          <summary><span class="summary-icon">✦</span>ਸਾਰੀ Details ਇੱਕੋ ਵਾਰ Paste ਕਰੋ</summary>
+          <div class="details-body">
+            <label for="universalSmartText">WhatsApp ਜਾਂ client ਵੱਲੋਂ ਮਿਲਿਆ ਪੂਰਾ message</label>
+            <textarea id="universalSmartText" rows="9"></textarea>
+            <button class="secondary-button full-width" id="universalSmartFillButton" type="button">ਵੇਰਵਾ ਸਮਝ ਕੇ Fields ਭਰੋ</button>
+          </div>
+        </details>
+
+        <details open>
+          <summary><span class="section-number">1</span>Professional Template ਚੁਣੋ</summary>
+          <div class="details-body">
+            <div class="template-select universal-template-select" id="universalTemplateSelect">
+              <button class="template-select-button" id="universalTemplateButton" type="button" aria-haspopup="listbox" aria-expanded="false">
+                <span id="universalSelectedLook"></span>
+                <span class="template-select-copy"><strong id="universalSelectedName"></strong><small id="universalSelectedNote"></small></span>
+                <span class="select-arrow" aria-hidden="true">⌄</span>
+              </button>
+              <div class="template-menu universal-template-menu" id="universalTemplateMenu" role="listbox" aria-label="5 professional poster templates"></div>
+            </div>
+            <p class="template-help">ਨਵੇਂ templates ਉੱਪਰ ਅਤੇ ਪੁਰਾਣੇ ਹੇਠਾਂ ਰਹਿਣਗੇ। ਹਰ design ਦੀ composition ਵੱਖਰੀ ਹੈ।</p>
+            <div class="template-owner-tools">
+              <span><strong>Owner Template Control</strong><small>ਇਸ browser/device ਲਈ</small></span>
+              <button class="secondary-button" id="hideSelectedTemplate" type="button">Selected Template Hide ਕਰੋ</button>
+              <button class="secondary-button" id="restoreTemplates" type="button">ਸਾਰੇ Restore ਕਰੋ</button>
+            </div>
+          </div>
+        </details>
+
+        <details open>
+          <summary><span class="section-number">2</span>Poster ਦੀ ਜਾਣਕਾਰੀ</summary>
+          <div class="details-body form-grid" id="dynamicFields"></div>
+        </details>
+
+        <details open>
+          <summary><span class="section-number">3</span>Photos ਅਤੇ Logo</summary>
+          <div class="details-body">
+            <div class="universal-upload-grid">
+              <label class="universal-file-card" id="primaryPhotoCard">
+                <strong id="primaryPhotoLabel">ਮੁੱਖ Photo Upload</strong>
+                <small>JPG ਜਾਂ PNG</small>
+                <input id="primaryPhotoInput" type="file" accept="image/*" />
+              </label>
+              <label class="universal-file-card" id="secondaryPhotoCard">
+                <strong id="secondaryPhotoLabel">ਦੂਜੀ Photo (Optional)</strong>
+                <small>JPG ਜਾਂ PNG</small>
+                <input id="secondaryPhotoInput" type="file" accept="image/*" />
+              </label>
+              <label class="universal-file-card universal-logo-card" id="universalLogoCard">
+                <strong>Logo Upload</strong>
+                <small>Optional PNG/JPG</small>
+                <input id="universalLogoInput" type="file" accept="image/*" />
+              </label>
+            </div>
+            <div class="universal-photo-actions">
+              <button class="secondary-button" id="removePrimaryPhoto" type="button">ਮੁੱਖ Photo ਹਟਾਓ</button>
+              <button class="secondary-button" id="removeSecondaryPhoto" type="button">ਦੂਜੀ Photo ਹਟਾਓ</button>
+              <button class="secondary-button" id="removeUniversalLogo" type="button">Logo ਹਟਾਓ</button>
+            </div>
+            <div class="universal-image-controls">
+              <label class="range-control"><span>ਮੁੱਖ Photo Size <output id="primaryScaleValue">100%</output></span><input id="primaryScale" type="range" min="60" max="180" value="100" /></label>
+              <label class="range-control"><span>Photo Left / Right <output id="primaryXValue">0</output></span><input id="primaryX" type="range" min="-180" max="180" value="0" /></label>
+              <label class="range-control"><span>Photo Up / Down <output id="primaryYValue">0</output></span><input id="primaryY" type="range" min="-180" max="180" value="0" /></label>
+              <label class="range-control"><span>Logo Size <output id="universalLogoScaleValue">100%</output></span><input id="universalLogoScale" type="range" min="45" max="170" value="100" /></label>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section class="preview-panel universal-preview" aria-label="Poster preview">
+        <div class="preview-toolbar">
+          <div><p class="eyebrow">LIVE PREVIEW</p><h2 id="previewTitle">ਤੁਹਾਡਾ ਪੋਸਟਰ</h2></div>
+          <div class="toolbar-actions">
+            <button class="zoom-button" id="universalZoomButton" type="button">ਵੱਡਾ ਵੇਖੋ</button>
+            <button class="primary-button" id="universalDownloadButton" type="button">PNG Download</button>
+          </div>
+        </div>
+        <div class="poster-stage universal-stage"><canvas id="universalCanvas" width="1080" height="1620" aria-label="ਤਿਆਰ ਪੋਸਟਰ"></canvas></div>
+        <p class="preview-note">1080 × 1620 px • WhatsApp ਅਤੇ Social Media ਲਈ ਤਿਆਰ</p>
+      </section>
+    </main>
+
+    <footer class="site-footer"><span>MR DHALIWAL CREATION</span><a href="mailto:dhaliwalballi18@gmail.com">✉ dhaliwalballi18@gmail.com</a></footer>
+
+    <div class="modal" id="universalModal" aria-hidden="true">
+      <button class="modal-close" id="universalModalClose" type="button" aria-label="ਬੰਦ ਕਰੋ">×</button>
+      <canvas id="universalModalCanvas" width="1080" height="1620"></canvas>
+    </div>
+
+    <div class="donate-modal" id="donateModal" aria-hidden="true">
+      <div class="donate-card" role="dialog" aria-modal="true" aria-labelledby="donateTitle">
+        <button class="donate-close" id="donateClose" type="button" aria-label="ਬੰਦ ਕਰੋ">×</button>
+        <span class="donate-payment-icon" aria-hidden="true">₹</span>
+        <h2 id="donateTitle">Software ਨੂੰ Support ਕਰੋ</h2>
+        <p>ਜੇ ਇਹ software ਤੁਹਾਡੇ ਕੰਮ ਆਇਆ, ਤੁਸੀਂ ਆਪਣੀ ਖੁਸ਼ੀ ਨਾਲ support ਕਰ ਸਕਦੇ ਹੋ।</p>
+        <figure class="donation-qr-frame"><img src="assets/donation-qr.jpeg" width="921" height="1280" alt="The Poster Wala UPI donation QR code" /></figure>
+        <div class="qr-view-counter" aria-live="polite"><img data-qr-view-counter hidden alt="Donation QR view count" /><span class="counter-fallback" hidden>QR count unavailable</span></div>
+        <a class="upi-pay-button" href="upi://pay?pa=theposterwala18%40okhdfcbank&amp;pn=The%20Poster%20Wala&amp;cu=INR"><span aria-hidden="true">₹</span> UPI App ਨਾਲ Pay ਕਰੋ</a>
+        <p class="upi-id"><strong>UPI ID:</strong> theposterwala18@okhdfcbank</p>
+        <a class="support-email" href="mailto:dhaliwalballi18@gmail.com">✉ dhaliwalballi18@gmail.com</a>
+      </div>
+    </div>
+
+    <div class="toast" id="universalToast" role="status" aria-live="polite"></div>
+    <script type="module" src="analytics-config.js"></script>
+    <script type="module" src="analytics.js"></script>
+    <script type="module" src="public-counter.js"></script>
+    <script type="module" src="universal-poster.js"></script>
+  </body>
+</html>

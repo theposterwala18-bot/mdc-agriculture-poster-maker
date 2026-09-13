@@ -11,7 +11,8 @@ export default {
       input: {
         main: resolve(projectRoot, "dist/index.html"),
         "general-sale": resolve(projectRoot, "dist/general-sale.html"),
-        "death-bhog": resolve(projectRoot, "dist/death-bhog.html")
+        "death-bhog": resolve(projectRoot, "dist/death-bhog.html"),
+        "universal-poster": resolve(projectRoot, "dist/universal-poster.html")
       }
     }
   }

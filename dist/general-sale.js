@@ -1,3 +1,5 @@
+import { createPosterExportController } from "./poster-export.js";
+
 const canvas = document.getElementById("gsPosterCanvas");
 const ctx = canvas.getContext("2d");
 const modalCanvas = document.getElementById("gsModalCanvas");
@@ -7,6 +9,7 @@ const W = 1080;
 const H = 1350;
 const FOOTER_Y = 1228;
 const FONT = '"Noto Sans Gurmukhi", "Raavi", Arial, sans-serif';
+let exportController;
 
 const templates = [
   { id: 1, name: "Fresh Natural", note: "soft botanical product campaign", layout: "natural", bg: "natural", base: "#f8f5df", dark: "#174629", accent: "#f4a51c", price: "#f5c43f", look: "split" },
@@ -908,10 +911,8 @@ function renderPoster() {
   };
   (renderers[template.layout] || drawNaturalLayout)(template);
   ctx.restore();
-  if (document.getElementById("gsPosterModal").classList.contains("open")) {
-    modalCtx.clearRect(0, 0, W, H);
-    modalCtx.drawImage(canvas, 0, 0);
-  }
+  if (document.getElementById("gsPosterModal").classList.contains("open")) exportController?.copyToModal();
+  exportController?.refreshPreview();
 }
 
 function escapeHtml(value) {
@@ -1355,25 +1356,7 @@ function safeFilename() {
 
 function downloadPoster() {
   renderPoster();
-  try {
-    canvas.toBlob((blob) => {
-      if (!blob) {
-        showToast("Poster download ਨਹੀਂ ਹੋ ਸਕਿਆ।");
-        return;
-      }
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = safeFilename();
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-      showToast("General Sale poster PNG download ਹੋ ਗਿਆ।");
-    }, "image/png");
-  } catch (error) {
-    showToast("Online photo ਕਾਰਨ download block ਹੋਇਆ। Photo save ਕਰਕੇ Manual Upload ਕਰੋ।");
-  }
+  exportController.downloadPNG();
 }
 
 function resetApp() {
@@ -1496,8 +1479,7 @@ function bindEvents() {
     document.body.style.overflow = "";
   };
   document.getElementById("gsZoomButton").addEventListener("click", () => {
-    modalCtx.clearRect(0, 0, W, H);
-    modalCtx.drawImage(canvas, 0, 0);
+    exportController.copyToModal();
     modal.classList.add("open");
     modal.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
@@ -1533,6 +1515,16 @@ function bindEvents() {
 
 updateFormFields();
 bindEvents();
+exportController = createPosterExportController({
+  sourceCanvas: canvas,
+  modalCanvas,
+  toolbar: document.querySelector(".gs-preview-panel .toolbar-actions"),
+  previewNote: document.querySelector(".gs-preview-panel .preview-note"),
+  filename: safeFilename,
+  showToast,
+  storageKey: "mdc-general-sale-poster-size",
+  defaultFormat: "instagram"
+});
 renderPoster();
 
 if (document.fonts?.ready) {

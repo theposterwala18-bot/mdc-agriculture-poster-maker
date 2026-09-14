@@ -1,3 +1,5 @@
+import { createPosterExportController } from "./poster-export.js";
+
 const canvas = document.getElementById("bhogPosterCanvas");
 const ctx = canvas.getContext("2d");
 const modalCanvas = document.getElementById("bhogModalCanvas");
@@ -6,6 +8,7 @@ const modalCtx = modalCanvas.getContext("2d");
 const W = 1080;
 const H = 1620;
 const FONT = '"Noto Sans Gurmukhi", "Raavi", sans-serif';
+let exportController;
 
 function installStableTextAlignment(context) {
   const nativeFillText = CanvasRenderingContext2D.prototype.fillText;
@@ -639,6 +642,8 @@ function renderPoster() {
     const footerY = template.id === 4 ? 1570 : template.id === 3 ? 1584 : template.id >= 5 ? 1583 : 1582;
     drawTextBlock(state.footerNote, W / 2, footerY, 850, { size: 15, minSize: 13, weight: 600, maxLines: 1, color: template.text });
   }
+  if (document.getElementById("bhogPosterModal").classList.contains("open")) exportController?.copyToModal();
+  exportController?.refreshPreview();
 }
 
 function lookMarkup(template) {
@@ -814,21 +819,7 @@ function safeFilename() {
 
 function downloadPoster() {
   renderPoster();
-  canvas.toBlob((blob) => {
-    if (!blob) {
-      showToast("Poster download ਨਹੀਂ ਹੋ ਸਕਿਆ।");
-      return;
-    }
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = safeFilename();
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    showToast("Bhog Notice PNG download ਹੋ ਗਿਆ।");
-  }, "image/png");
+  exportController.downloadPNG();
 }
 
 function resetApp() {
@@ -898,8 +889,7 @@ function bindEvents() {
     document.body.style.overflow = "";
   };
   document.getElementById("bhogZoomButton").addEventListener("click", () => {
-    modalCtx.clearRect(0, 0, W, H);
-    modalCtx.drawImage(canvas, 0, 0);
+    exportController.copyToModal();
     modal.classList.add("open");
     modal.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
@@ -927,5 +917,15 @@ function bindEvents() {
 
 updateFormFields();
 bindEvents();
+exportController = createPosterExportController({
+  sourceCanvas: canvas,
+  modalCanvas,
+  toolbar: document.querySelector(".bhog-preview-panel .toolbar-actions"),
+  previewNote: document.querySelector(".bhog-preview-panel .preview-note"),
+  filename: safeFilename,
+  showToast,
+  storageKey: "mdc-bhog-poster-size",
+  defaultFormat: "social"
+});
 renderPoster();
 if (document.fonts?.ready) document.fonts.ready.then(renderPoster);

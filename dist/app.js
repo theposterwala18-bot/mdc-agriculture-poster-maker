@@ -1,3 +1,5 @@
+import { createPosterExportController } from "./poster-export.js";
+
 const canvas = document.getElementById("posterCanvas");
 const ctx = canvas.getContext("2d");
 const modalCanvas = document.getElementById("modalCanvas");
@@ -6,6 +8,7 @@ const modalCtx = modalCanvas.getContext("2d");
 const W = 1080;
 const H = 1620;
 const FONT = '"Noto Sans Gurmukhi", "Raavi", sans-serif';
+let exportController;
 
 function installStableTextAlignment(context) {
   const nativeFillText = CanvasRenderingContext2D.prototype.fillText;
@@ -1289,10 +1292,8 @@ function renderPoster() {
   drawInfoStrip(theme);
   drawConditions(theme);
   drawContactFooter(theme);
-  if (document.getElementById("posterModal").classList.contains("open")) {
-    modalCtx.clearRect(0, 0, W, H);
-    modalCtx.drawImage(canvas, 0, 0);
-  }
+  if (document.getElementById("posterModal").classList.contains("open")) exportController?.copyToModal();
+  exportController?.refreshPreview();
 }
 
 function renderItemEditors() {
@@ -1650,21 +1651,7 @@ function safeFilename() {
 
 function downloadPoster() {
   renderPoster();
-  canvas.toBlob((blob) => {
-    if (!blob) {
-      showToast("Poster download ਨਹੀਂ ਹੋ ਸਕਿਆ।");
-      return;
-    }
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = safeFilename();
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    showToast("Poster PNG download ਹੋ ਗਿਆ।");
-  }, "image/png");
+  exportController.downloadPNG();
 }
 
 function resetApp() {
@@ -1760,8 +1747,7 @@ function bindEvents() {
 
   const modal = document.getElementById("posterModal");
   document.getElementById("zoomButton").addEventListener("click", () => {
-    modalCtx.clearRect(0, 0, W, H);
-    modalCtx.drawImage(canvas, 0, 0);
+    exportController.copyToModal();
     modal.classList.add("open");
     modal.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
@@ -1804,6 +1790,16 @@ updateFormFields();
 renderItemEditors();
 renderContactEditors();
 bindEvents();
+exportController = createPosterExportController({
+  sourceCanvas: canvas,
+  modalCanvas,
+  toolbar: document.querySelector(".preview-panel .toolbar-actions"),
+  previewNote: document.querySelector(".preview-panel .preview-note"),
+  filename: safeFilename,
+  showToast,
+  storageKey: "mdc-agri-poster-size",
+  defaultFormat: "social"
+});
 renderPoster();
 
 if (document.fonts && document.fonts.ready) {

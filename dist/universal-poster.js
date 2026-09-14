@@ -1,3 +1,5 @@
+import { createPosterExportController } from "./poster-export.js";
+
 const canvas = document.getElementById("universalCanvas");
 const ctx = canvas.getContext("2d");
 const modalCanvas = document.getElementById("universalModalCanvas");
@@ -5,6 +7,7 @@ const modalCtx = modalCanvas.getContext("2d");
 const W = 1080;
 const H = 1620;
 const FONT = '"Noto Sans Gurmukhi", "Raavi", sans-serif';
+let exportController;
 
 function field(key, label, value, aliases = [], type = "text", wide = false) {
   return { key, label, value, aliases, type, wide };
@@ -359,6 +362,8 @@ function renderPoster() {
   else if (state.templateId === 3) drawBoldSpotlight();
   else if (state.templateId === 4) drawElegantPortrait();
   else drawPremiumEditorial();
+  if (document.getElementById("universalModal").classList.contains("open")) exportController?.copyToModal();
+  exportController?.refreshPreview();
 }
 
 function hiddenStorageKey() { return `mdc-hidden-templates-${moduleId}`; }
@@ -409,7 +414,7 @@ function smartFill() {
 function smartPlaceholder() { return config.fields.map((item) => `${item.label}: ${item.value}`).join("\n"); }
 function showToast(message) { const toast = document.getElementById("universalToast"); toast.textContent = message; toast.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove("show"), 2500); }
 function safeFilename() { return `${String(state.title || config.name).replace(/[^\p{L}\p{N}\s-]/gu, "").trim().replace(/\s+/g, "-").slice(0, 48) || "Poster"}.png`; }
-function downloadPoster() { renderPoster(); canvas.toBlob((blob) => { if (!blob) return; const url = URL.createObjectURL(blob); const link = document.createElement("a"); link.href = url; link.download = safeFilename(); link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); showToast("Poster PNG download ਹੋ ਗਿਆ।"); }, "image/png"); }
+function downloadPoster() { renderPoster(); exportController.downloadPNG(); }
 function resetPoster() { state = makeState(); localStorage.removeItem(`mdc-draft-${moduleId}`); renderFields(); updateTemplateButton(); renderTemplateMenu(); updatePhotoCards(); syncRanges(); renderPoster(); showToast("ਨਵਾਂ poster ready ਹੈ।"); }
 function syncRanges() { [["primaryScale", Math.round(state.primaryScale * 100), "primaryScaleValue", "%"], ["primaryX", state.primaryX, "primaryXValue", ""], ["primaryY", state.primaryY, "primaryYValue", ""], ["universalLogoScale", Math.round(state.logoScale * 100), "universalLogoScaleValue", "%"]].forEach(([id, value, output, suffix]) => { document.getElementById(id).value = value; document.getElementById(output).textContent = `${value}${suffix}`; }); }
 
@@ -432,10 +437,20 @@ document.getElementById("universalLogoInput").addEventListener("change", () => h
 [["primaryScale", "primaryScale", 100, "primaryScaleValue", "%"], ["primaryX", "primaryX", 1, "primaryXValue", ""], ["primaryY", "primaryY", 1, "primaryYValue", ""], ["universalLogoScale", "logoScale", 100, "universalLogoScaleValue", "%"]].forEach(([id, key, divisor, output, suffix]) => document.getElementById(id).addEventListener("input", (event) => { state[key] = Number(event.target.value) / divisor; document.getElementById(output).textContent = `${event.target.value}${suffix}`; renderPoster(); }));
 document.getElementById("universalResetButton").addEventListener("click", resetPoster);
 document.getElementById("universalDownloadButton").addEventListener("click", downloadPoster);
-document.getElementById("universalZoomButton").addEventListener("click", () => { renderPoster(); modalCtx.clearRect(0, 0, W, H); modalCtx.drawImage(canvas, 0, 0); document.getElementById("universalModal").classList.add("open"); document.getElementById("universalModal").setAttribute("aria-hidden", "false"); });
+document.getElementById("universalZoomButton").addEventListener("click", () => { renderPoster(); exportController.copyToModal(); document.getElementById("universalModal").classList.add("open"); document.getElementById("universalModal").setAttribute("aria-hidden", "false"); });
 document.getElementById("universalModalClose").addEventListener("click", () => { document.getElementById("universalModal").classList.remove("open"); document.getElementById("universalModal").setAttribute("aria-hidden", "true"); });
 document.getElementById("donateButton").addEventListener("click", () => { document.getElementById("donateModal").classList.add("open"); document.getElementById("donateModal").setAttribute("aria-hidden", "false"); });
 document.getElementById("donateClose").addEventListener("click", () => { document.getElementById("donateModal").classList.remove("open"); document.getElementById("donateModal").setAttribute("aria-hidden", "true"); });
 
+exportController = createPosterExportController({
+  sourceCanvas: canvas,
+  modalCanvas,
+  toolbar: document.querySelector(".universal-preview .toolbar-actions"),
+  previewNote: document.querySelector(".universal-preview .preview-note"),
+  filename: safeFilename,
+  showToast,
+  storageKey: `mdc-${moduleId}-poster-size`,
+  defaultFormat: "social"
+});
 initialize();
 if (document.fonts?.ready) document.fonts.ready.then(renderPoster);

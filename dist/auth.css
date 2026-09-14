@@ -1,0 +1,21 @@
+.tpw-auth-shell{display:inline-flex;align-items:center;min-height:42px;font-family:"Noto Sans Gurmukhi",system-ui,sans-serif}
+.tpw-google-login,.tpw-logout-button{border:0;font:inherit;cursor:pointer}
+.tpw-google-login{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:8px 13px;border:1px solid rgba(255,255,255,.72);border-radius:11px;color:#21342b;background:#fff;box-shadow:0 5px 14px rgba(0,0,0,.14);font-size:.75rem;font-weight:800;white-space:nowrap}
+.tpw-google-login:hover{background:#f7fbf8}
+.tpw-google-mark{display:grid;place-items:center;width:23px;height:23px;border-radius:50%;color:#1a73e8;background:#fff;box-shadow:inset 0 0 0 1px #d8dde6;font:900 14px/1 Arial,sans-serif}
+.tpw-auth-loading{color:rgba(255,255,255,.82);font-size:.68rem;font-weight:700}
+.tpw-user-controls{display:inline-flex;align-items:center;gap:7px;min-height:42px;padding:4px 5px 4px 7px;border:1px solid rgba(255,255,255,.28);border-radius:12px;color:#fff;background:rgba(255,255,255,.1)}
+.tpw-user-identity{display:flex;align-items:center;gap:7px;min-width:0}
+.tpw-user-avatar{width:31px;height:31px;flex:0 0 31px;object-fit:cover;border:2px solid rgba(255,255,255,.82);border-radius:50%;background:#fff}
+.tpw-user-avatar-fallback{display:grid;place-items:center;color:#0a4c34;font:900 .76rem/1 system-ui,sans-serif}
+.tpw-user-copy{display:grid;min-width:0;line-height:1.05}
+.tpw-user-copy strong{max-width:120px;overflow:hidden;font-size:.68rem;text-overflow:ellipsis;white-space:nowrap}
+.tpw-user-copy small{margin-top:3px;color:#d7f4e4;font-size:.55rem;font-weight:700}
+.tpw-logout-button{min-height:31px;padding:6px 9px;border-radius:8px;color:#fff;background:rgba(0,0,0,.2);font-size:.62rem;font-weight:800}
+.tpw-logout-button:hover{background:rgba(0,0,0,.32)}
+.tpw-auth-toast{position:fixed;left:50%;bottom:24px;z-index:1000;max-width:min(420px,calc(100% - 24px));transform:translate(-50%,18px);padding:11px 16px;border-radius:99px;color:#fff;background:#123d2c;box-shadow:0 12px 34px rgba(0,0,0,.28);font-family:"Noto Sans Gurmukhi",system-ui,sans-serif;font-size:.76rem;font-weight:800;text-align:center;opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease}
+.tpw-auth-toast.is-error{background:#8b1e29}.tpw-auth-toast.show{transform:translate(-50%,0);opacity:1}
+@media(max-width:760px){.topbar-actions .tpw-auth-shell{grid-column:1/-1;justify-content:flex-end;width:100%}.tpw-user-controls{max-width:100%}}
+@media(max-width:430px){.tpw-google-login{width:100%}.tpw-auth-shell{justify-content:stretch}.tpw-user-controls{width:100%;justify-content:space-between}.tpw-user-copy strong{max-width:145px}}
+@media(max-width:350px){.tpw-user-copy{display:none}}
+@media(prefers-reduced-motion:reduce){.tpw-auth-toast{transition:none}}

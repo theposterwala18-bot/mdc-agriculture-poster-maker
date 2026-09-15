@@ -134,7 +134,7 @@ function addPaymentStyles(){
   document.head.appendChild(style);
 }
 
-function openPaymentDialog(showToast){
+function openPaymentDialog(showToast,accessInfo={}){
   addPaymentStyles();
   return new Promise(resolve=>{
     let finished=false;
@@ -144,13 +144,16 @@ function openPaymentDialog(showToast){
     overlay.setAttribute("role","dialog");
     overlay.setAttribute("aria-modal","true");
     overlay.setAttribute("aria-label","Poster download payment");
+    const amountPaise=Number(accessInfo.amount||2900);
+    const price="₹"+Math.round(amountPaise/100);
+    const unlockMinutes=Number(accessInfo.unlockMinutes||30);
     overlay.innerHTML='<div class="tpw-pay-card">'+
       '<span class="tpw-pay-badge">TEST MODE • ਕੋਈ ਅਸਲੀ ਪੈਸਾ ਨਹੀਂ ਕੱਟੇਗਾ</span>'+
       '<h2>Poster Download Unlock ਕਰੋ</h2>'+
-      '<p>₹50 ਦੀ successful payment ਤੋਂ ਬਾਅਦ PNG ਅਤੇ PDF download 30 ਮਿੰਟ ਲਈ unlock ਰਹੇਗਾ।</p>'+
-      '<div class="tpw-pay-price"><span>Poster download access</span><strong>₹50</strong></div>'+
+      '<p>'+price+' ਦੀ successful payment ਤੋਂ ਬਾਅਦ PNG ਅਤੇ PDF download '+unlockMinutes+' ਮਿੰਟ ਲਈ unlock ਰਹੇਗਾ।</p>'+
+      '<div class="tpw-pay-price"><span>Poster download access</span><strong>'+price+'</strong></div>'+
       '<div class="tpw-pay-actions"><button type="button" class="tpw-pay-cancel">Cancel</button>'+
-      '<button type="button" class="tpw-pay-now">Pay ₹50 &amp; Download</button></div>'+
+      '<button type="button" class="tpw-pay-now">Pay '+price+' &amp; Download</button></div>'+
       '<div class="tpw-pay-actions"><button type="button" class="tpw-pay-recover">Recover Previous Payment</button></div>'+
       '<p class="tpw-pay-message" aria-live="polite"></p>'+
       '<p class="tpw-pay-safe">Secure test checkout powered by Razorpay</p></div>';
@@ -252,7 +255,7 @@ function openPaymentDialog(showToast){
   });
 }
 
-async function ensurePosterPayment(showToast){
+async function ensurePosterPayment(showToast,format){
   showToast?.("Payment access check ਹੋ ਰਹੀ ਹੈ…");
   try{
     const authApi=window.ThePosterWalaAuth;
@@ -264,6 +267,26 @@ async function ensurePosterPayment(showToast){
     return false;
   }
   if(await hasValidPaymentToken())return true;
+  let accessInfo;
+  try{
+    const headers=await paymentHeaders();
+    const response=await fetch(PAYMENT_API+"/access/check",{
+      method:"POST",
+      headers,
+      body:JSON.stringify({module:currentModuleId(),format})
+    });
+    accessInfo=await response.json();
+    if(!response.ok||!accessInfo?.success)throw new Error(accessInfo?.error||"Download access check failed");
+    if(accessInfo.access!=="payment-required"){
+      localStorage.setItem(PAYMENT_TOKEN_KEY,accessInfo.token);
+      if(accessInfo.access==="daily-free")showToast?.("ਅੱਜ ਦਾ Free PNG download ਮਿਲ ਗਿਆ।");
+      else if(accessInfo.access==="subscription")showToast?.("ਤੁਹਾਡਾ subscription active ਹੈ।");
+      return true;
+    }
+  }catch(error){
+    showToast?.(error?.message||"Download access check ਨਹੀਂ ਹੋ ਸਕੀ।");
+    return false;
+  }
   const savedOrderId=localStorage.getItem(PAYMENT_ORDER_KEY);
   if(savedOrderId){
     try{
@@ -272,7 +295,7 @@ async function ensurePosterPayment(showToast){
       return true;
     }catch(error){}
   }
-  return openPaymentDialog(showToast);
+  return openPaymentDialog(showToast,accessInfo);
 }
 
-export function createPosterExportController(opts){const sourceCanvas=opts.sourceCanvas,modalCanvas=opts.modalCanvas,toolbar=opts.toolbar,previewNote=opts.previewNote,filename=opts.filename,showToast=opts.showToast,storageKey=opts.storageKey||"mdc-poster-size",sourceDefault=sourceCanvas.width/sourceCanvas.height>.7?"instagram":"social";let selected=localStorage.getItem(storageKey)||opts.defaultFormat||sourceDefault;if(!FORMATS[selected])selected=sourceDefault;const control=document.createElement("label");control.className="poster-size-control";control.innerHTML='<span>Poster Size</span><select aria-label="Poster export size">'+Object.entries(FORMATS).map(([key,item])=>'<option value="'+key+'">'+item.label+"</option>").join("")+"</select>";const select=control.querySelector("select");select.value=selected;toolbar.prepend(control);const pdfButton=document.createElement("button");pdfButton.className="pdf-download-button";pdfButton.type="button";pdfButton.textContent="PDF Download";pdfButton.hidden=selected!=="a4";toolbar.appendChild(pdfButton);const previewCanvas=document.createElement("canvas");previewCanvas.className="format-preview-canvas";previewCanvas.setAttribute("aria-label","ਚੁਣੇ ਹੋਏ size ਦਾ poster preview");sourceCanvas.insertAdjacentElement("afterend",previewCanvas);function getFilename(){return typeof filename==="function"?filename():filename;}function makeOutputCanvas(){const format=FORMATS[selected];if(sourceCanvas.width===format.width&&sourceCanvas.height===format.height)return sourceCanvas;const output=document.createElement("canvas");output.width=format.width;output.height=format.height;paintConverted(sourceCanvas,output,selected);return output;}function refreshPreview(){const format=FORMATS[selected],native=sourceCanvas.width===format.width&&sourceCanvas.height===format.height;sourceCanvas.classList.toggle("export-source-hidden",!native);previewCanvas.hidden=native;if(!native){const previewWidth=selected==="a4"?620:720;previewCanvas.width=previewWidth;previewCanvas.height=Math.round(previewWidth*format.height/format.width);paintConverted(sourceCanvas,previewCanvas,selected);}previewNote.textContent=format.note;pdfButton.hidden=selected!=="a4";}function copyToModal(){const output=makeOutputCanvas(),maxWidth=selected==="a4"?900:Math.min(output.width,1080);modalCanvas.width=maxWidth;modalCanvas.height=Math.round(maxWidth*output.height/output.width);const mc=modalCanvas.getContext("2d");mc.clearRect(0,0,modalCanvas.width,modalCanvas.height);mc.drawImage(output,0,0,modalCanvas.width,modalCanvas.height);}async function performDownloadPNG(){try{const format=FORMATS[selected],output=makeOutputCanvas(),blob=await canvasToBlob(output,"image/png"),suffix=selected==="a4"?"A4-Print":selected==="instagram"?"Instagram-4x5":"Social-2x3",outputName=withSuffix(getFilename(),suffix,"png");await recordDownload(localStorage.getItem(PAYMENT_TOKEN_KEY),selected,outputName);downloadBlob(blob,outputName);window.mdcTrack?.("poster_download",{export_format:selected,export_size:format.width+"x"+format.height});showToast?.(format.label+" PNG download ਹੋ ਗਿਆ।");}catch(error){showToast?.(error?.message||"Poster download ਨਹੀਂ ਹੋ ਸਕਿਆ।");}}async function performDownloadPDF(){try{const output=makeOutputCanvas(),blob=await makeA4Pdf(output),outputName=withSuffix(getFilename(),"A4-Print","pdf");await recordDownload(localStorage.getItem(PAYMENT_TOKEN_KEY),"a4-pdf",outputName);downloadBlob(blob,outputName);window.mdcTrack?.("poster_download",{export_format:"a4-pdf",export_size:"A4"});showToast?.("A4 Print PDF download ਹੋ ਗਿਆ।");}catch(error){showToast?.(error?.message||"PDF download ਨਹੀਂ ਹੋ ਸਕਿਆ।");}}async function downloadPNG(){if(!(await ensurePosterPayment(showToast)))return;return performDownloadPNG();}async function downloadPDF(){if(!(await ensurePosterPayment(showToast)))return;return performDownloadPDF();}select.addEventListener("change",()=>{selected=select.value;localStorage.setItem(storageKey,selected);refreshPreview();window.mdcTrack?.("poster_size_select",{export_format:selected});});pdfButton.addEventListener("click",downloadPDF);refreshPreview();return{refreshPreview,copyToModal,downloadPNG,downloadPDF,makeOutputCanvas,get format(){return selected;}};}
+export function createPosterExportController(opts){const sourceCanvas=opts.sourceCanvas,modalCanvas=opts.modalCanvas,toolbar=opts.toolbar,previewNote=opts.previewNote,filename=opts.filename,showToast=opts.showToast,storageKey=opts.storageKey||"mdc-poster-size",sourceDefault=sourceCanvas.width/sourceCanvas.height>.7?"instagram":"social";let selected=localStorage.getItem(storageKey)||opts.defaultFormat||sourceDefault;if(!FORMATS[selected])selected=sourceDefault;const control=document.createElement("label");control.className="poster-size-control";control.innerHTML='<span>Poster Size</span><select aria-label="Poster export size">'+Object.entries(FORMATS).map(([key,item])=>'<option value="'+key+'">'+item.label+"</option>").join("")+"</select>";const select=control.querySelector("select");select.value=selected;toolbar.prepend(control);const pdfButton=document.createElement("button");pdfButton.className="pdf-download-button";pdfButton.type="button";pdfButton.textContent="PDF Download";pdfButton.hidden=selected!=="a4";toolbar.appendChild(pdfButton);const previewCanvas=document.createElement("canvas");previewCanvas.className="format-preview-canvas";previewCanvas.setAttribute("aria-label","ਚੁਣੇ ਹੋਏ size ਦਾ poster preview");sourceCanvas.insertAdjacentElement("afterend",previewCanvas);function getFilename(){return typeof filename==="function"?filename():filename;}function makeOutputCanvas(){const format=FORMATS[selected];if(sourceCanvas.width===format.width&&sourceCanvas.height===format.height)return sourceCanvas;const output=document.createElement("canvas");output.width=format.width;output.height=format.height;paintConverted(sourceCanvas,output,selected);return output;}function refreshPreview(){const format=FORMATS[selected],native=sourceCanvas.width===format.width&&sourceCanvas.height/sourceCanvas.width===format.height/format.width;sourceCanvas.classList.toggle("export-source-hidden",!native);previewCanvas.hidden=native;if(!native){const previewWidth=selected==="a4"?620:720;previewCanvas.width=previewWidth;previewCanvas.height=Math.round(previewWidth*format.height/format.width);paintConverted(sourceCanvas,previewCanvas,selected);}previewNote.textContent=format.note;pdfButton.hidden=selected!=="a4";}function copyToModal(){const output=makeOutputCanvas(),maxWidth=selected==="a4"?900:Math.min(output.width,1080);modalCanvas.width=maxWidth;modalCanvas.height=Math.round(maxWidth*output.height/output.width);const mc=modalCanvas.getContext("2d");mc.clearRect(0,0,modalCanvas.width,modalCanvas.height);mc.drawImage(output,0,0,modalCanvas.width,modalCanvas.height);}async function performDownloadPNG(){try{const format=FORMATS[selected],output=makeOutputCanvas(),blob=await canvasToBlob(output,"image/png"),suffix=selected==="a4"?"A4-Print":selected==="instagram"?"Instagram-4x5":"Social-2x3",outputName=withSuffix(getFilename(),suffix,"png");await recordDownload(localStorage.getItem(PAYMENT_TOKEN_KEY),selected,outputName);downloadBlob(blob,outputName);window.mdcTrack?.("poster_download",{export_format:selected,export_size:format.width+"x"+format.height});showToast?.(format.label+" PNG download ਹੋ ਗਿਆ।");}catch(error){showToast?.(error?.message||"Poster download ਨਹੀਂ ਹੋ ਸਕਿਆ।");}}async function performDownloadPDF(){try{const output=makeOutputCanvas(),blob=await makeA4Pdf(output),outputName=withSuffix(getFilename(),"A4-Print","pdf");await recordDownload(localStorage.getItem(PAYMENT_TOKEN_KEY),"a4-pdf",outputName);downloadBlob(blob,outputName);window.mdcTrack?.("poster_download",{export_format:"a4-pdf",export_size:"A4"});showToast?.("A4 Print PDF download ਹੋ ਗਿਆ।");}catch(error){showToast?.(error?.message||"PDF download ਨਹੀਂ ਹੋ ਸਕਿਆ।");}}async function downloadPNG(){if(!(await ensurePosterPayment(showToast,selected)))return;return performDownloadPNG();}async function downloadPDF(){if(!(await ensurePosterPayment(showToast,"a4-pdf")))return;return performDownloadPDF();}select.addEventListener("change",()=>{selected=select.value;localStorage.setItem(storageKey,selected);refreshPreview();window.mdcTrack?.("poster_size_select",{export_format:selected});});pdfButton.addEventListener("click",downloadPDF);refreshPreview();return{refreshPreview,copyToModal,downloadPNG,downloadPDF,makeOutputCanvas,get format(){return selected;}};}

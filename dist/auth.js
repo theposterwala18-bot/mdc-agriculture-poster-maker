@@ -20,6 +20,8 @@ const firebaseConfig = {
   appId: "1:815822365858:web:2cedcafc0d31ddfcaaa3fb"
 };
 
+const PAYMENT_API = "https://the-poster-wala-payment-api.theposterwala18.workers.dev";
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
@@ -27,8 +29,32 @@ provider.setCustomParameters({ prompt: "select_account" });
 auth.useDeviceLanguage();
 
 let currentUser = null;
+let currentServerSession = null;
+let authChangeSequence = 0;
 let resolveReady;
 const ready = new Promise((resolve) => { resolveReady = resolve; });
+
+async function syncServerSession(user, sequence) {
+  const idToken = await user.getIdToken();
+  const response = await fetch(`${PAYMENT_API}/auth/session`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${idToken}`,
+      "Content-Type": "application/json"
+    },
+    body: "{}"
+  });
+
+  const result = await response.json().catch(() => null);
+  if (!response.ok || !result?.success) {
+    throw new Error(result?.error || "Secure login session could not be created");
+  }
+
+  if (sequence !== authChangeSequence || auth.currentUser?.uid !== user.uid) return null;
+  currentServerSession = result;
+  window.dispatchEvent(new CustomEvent("tpw-server-session", { detail: result }));
+  return result;
+}
 
 function notify(message, isError = false) {
   let toast = document.querySelector(".tpw-auth-toast");
@@ -141,7 +167,9 @@ if (actions) {
 }
 
 onAuthStateChanged(auth, (user) => {
+  const sequence = ++authChangeSequence;
   currentUser = user;
+  currentServerSession = null;
   if (shell) shell.replaceChildren(user ? userControls(user) : loginButton());
   resolveReady?.(user);
   resolveReady = null;
@@ -153,6 +181,16 @@ onAuthStateChanged(auth, (user) => {
       photoURL: user.photoURL || ""
     } : null
   }));
+
+  if (user) {
+    syncServerSession(user, sequence).catch((error) => {
+      if (sequence === authChangeSequence) {
+        console.warn("Secure login session sync failed", error);
+      }
+    });
+  } else {
+    window.dispatchEvent(new CustomEvent("tpw-server-session", { detail: null }));
+  }
 });
 
 getRedirectResult(auth).catch((error) => {
@@ -164,6 +202,11 @@ window.ThePosterWalaAuth = Object.freeze({
   auth,
   ready,
   getCurrentUser: () => currentUser,
+  getServerSession: () => currentServerSession,
+  syncServerSession: async () => {
+    const user = currentUser || await ready;
+    return user ? syncServerSession(user, authChangeSequence) : null;
+  },
   getIdToken: async (forceRefresh = false) => {
     const user = currentUser || await ready;
     return user ? user.getIdToken(forceRefresh) : null;

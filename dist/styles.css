@@ -69,6 +69,7 @@ button { cursor: pointer; }
 
 .topbar .eyebrow { color: #e3bd56; }
 .topbar h1 { margin: 0; font-size: clamp(1rem, 2vw, 1.3rem); line-height: 1.25; overflow-wrap: anywhere; }
+.app-version { display: inline-block; margin-top: 3px; color: #b8d5c8; font-size: .62rem; font-weight: 800; letter-spacing: .05em; }
 .topbar-actions { display: flex; align-items: center; gap: 8px; }
 .donate-button {
   display: inline-flex;

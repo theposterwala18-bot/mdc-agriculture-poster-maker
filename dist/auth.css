@@ -1,5 +1,6 @@
 .tpw-auth-shell{display:inline-flex;align-items:center;min-height:42px;font-family:"Noto Sans Gurmukhi",system-ui,sans-serif}
 .tpw-google-login,.tpw-logout-button{border:0;font:inherit;cursor:pointer}
+.tpw-owner-link{display:inline-flex;align-items:center;min-height:31px;padding:6px 9px;border-radius:8px;color:#08281d;background:#e5bd64;font-size:.62rem;font-weight:900;text-decoration:none;white-space:nowrap}.tpw-owner-link:hover{background:#f1cd7a}
 .tpw-google-login{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:8px 13px;border:1px solid rgba(255,255,255,.72);border-radius:11px;color:#21342b;background:#fff;box-shadow:0 5px 14px rgba(0,0,0,.14);font-size:.75rem;font-weight:800;white-space:nowrap}
 .tpw-google-login:hover{background:#f7fbf8}
 .tpw-google-mark{display:grid;place-items:center;width:23px;height:23px;border-radius:50%;color:#1a73e8;background:#fff;box-shadow:inset 0 0 0 1px #d8dde6;font:900 14px/1 Arial,sans-serif}

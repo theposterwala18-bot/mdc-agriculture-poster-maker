@@ -40,6 +40,7 @@ async function makeA4Pdf(canvas){const jpegBlob=await canvasToBlob(canvas,"image
 
 const PAYMENT_API = "https://the-poster-wala-payment-api.theposterwala18.workers.dev";
 const PAYMENT_TOKEN_KEY = "tpw-poster-download-token-v1";
+const PAYMENT_ORDER_KEY = "tpw-poster-order-id-v1";
 let razorpayLoader;
 
 function currentModuleId(){
@@ -92,13 +93,27 @@ async function hasValidPaymentToken(){
     const response=await fetch(PAYMENT_API+"/validate-token",{
       method:"POST",
       headers,
-      body:JSON.stringify({token})
+      body:JSON.stringify({token,module:currentModuleId()})
     });
     const result=await response.json();
-    if(result.success)return true;
+    if(result.success&&result.moduleId===currentModuleId())return true;
   }catch(error){}
   localStorage.removeItem(PAYMENT_TOKEN_KEY);
   return false;
+}
+
+async function recoverPayment(orderId){
+  const headers=await paymentHeaders();
+  const response=await fetch(PAYMENT_API+"/recover-access",{
+    method:"POST",
+    headers,
+    body:JSON.stringify({orderId,module:currentModuleId()})
+  });
+  const result=await response.json();
+  if(!response.ok||!result.success)throw new Error(result.error||"Payment recovery failed");
+  localStorage.setItem(PAYMENT_TOKEN_KEY,result.token);
+  localStorage.setItem(PAYMENT_ORDER_KEY,result.orderId||orderId);
+  return result;
 }
 
 function addPaymentStyles(){
@@ -114,6 +129,7 @@ function addPaymentStyles(){
     ".tpw-pay-actions button{min-height:46px;border-radius:11px;border:1px solid #ccd5e3;font:700 15px inherit;cursor:pointer}"+
     ".tpw-pay-cancel{background:#fff;color:#3c4658}.tpw-pay-now{border-color:#1768e5!important;background:#1768e5;color:#fff}"+
     ".tpw-pay-now:disabled{opacity:.62;cursor:wait}.tpw-pay-message{min-height:20px;margin-top:12px!important;font-size:13px;color:#bf2b2b!important}"+
+    ".tpw-pay-recover{grid-column:1/-1;background:#eef5ff;color:#1557d5;border-color:#b8cdf2!important}"+
     ".tpw-pay-safe{margin-top:12px!important;font-size:12px!important;text-align:center}";
   document.head.appendChild(style);
 }
@@ -135,11 +151,13 @@ function openPaymentDialog(showToast){
       '<div class="tpw-pay-price"><span>Poster download access</span><strong>₹50</strong></div>'+
       '<div class="tpw-pay-actions"><button type="button" class="tpw-pay-cancel">Cancel</button>'+
       '<button type="button" class="tpw-pay-now">Pay ₹50 &amp; Download</button></div>'+
+      '<div class="tpw-pay-actions"><button type="button" class="tpw-pay-recover">Recover Previous Payment</button></div>'+
       '<p class="tpw-pay-message" aria-live="polite"></p>'+
       '<p class="tpw-pay-safe">Secure test checkout powered by Razorpay</p></div>';
     document.body.appendChild(overlay);
     const payButton=overlay.querySelector(".tpw-pay-now");
     const cancelButton=overlay.querySelector(".tpw-pay-cancel");
+    const recoverButton=overlay.querySelector(".tpw-pay-recover");
     const message=overlay.querySelector(".tpw-pay-message");
     const finish=allowed=>{
       if(finished)return;
@@ -150,6 +168,21 @@ function openPaymentDialog(showToast){
     cancelButton.addEventListener("click",()=>finish(false));
     overlay.addEventListener("click",event=>{
       if(event.target===overlay&&!checkoutOpened)finish(false);
+    });
+    recoverButton.addEventListener("click",async()=>{
+      const saved=localStorage.getItem(PAYMENT_ORDER_KEY)||"";
+      const orderId=window.prompt("24 ਘੰਟਿਆਂ ਅੰਦਰ ਵਾਲਾ Razorpay Order ID ਲਿਖੋ:",saved);
+      if(!orderId)return;
+      recoverButton.disabled=true;
+      message.textContent="Payment recovery check ਹੋ ਰਹੀ ਹੈ…";
+      try{
+        const recovered=await recoverPayment(orderId);
+        showToast?.("Payment recover ਹੋ ਗਈ। "+recovered.downloadsRemaining+" downloads ਬਾਕੀ ਹਨ।");
+        finish(true);
+      }catch(error){
+        recoverButton.disabled=false;
+        message.textContent=error?.message||"Payment recover ਨਹੀਂ ਹੋ ਸਕੀ।";
+      }
     });
     payButton.addEventListener("click",async()=>{
       payButton.disabled=true;
@@ -194,6 +227,7 @@ function openPaymentDialog(showToast){
               const verification=await verificationResponse.json();
               if(!verificationResponse.ok||!verification.success)throw new Error(verification.error||"Verification failed");
               localStorage.setItem(PAYMENT_TOKEN_KEY,verification.token);
+              localStorage.setItem(PAYMENT_ORDER_KEY,payment.razorpay_order_id);
               showToast?.("Payment verify ਹੋ ਗਈ। Download 30 ਮਿੰਟ ਲਈ unlock ਹੈ।");
               finish(true);
             }catch(error){
@@ -230,6 +264,14 @@ async function ensurePosterPayment(showToast){
     return false;
   }
   if(await hasValidPaymentToken())return true;
+  const savedOrderId=localStorage.getItem(PAYMENT_ORDER_KEY);
+  if(savedOrderId){
+    try{
+      const recovered=await recoverPayment(savedOrderId);
+      showToast?.("Payment access recover ਹੋ ਗਈ। "+recovered.downloadsRemaining+" downloads ਬਾਕੀ ਹਨ।");
+      return true;
+    }catch(error){}
+  }
   return openPaymentDialog(showToast);
 }
 

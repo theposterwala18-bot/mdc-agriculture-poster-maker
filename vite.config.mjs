@@ -12,7 +12,8 @@ export default {
         main: resolve(projectRoot, "dist/index.html"),
         "general-sale": resolve(projectRoot, "dist/general-sale.html"),
         "death-bhog": resolve(projectRoot, "dist/death-bhog.html"),
-        "universal-poster": resolve(projectRoot, "dist/universal-poster.html")
+        "universal-poster": resolve(projectRoot, "dist/universal-poster.html"),
+        "owner-dashboard": resolve(projectRoot, "dist/owner-dashboard.html")
       }
     }
   }

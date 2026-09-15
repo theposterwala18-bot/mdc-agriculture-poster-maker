@@ -1,6 +1,6 @@
 {
   "name": "mdc-agriculture-poster-maker",
-  "version": "5.2.0",
+  "version": "5.3.0",
   "private": true,
   "scripts": {
     "dev": "vite dist --host 0.0.0.0 --port 4173",

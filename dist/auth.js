@@ -52,6 +52,16 @@ async function syncServerSession(user, sequence) {
 
   if (sequence !== authChangeSequence || auth.currentUser?.uid !== user.uid) return null;
   currentServerSession = result;
+  if (result.isOwner && shell && !location.pathname.endsWith("owner-dashboard.html")) {
+    const controls = shell.querySelector(".tpw-user-controls");
+    if (controls && !controls.querySelector(".tpw-owner-link")) {
+      const ownerLink = document.createElement("a");
+      ownerLink.className = "tpw-owner-link";
+      ownerLink.href = "./owner-dashboard.html";
+      ownerLink.textContent = "Owner Dashboard";
+      controls.append(ownerLink);
+    }
+  }
   window.dispatchEvent(new CustomEvent("tpw-server-session", { detail: result }));
   return result;
 }

@@ -6,6 +6,7 @@ import {
   GoogleAuthProvider,
   onAuthStateChanged,
   setPersistence,
+  signInWithCredential,
   signInWithPopup,
   signInWithRedirect,
   signOut
@@ -21,6 +22,7 @@ const firebaseConfig = {
 };
 
 const PAYMENT_API = "https://the-poster-wala-payment-api.theposterwala18.workers.dev";
+const GOOGLE_OAUTH_CLIENT_ID = "815822365858-lllftvbcggneq01pjj97m9r29bsgbst6.apps.googleusercontent.com";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -28,6 +30,7 @@ const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: "select_account" });
 auth.useDeviceLanguage();
 const useMobileRedirect = /Android/i.test(navigator.userAgent);
+const useGoogleTokenLogin = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 const redirectPendingKey = "tpw-login-redirect-pending";
 const popupFallbackKey = "tpw-login-popup-fallback";
 const persistenceReady = setPersistence(auth, browserLocalPersistence).catch((error) => {
@@ -36,6 +39,38 @@ const persistenceReady = setPersistence(auth, browserLocalPersistence).catch((er
 if (!useMobileRedirect) {
   sessionStorage.removeItem(redirectPendingKey);
   sessionStorage.removeItem(popupFallbackKey);
+}
+
+let googleTokenClient = null;
+let googleIdentityReady = false;
+if (useGoogleTokenLogin) {
+  const script = document.createElement("script");
+  script.src = "https://accounts.google.com/gsi/client";
+  script.async = true;
+  script.onload = () => {
+    googleTokenClient = window.google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_OAUTH_CLIENT_ID,
+      scope: "openid email profile",
+      callback: async (response) => {
+        if (response?.error || !response?.access_token) {
+          notify(`Google Login error: ${response?.error || "token_missing"}`, true);
+          return;
+        }
+        try {
+          await persistenceReady;
+          const credential = GoogleAuthProvider.credential(null, response.access_token);
+          await signInWithCredential(auth, credential);
+          notify("Google Login ਹੋ ਗਿਆ।");
+        } catch (error) {
+          console.error("Google token sign-in failed", error);
+          notify(`Google Login error: ${error?.code || "unknown"}`, true);
+        }
+      }
+    });
+    googleIdentityReady = true;
+  };
+  script.onerror = () => notify("Google Login service load ਨਹੀਂ ਹੋਈ। Page refresh ਕਰੋ।", true);
+  document.head.append(script);
 }
 
 let currentUser = null;
@@ -94,6 +129,14 @@ function notify(message, isError = false) {
 
 async function login() {
   try {
+    if (useGoogleTokenLogin) {
+      if (!googleIdentityReady || !googleTokenClient) {
+        notify("Google Login ਤਿਆਰ ਹੋ ਰਹੀ ਹੈ—ਇੱਕ ਵਾਰ ਫਿਰ ਦਬਾਓ।", true);
+        return;
+      }
+      googleTokenClient.requestAccessToken({ prompt: "select_account" });
+      return;
+    }
     const shouldUsePopupFallback = sessionStorage.getItem(popupFallbackKey) === "1";
     if (useMobileRedirect && !shouldUsePopupFallback) {
       await persistenceReady;

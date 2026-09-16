@@ -44,7 +44,11 @@ const PAYMENT_ORDER_KEY = "tpw-poster-order-id-v1";
 let razorpayLoader;
 
 function currentModuleId(){
-  return location.pathname.split("/").pop()||"index.html";
+  const page=location.pathname.split("/").pop()||"index.html";
+  if(page==="universal-poster.html"){
+    return new URLSearchParams(location.search).get("module")||page;
+  }
+  return page;
 }
 
 async function paymentHeaders(){

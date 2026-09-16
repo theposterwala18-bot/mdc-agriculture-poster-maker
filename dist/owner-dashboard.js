@@ -4,6 +4,7 @@ const content=document.getElementById("dashboardContent");
 const refreshButton=document.getElementById("refreshDashboard");
 const saveSettingsButton=document.getElementById("saveOwnerSettings");
 let ownerConfig={modules:[],plans:[]};
+const LEGACY_MODULE_IDS=new Set(["car-sale","dog-sale","akhand-path","invitation"]);
 
 function escapeHtml(value){return String(value??"").replace(/[&<>'"]/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"})[char]);}
 function money(paise){return new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:0}).format(Number(paise||0)/100);}
@@ -46,7 +47,7 @@ function renderOwnerConfig(data){
   document.getElementById("premiumPrice").value=paiseToRupees(s.premium_price_paise??4900);
   document.getElementById("unlockMinutes").value=s.unlock_minutes??30;
   document.getElementById("paidDownloadLimit").value=s.paid_download_limit??5;
-  document.getElementById("moduleSettings").innerHTML=(data.modules||[]).map(moduleRow).join("")||'<p class="muted">Add the first module setting.</p>';
+  document.getElementById("moduleSettings").innerHTML=(data.modules||[]).filter(item=>!LEGACY_MODULE_IDS.has(item.module_id)).map(moduleRow).join("")||'<p class="muted">Add the first module setting.</p>';
   document.getElementById("planSettings").innerHTML=(data.plans||[]).map(planRow).join("");
 }
 

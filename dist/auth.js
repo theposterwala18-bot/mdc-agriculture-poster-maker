@@ -27,9 +27,16 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: "select_account" });
 auth.useDeviceLanguage();
-const useMobileRedirect = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+const useMobileRedirect = /Android/i.test(navigator.userAgent);
 const redirectPendingKey = "tpw-login-redirect-pending";
 const popupFallbackKey = "tpw-login-popup-fallback";
+const persistenceReady = setPersistence(auth, browserLocalPersistence).catch((error) => {
+  console.warn("Local login persistence could not be initialized", error);
+});
+if (!useMobileRedirect) {
+  sessionStorage.removeItem(redirectPendingKey);
+  sessionStorage.removeItem(popupFallbackKey);
+}
 
 let currentUser = null;
 let currentServerSession = null;
@@ -87,19 +94,26 @@ function notify(message, isError = false) {
 
 async function login() {
   try {
-    await setPersistence(auth, browserLocalPersistence);
     const shouldUsePopupFallback = sessionStorage.getItem(popupFallbackKey) === "1";
     if (useMobileRedirect && !shouldUsePopupFallback) {
+      await persistenceReady;
       sessionStorage.setItem(redirectPendingKey, "1");
       await signInWithRedirect(auth, provider);
       return;
     }
-    await signInWithPopup(auth, provider);
+    // Keep this call as the first asynchronous browser action after the tap.
+    // Safari blocks popups when another awaited task runs before this call.
+    const popupResult = signInWithPopup(auth, provider);
+    await popupResult;
     sessionStorage.removeItem(redirectPendingKey);
     sessionStorage.removeItem(popupFallbackKey);
   } catch (error) {
-    if (["auth/popup-blocked", "auth/operation-not-supported-in-this-environment"].includes(error?.code)) {
+    if (useMobileRedirect && ["auth/popup-blocked", "auth/operation-not-supported-in-this-environment"].includes(error?.code)) {
       await signInWithRedirect(auth, provider);
+      return;
+    }
+    if (error?.code === "auth/popup-blocked") {
+      notify("Safari Settings ਵਿੱਚ Pop-ups Allow ਕਰਕੇ Login ਦੁਬਾਰਾ ਦਬਾਓ।", true);
       return;
     }
     if (!["auth/popup-closed-by-user", "auth/cancelled-popup-request"].includes(error?.code)) {

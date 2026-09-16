@@ -28,6 +28,8 @@ const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: "select_account" });
 auth.useDeviceLanguage();
 const useMobileRedirect = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+const redirectPendingKey = "tpw-login-redirect-pending";
+const popupFallbackKey = "tpw-login-popup-fallback";
 
 let currentUser = null;
 let currentServerSession = null;
@@ -86,12 +88,15 @@ function notify(message, isError = false) {
 async function login() {
   try {
     await setPersistence(auth, browserLocalPersistence);
-    if (useMobileRedirect) {
-      sessionStorage.setItem("tpw-login-redirect-pending", "1");
+    const shouldUsePopupFallback = sessionStorage.getItem(popupFallbackKey) === "1";
+    if (useMobileRedirect && !shouldUsePopupFallback) {
+      sessionStorage.setItem(redirectPendingKey, "1");
       await signInWithRedirect(auth, provider);
       return;
     }
     await signInWithPopup(auth, provider);
+    sessionStorage.removeItem(redirectPendingKey);
+    sessionStorage.removeItem(popupFallbackKey);
   } catch (error) {
     if (["auth/popup-blocked", "auth/operation-not-supported-in-this-environment"].includes(error?.code)) {
       await signInWithRedirect(auth, provider);
@@ -124,7 +129,9 @@ function loginButton() {
   mark.setAttribute("aria-hidden", "true");
   mark.textContent = "G";
   const label = document.createElement("span");
-  label.textContent = "Google ਨਾਲ Login";
+  label.textContent = sessionStorage.getItem(popupFallbackKey) === "1"
+    ? "Google Login ਦੁਬਾਰਾ ਕਰੋ"
+    : "Google ਨਾਲ Login";
   button.append(mark, label);
   button.addEventListener("click", login);
   return button;
@@ -211,12 +218,25 @@ onAuthStateChanged(auth, (user) => {
 
 getRedirectResult(auth)
   .then((result) => {
-    if (result?.user) sessionStorage.removeItem("tpw-login-redirect-pending");
+    const redirectWasPending = sessionStorage.getItem(redirectPendingKey) === "1";
+    if (result?.user) {
+      sessionStorage.removeItem(redirectPendingKey);
+      sessionStorage.removeItem(popupFallbackKey);
+      return;
+    }
+    if (redirectWasPending) {
+      sessionStorage.removeItem(redirectPendingKey);
+      sessionStorage.setItem(popupFallbackKey, "1");
+      const label = document.querySelector(".tpw-google-login span:last-child");
+      if (label) label.textContent = "Google Login ਦੁਬਾਰਾ ਕਰੋ";
+      notify("Safari ਵਿੱਚ Google Login ਬਟਨ ਦੁਬਾਰਾ ਦਬਾਓ।", true);
+    }
   })
   .catch((error) => {
-    sessionStorage.removeItem("tpw-login-redirect-pending");
+    sessionStorage.removeItem(redirectPendingKey);
+    sessionStorage.setItem(popupFallbackKey, "1");
     console.error("Google redirect sign-in failed", error);
-    notify("Google Login ਪੂਰਾ ਨਹੀਂ ਹੋ ਸਕਿਆ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।", true);
+    notify("Safari ਵਿੱਚ Google Login ਬਟਨ ਦੁਬਾਰਾ ਦਬਾਓ।", true);
   });
 
 window.ThePosterWalaAuth = Object.freeze({

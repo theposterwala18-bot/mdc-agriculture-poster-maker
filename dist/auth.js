@@ -27,6 +27,7 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: "select_account" });
 auth.useDeviceLanguage();
+const useMobileRedirect = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
 let currentUser = null;
 let currentServerSession = null;
@@ -85,6 +86,11 @@ function notify(message, isError = false) {
 async function login() {
   try {
     await setPersistence(auth, browserLocalPersistence);
+    if (useMobileRedirect) {
+      sessionStorage.setItem("tpw-login-redirect-pending", "1");
+      await signInWithRedirect(auth, provider);
+      return;
+    }
     await signInWithPopup(auth, provider);
   } catch (error) {
     if (["auth/popup-blocked", "auth/operation-not-supported-in-this-environment"].includes(error?.code)) {
@@ -203,10 +209,15 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-getRedirectResult(auth).catch((error) => {
-  console.error("Google redirect sign-in failed", error);
-  notify("Google Login ਪੂਰਾ ਨਹੀਂ ਹੋ ਸਕਿਆ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।", true);
-});
+getRedirectResult(auth)
+  .then((result) => {
+    if (result?.user) sessionStorage.removeItem("tpw-login-redirect-pending");
+  })
+  .catch((error) => {
+    sessionStorage.removeItem("tpw-login-redirect-pending");
+    console.error("Google redirect sign-in failed", error);
+    notify("Google Login ਪੂਰਾ ਨਹੀਂ ਹੋ ਸਕਿਆ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।", true);
+  });
 
 window.ThePosterWalaAuth = Object.freeze({
   auth,

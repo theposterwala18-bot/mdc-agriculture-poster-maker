@@ -37,6 +37,27 @@
         <article><span>Total Downloads</span><strong id="totalDownloads">0</strong></article>
       </div>
 
+      <section class="control-panel data-card">
+        <div class="card-heading">
+          <div><h2>Owner Controls</h2><span id="paymentModeBadge">Mode check…</span></div>
+          <button id="saveOwnerSettings" type="button">Save All Settings</button>
+        </div>
+        <div class="settings-grid">
+          <label class="switch-setting"><span>All Modules Free<small>ਇੱਕ click ਨਾਲ ਸਾਰੇ posters free</small></span><input id="allModulesFree" type="checkbox" /></label>
+          <label class="switch-setting"><span>Daily Free PNG<small>ਰੋਜ਼ਾਨਾ free quota ON/OFF</small></span><input id="dailyFreeEnabled" type="checkbox" /></label>
+          <label><span>Daily Free Limit</span><input id="dailyFreeLimit" type="number" min="0" max="100" /></label>
+          <label><span>Default Poster Price (₹)</span><input id="defaultPrice" type="number" min="1" /></label>
+          <label><span>Premium Price (₹)</span><input id="premiumPrice" type="number" min="1" /></label>
+          <label><span>Payment Unlock (minutes)</span><input id="unlockMinutes" type="number" min="1" /></label>
+          <label><span>Downloads per Payment</span><input id="paidDownloadLimit" type="number" min="1" /></label>
+        </div>
+        <div class="sub-heading"><h3>Module-wise Controls</h3><button id="addModuleRow" type="button" class="secondary-action">Add Module</button></div>
+        <div id="moduleSettings" class="editable-list"></div>
+        <div class="sub-heading"><h3>Monthly / 6 Month / Yearly Plans</h3></div>
+        <div id="planSettings" class="editable-list plans-list"></div>
+        <p id="settingsMessage" class="settings-message" role="status"></p>
+      </section>
+
       <section class="data-card">
         <div class="card-heading"><h2>Recent Payments</h2><span id="paymentCount"></span></div>
         <div class="table-wrap">

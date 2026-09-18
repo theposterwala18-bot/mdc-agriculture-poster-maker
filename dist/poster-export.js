@@ -42,6 +42,20 @@ const PAYMENT_API = "https://the-poster-wala-payment-api.theposterwala18.workers
 const PAYMENT_TOKEN_KEY = "tpw-poster-download-token-v1";
 const PAYMENT_ORDER_KEY = "tpw-poster-order-id-v1";
 let razorpayLoader;
+let paymentModeLoader;
+
+function normalizePaymentMode(value){
+  return String(value||"").toLowerCase()==="live"?"live":"test";
+}
+
+function getPaymentMode(){
+  if(paymentModeLoader)return paymentModeLoader;
+  paymentModeLoader=fetch(PAYMENT_API,{headers:{"Accept":"application/json"}})
+    .then(response=>response.ok?response.json():Promise.reject(new Error("Payment service unavailable")))
+    .then(result=>normalizePaymentMode(result?.mode))
+    .catch(()=>"test");
+  return paymentModeLoader;
+}
 
 function currentModuleId(){
   const page=location.pathname.split("/").pop()||"index.html";
@@ -134,6 +148,7 @@ function addPaymentStyles(){
   style.textContent=".tpw-pay-overlay{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;padding:18px;background:rgba(7,14,30,.72);backdrop-filter:blur(5px)}"+
     ".tpw-pay-card{width:min(430px,100%);border-radius:22px;background:#fff;padding:26px;box-shadow:0 28px 80px rgba(0,0,0,.34);font-family:inherit;color:#172033}"+
     ".tpw-pay-badge{display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border-radius:999px;background:#fff3cd;color:#765500;font-size:12px;font-weight:800}"+
+    ".tpw-pay-badge-live{background:#e4f7ec;color:#146c43}"+
     ".tpw-pay-card h2{margin:16px 0 8px;font-size:25px;line-height:1.2}.tpw-pay-card p{margin:0;color:#5d6678;line-height:1.55}"+
     ".tpw-pay-price{margin:20px 0;padding:16px;border:1px solid #dce4f2;border-radius:15px;background:#f7faff;display:flex;align-items:center;justify-content:space-between}"+
     ".tpw-pay-price strong{font-size:28px;color:#1557d5}.tpw-pay-actions{display:grid;grid-template-columns:1fr 1.5fr;gap:10px;margin-top:18px}"+
@@ -158,8 +173,9 @@ function openPaymentDialog(showToast,accessInfo={}){
     const amountPaise=Number(accessInfo.amount||2900);
     const price="₹"+Math.round(amountPaise/100);
     const unlockMinutes=Number(accessInfo.unlockMinutes||30);
+    const isLiveMode=normalizePaymentMode(accessInfo.mode)==="live";
     overlay.innerHTML='<div class="tpw-pay-card">'+
-      '<span class="tpw-pay-badge">TEST MODE • ਕੋਈ ਅਸਲੀ ਪੈਸਾ ਨਹੀਂ ਕੱਟੇਗਾ</span>'+
+      '<span class="tpw-pay-badge'+(isLiveMode?' tpw-pay-badge-live':'')+'">'+(isLiveMode?'LIVE PAYMENT • ਅਸਲੀ ਭੁਗਤਾਨ':'TEST MODE • ਕੋਈ ਅਸਲੀ ਪੈਸਾ ਨਹੀਂ ਕੱਟੇਗਾ')+'</span>'+
       '<h2>Poster Download Unlock ਕਰੋ</h2>'+
       '<p>'+price+' ਦੀ successful payment ਤੋਂ ਬਾਅਦ PNG ਅਤੇ PDF download '+unlockMinutes+' ਮਿੰਟ ਲਈ unlock ਰਹੇਗਾ।</p>'+
       '<div class="tpw-pay-price"><span>Poster download access</span><strong>'+price+'</strong></div>'+
@@ -167,12 +183,14 @@ function openPaymentDialog(showToast,accessInfo={}){
       '<button type="button" class="tpw-pay-now">Pay '+price+' &amp; Download</button></div>'+
       '<div class="tpw-pay-actions"><button type="button" class="tpw-pay-recover">Recover Previous Payment</button></div>'+
       '<p class="tpw-pay-message" aria-live="polite"></p>'+
-      '<p class="tpw-pay-safe">Secure test checkout powered by Razorpay</p></div>';
+      '<p class="tpw-pay-safe">'+(isLiveMode?'Secure checkout powered by Razorpay':'Secure test checkout powered by Razorpay')+'</p></div>';
     document.body.appendChild(overlay);
     const payButton=overlay.querySelector(".tpw-pay-now");
     const cancelButton=overlay.querySelector(".tpw-pay-cancel");
     const recoverButton=overlay.querySelector(".tpw-pay-recover");
     const message=overlay.querySelector(".tpw-pay-message");
+    const modeBadge=overlay.querySelector(".tpw-pay-badge");
+    const safeMessage=overlay.querySelector(".tpw-pay-safe");
     const finish=allowed=>{
       if(finished)return;
       finished=true;
@@ -215,6 +233,10 @@ function openPaymentDialog(showToast,accessInfo={}){
         const orderResponse=results[1];
         const order=await orderResponse.json();
         if(!orderResponse.ok||!order.success)throw new Error(order.error||"Order could not be created");
+        const orderIsLive=/^rzp_live_/i.test(String(order.keyId||""));
+        modeBadge.classList.toggle("tpw-pay-badge-live",orderIsLive);
+        modeBadge.textContent=orderIsLive?"LIVE PAYMENT • ਅਸਲੀ ਭੁਗਤਾਨ":"TEST MODE • ਕੋਈ ਅਸਲੀ ਪੈਸਾ ਨਹੀਂ ਕੱਟੇਗਾ";
+        safeMessage.textContent=orderIsLive?"Secure checkout powered by Razorpay":"Secure test checkout powered by Razorpay";
         checkoutOpened=true;
         const checkout=new window.Razorpay({
           key:order.keyId,
@@ -298,6 +320,7 @@ async function ensurePosterPayment(showToast,format){
     showToast?.(error?.message||"Download access check ਨਹੀਂ ਹੋ ਸਕੀ।");
     return false;
   }
+  if(!accessInfo.mode)accessInfo.mode=await getPaymentMode();
   const savedOrderId=localStorage.getItem(PAYMENT_ORDER_KEY);
   if(savedOrderId){
     try{

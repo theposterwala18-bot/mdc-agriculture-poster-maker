@@ -737,23 +737,23 @@ function drawRoyalIvoryArdas(template) {
   ctx.fillText(state.symbol || "☬", W / 2, 35);
   drawTextBlock(state.prayer, 795, 80, 465, { size: 25, minSize: 18, weight: 800, maxLines: 3, color: "#4a2f20", lineHeight: 35 });
   drawPortrait(338, 145, 430, 430, { border: template.gold, lineWidth: 11, placeholder: "#eee2cc" });
-  drawLeafSpray(W / 2, 566, 560, "#fffaf0", "#7d8d5a", template.gold);
+  drawLeafSpray(W / 2, 548, 560, "#fffaf0", "#7d8d5a", template.gold);
 
-  drawTextBlock(state.noticeTitle, W / 2, 610, 900, { size: 72, minSize: 40, weight: 900, maxLines: 1, color: template.accent });
-  fillRound(ctx, 225, 704, 630, 84, 35, template.accent);
-  strokeRound(ctx, 225, 704, 630, 84, 35, template.gold, 5);
-  drawTextBlock(state.personName, W / 2, 718, 565, { size: 43, minSize: 27, weight: 900, maxLines: 1, color: "#fff5d7" });
-  drawTextBlock(state.identityLine, W / 2, 802, 800, { size: 26, minSize: 19, weight: 800, maxLines: 1, color: "#432b1f" });
-  drawTextBlock(state.introText, W / 2, 852, 850, { size: 25, minSize: 19, weight: 650, maxLines: 4, color: "#402d24", lineHeight: 35 });
+  drawTextBlock(state.noticeTitle, W / 2, 608, 900, { size: 62, minSize: 38, weight: 900, maxLines: 1, color: template.accent });
+  fillRound(ctx, 225, 710, 630, 84, 35, template.accent);
+  strokeRound(ctx, 225, 710, 630, 84, 35, template.gold, 5);
+  drawTextBlock(state.personName, W / 2, 724, 565, { size: 43, minSize: 27, weight: 900, maxLines: 1, color: "#fff5d7" });
+  drawTextBlock(state.identityLine, W / 2, 810, 800, { size: 26, minSize: 19, weight: 800, maxLines: 1, color: "#432b1f" });
+  drawTextBlock(state.introText, W / 2, 858, 850, { size: 25, minSize: 19, weight: 650, maxLines: 4, color: "#402d24", lineHeight: 35 });
 
-  fillRound(ctx, 112, 1008, 856, 150, 28, "rgba(255,255,255,.67)");
-  strokeRound(ctx, 112, 1008, 856, 150, 28, template.gold, 4);
+  fillRound(ctx, 112, 1008, 856, 196, 28, "rgba(255,255,255,.67)");
+  strokeRound(ctx, 112, 1008, 856, 196, 28, template.gold, 4);
   drawTextBlock(state.eventTitle, W / 2, 1026, 760, { size: 35, minSize: 23, weight: 900, maxLines: 2, color: template.accent, lineHeight: 42 });
-  drawTextBlock(`▣  ${state.eventDate}  •  ${state.eventDay}\n◷  ${state.eventTime}`, W / 2, 1101, 790, { size: 28, minSize: 20, weight: 850, maxLines: 2, color: template.text, lineHeight: 40 });
-  drawTextBlock(`⌖  ${state.venue}`, W / 2, 1194, 850, { size: 29, minSize: 20, weight: 900, maxLines: 2, color: template.text, lineHeight: 39 });
-  drawGoldDivider(1288, template.gold, 690);
-  drawTextBlock(state.invitationText, W / 2, 1312, 850, { size: 23, minSize: 18, weight: 650, maxLines: 2, color: "#4d3a2d", lineHeight: 32 });
-  drawTextBlock(`ਸੰਪਰਕ: ${state.familyNames}`, W / 2, 1392, 830, { size: 24, minSize: 18, weight: 850, maxLines: 2, color: template.accent, lineHeight: 33 });
+  drawTextBlock(`▣  ${state.eventDate}  •  ${state.eventDay}\n◷  ${state.eventTime}`, W / 2, 1116, 790, { size: 27, minSize: 20, weight: 850, maxLines: 2, color: template.text, lineHeight: 38 });
+  drawTextBlock(`⌖  ${state.venue}`, W / 2, 1223, 850, { size: 28, minSize: 20, weight: 900, maxLines: 2, color: template.text, lineHeight: 38 });
+  drawGoldDivider(1312, template.gold, 690);
+  drawTextBlock(state.invitationText, W / 2, 1333, 850, { size: 23, minSize: 18, weight: 650, maxLines: 2, color: "#4d3a2d", lineHeight: 32 });
+  drawTextBlock(`ਸੰਪਰਕ: ${state.familyNames}`, W / 2, 1404, 830, { size: 24, minSize: 18, weight: 850, maxLines: 2, color: template.accent, lineHeight: 33 });
   drawPhoneFooter(1492, "#fff4cf", template.accent);
   drawPremiumFloralCorner(42, H - 48, 1, -1, "#fffaf0", "#83915f", template.gold);
   drawPremiumFloralCorner(W - 42, H - 48, -1, -1, "#fffaf0", "#83915f", template.gold);
@@ -798,8 +798,8 @@ function drawGoldenLampMemorial(template) {
   drawTextBlock(state.eventDay, 754, 1188, 360, { size: 31, minSize: 21, weight: 900, maxLines: 1, color: template.accent });
   drawTextBlock(state.eventTime, W / 2, 1270, 820, { size: 28, minSize: 20, weight: 850, maxLines: 2, color: "#342720", lineHeight: 37 });
   drawTextBlock(`⌖  ${state.venue}`, W / 2, 1340, 860, { size: 27, minSize: 19, weight: 850, maxLines: 2, color: template.text, lineHeight: 37 });
-  drawTextBlock(state.invitationText, W / 2, 1415, 840, { size: 22, minSize: 17, weight: 650, maxLines: 2, color: "#4c3b32", lineHeight: 30 });
-  drawTextBlock(`ਬੇਨਤੀ ਕਰਤਾ: ${state.familyNames}`, W / 2, 1480, 820, { size: 23, minSize: 18, weight: 850, maxLines: 1, color: template.accent });
+  drawTextBlock(state.invitationText, W / 2, 1394, 840, { size: 22, minSize: 17, weight: 650, maxLines: 2, color: "#4c3b32", lineHeight: 30 });
+  drawTextBlock(`ਬੇਨਤੀ ਕਰਤਾ: ${state.familyNames}`, W / 2, 1462, 820, { size: 23, minSize: 18, weight: 850, maxLines: 1, color: template.accent });
   drawPhoneFooter(1504, "#fff3cc", template.accent);
 }
 
@@ -826,7 +826,7 @@ function drawHeirloomRoseTribute(template) {
   drawLeafSpray(W / 2, 790, 610, "#f7dfd7", "#788757", template.gold);
 
   drawTextBlock(state.personName, W / 2, 858, 900, { size: 57, minSize: 30, weight: 900, maxLines: 1, color: template.text });
-  drawTextBlock(state.identityLine, W / 2, 930, 820, { size: 27, minSize: 19, weight: 800, maxLines: 1, color: "#513626" });
+  drawTextBlock(state.identityLine, W / 2, 938, 820, { size: 27, minSize: 19, weight: 800, maxLines: 1, color: "#513626" });
   drawTextBlock(state.noticeTitle, W / 2, 982, 860, { size: 39, minSize: 25, weight: 900, maxLines: 1, color: template.accent });
   drawTextBlock(state.introText, W / 2, 1040, 860, { size: 23, minSize: 18, weight: 650, maxLines: 3, color: "#4a3a31", lineHeight: 32 });
   drawGoldDivider(1148, template.gold, 650);

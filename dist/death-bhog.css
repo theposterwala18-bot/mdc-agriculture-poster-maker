@@ -178,6 +178,27 @@
   box-shadow: 0 24px 55px rgba(48, 31, 20, .24);
 }
 
+@media (min-width: 901px) {
+  .bhog-preview-panel {
+    max-height: calc(100vh - 116px);
+  }
+
+  .bhog-poster-stage {
+    min-height: 0;
+    padding: 14px;
+    overflow: hidden;
+  }
+
+  .bhog-poster-stage canvas,
+  .bhog-poster-stage .format-preview-canvas {
+    width: auto !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: calc(100vh - 278px) !important;
+    object-fit: contain;
+  }
+}
+
 #bhogPosterModal canvas {
   width: min(88vw, 620px);
   max-height: 90vh;

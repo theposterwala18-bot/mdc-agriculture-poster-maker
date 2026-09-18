@@ -93,11 +93,13 @@
 .bhog-template-look.look-left i { left: 29px; right: 5px; top: 59px; }
 
 .bhog-template-badge {
+  min-width: 54px;
   padding: 4px 7px;
   border-radius: 99px;
   color: #65450d;
   background: #f5e4b5;
   font: 900 .57rem/1.2 system-ui, sans-serif;
+  text-align: center;
 }
 
 .bhog-photo-grid {

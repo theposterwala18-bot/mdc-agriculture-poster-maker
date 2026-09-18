@@ -34,7 +34,10 @@ const templates = [
   { id: 3, name: "Photo Left Classic", note: "ਖੱਬੇ portrait, ਸੱਜੇ details ਅਤੇ venue panel", look: "left", bg: "#fffaf0", border: "#bd974c", accent: "#c39b4c", text: "#5a120f", gold: "#c39b4c" },
   { id: 4, name: "Maroon Simple Notice", note: "White, maroon ਅਤੇ brown — ਸਾਫ਼ traditional layout", look: "center", bg: "#fff", border: "#6e3827", accent: "#792e27", text: "#722e27", gold: "#b89c72" },
   { id: 5, name: "Hanging Lamps Tribute", note: "White-gold arch, hanging lamps ਅਤੇ floral portrait", look: "center", bg: "#fffdf8", border: "#c69a3a", accent: "#4b2315", text: "#651713", gold: "#c89b37" },
-  { id: 6, name: "Pearl Rose Memorial", note: "Pearl oval frame, rose corners ਅਤੇ compact details", look: "center", bg: "#fff4e6", border: "#ae7b32", accent: "#9a6b2c", text: "#6f431f", gold: "#c99c53" }
+  { id: 6, name: "Pearl Rose Memorial", note: "Pearl oval frame, rose corners ਅਤੇ compact details", look: "center", bg: "#fff4e6", border: "#ae7b32", accent: "#9a6b2c", text: "#6f431f", gold: "#c99c53" },
+  { id: 7, name: "Royal Ivory Ardas", note: "Antique ivory, temple watermark ਅਤੇ rich brown-gold hierarchy", look: "center", bg: "#fff8e8", border: "#bd8a28", accent: "#6f230d", text: "#54200f", gold: "#c5922e" },
+  { id: 8, name: "Golden Lamp Memorial", note: "Clean white-gold portrait, hanging lamps ਅਤੇ maroon focus", look: "center", bg: "#fffdf8", border: "#c79c3a", accent: "#601416", text: "#4d1714", gold: "#ca9b34" },
+  { id: 9, name: "Heirloom Rose Tribute", note: "Ornate pearl portrait, soft roses ਅਤੇ elegant family details", look: "center", bg: "#fff7eb", border: "#a9782d", accent: "#7b4b22", text: "#5f3519", gold: "#c49346" }
 ];
 
 const defaultState = {
@@ -628,6 +631,216 @@ function drawPearlRoseMemorial(template) {
   if (phones) drawTextBlock(`☎  ${phones}`, W / 2, 1508, 820, { size: 27, minSize: 18, weight: 900, maxLines: 1, color: template.text });
 }
 
+function drawPremiumRose(x, y, scale = 1, petal = "#f4d8cf", center = "#d7a650") {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(scale, scale);
+  ctx.shadowColor = "rgba(83,49,22,.16)";
+  ctx.shadowBlur = 12;
+  for (let ring = 3; ring >= 0; ring -= 1) {
+    const count = 5 + ring * 2;
+    const radius = 6 + ring * 10;
+    ctx.fillStyle = ring === 0 ? center : petal;
+    for (let index = 0; index < count; index += 1) {
+      const angle = (Math.PI * 2 * index) / count + ring * .28;
+      ctx.beginPath();
+      ctx.ellipse(Math.cos(angle) * radius, Math.sin(angle) * radius, 15 + ring * 2, 8 + ring * 2, angle, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
+function drawPremiumFloralCorner(x, y, mirrorX = 1, mirrorY = 1, rose = "#f1d8ce", leaf = "#718053", gold = "#c29440") {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(mirrorX, mirrorY);
+  ctx.strokeStyle = gold;
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.bezierCurveTo(75, 20, 118, 70, 154, 145);
+  ctx.stroke();
+  [[38, 18, -.65], [72, 39, -.35], [98, 70, -.7], [121, 102, -.28], [142, 132, -.62]].forEach(([lx, ly, angle]) => {
+    ctx.save();
+    ctx.translate(lx, ly);
+    ctx.rotate(angle);
+    ctx.fillStyle = leaf;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 13, 30, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  });
+  ctx.restore();
+  drawPremiumRose(x + mirrorX * 30, y + mirrorY * 28, .92, rose, gold);
+  drawPremiumRose(x + mirrorX * 92, y + mirrorY * 74, .63, "#fffaf0", gold);
+}
+
+function drawGoldDivider(y, color = "#c39235", width = 630) {
+  const start = (W - width) / 2;
+  const gradient = ctx.createLinearGradient(start, y, start + width, y);
+  gradient.addColorStop(0, "rgba(195,146,53,0)");
+  gradient.addColorStop(.18, color);
+  gradient.addColorStop(.82, color);
+  gradient.addColorStop(1, "rgba(195,146,53,0)");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(start, y, width, 3);
+  ctx.save();
+  ctx.translate(W / 2, y + 1);
+  ctx.rotate(Math.PI / 4);
+  ctx.fillStyle = color;
+  ctx.fillRect(-7, -7, 14, 14);
+  ctx.restore();
+}
+
+function drawTempleWatermark(x, y, width, height, color = "rgba(170,125,48,.10)") {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = color;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 5;
+  ctx.fillRect(width * .12, height * .48, width * .76, height * .35);
+  ctx.fillRect(width * .02, height * .62, width * .18, height * .21);
+  ctx.fillRect(width * .80, height * .62, width * .18, height * .21);
+  [width * .11, width * .5, width * .89].forEach((cx, index) => {
+    const domeY = index === 1 ? height * .31 : height * .48;
+    const radius = index === 1 ? width * .22 : width * .105;
+    ctx.beginPath();
+    ctx.arc(cx, domeY + radius, radius, Math.PI, 0);
+    ctx.fill();
+    ctx.fillRect(cx - 4, domeY - 25, 8, 28);
+  });
+  for (let index = 0; index < 5; index += 1) ctx.fillRect(width * .18 + index * width * .145, height * .55, width * .07, height * .28);
+  ctx.beginPath();
+  ctx.moveTo(0, height * .84);
+  ctx.lineTo(width, height * .84);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawRoyalIvoryArdas(template) {
+  const paper = ctx.createRadialGradient(W * .58, 420, 80, W / 2, 780, 1050);
+  paper.addColorStop(0, "#fffdf5");
+  paper.addColorStop(.62, "#fff8e9");
+  paper.addColorStop(1, "#f4e4c9");
+  ctx.fillStyle = paper;
+  ctx.fillRect(0, 0, W, H);
+  drawTempleWatermark(40, 172, 360, 385);
+  drawBorder(template.border, "#ead19a");
+  drawPremiumFloralCorner(45, 50, 1, 1, "#fffaf0", "#83915f", template.gold);
+  drawPremiumFloralCorner(W - 45, 50, -1, 1, "#fffaf0", "#83915f", template.gold);
+
+  ctx.fillStyle = template.gold;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  setFont(ctx, 82, 800);
+  ctx.fillText(state.symbol || "☬", W / 2, 35);
+  drawTextBlock(state.prayer, 795, 80, 465, { size: 25, minSize: 18, weight: 800, maxLines: 3, color: "#4a2f20", lineHeight: 35 });
+  drawPortrait(338, 145, 430, 430, { border: template.gold, lineWidth: 11, placeholder: "#eee2cc" });
+  drawLeafSpray(W / 2, 566, 560, "#fffaf0", "#7d8d5a", template.gold);
+
+  drawTextBlock(state.noticeTitle, W / 2, 610, 900, { size: 72, minSize: 40, weight: 900, maxLines: 1, color: template.accent });
+  fillRound(ctx, 225, 704, 630, 84, 35, template.accent);
+  strokeRound(ctx, 225, 704, 630, 84, 35, template.gold, 5);
+  drawTextBlock(state.personName, W / 2, 718, 565, { size: 43, minSize: 27, weight: 900, maxLines: 1, color: "#fff5d7" });
+  drawTextBlock(state.identityLine, W / 2, 802, 800, { size: 26, minSize: 19, weight: 800, maxLines: 1, color: "#432b1f" });
+  drawTextBlock(state.introText, W / 2, 852, 850, { size: 25, minSize: 19, weight: 650, maxLines: 4, color: "#402d24", lineHeight: 35 });
+
+  fillRound(ctx, 112, 1008, 856, 150, 28, "rgba(255,255,255,.67)");
+  strokeRound(ctx, 112, 1008, 856, 150, 28, template.gold, 4);
+  drawTextBlock(state.eventTitle, W / 2, 1026, 760, { size: 35, minSize: 23, weight: 900, maxLines: 2, color: template.accent, lineHeight: 42 });
+  drawTextBlock(`▣  ${state.eventDate}  •  ${state.eventDay}\n◷  ${state.eventTime}`, W / 2, 1101, 790, { size: 28, minSize: 20, weight: 850, maxLines: 2, color: template.text, lineHeight: 40 });
+  drawTextBlock(`⌖  ${state.venue}`, W / 2, 1194, 850, { size: 29, minSize: 20, weight: 900, maxLines: 2, color: template.text, lineHeight: 39 });
+  drawGoldDivider(1288, template.gold, 690);
+  drawTextBlock(state.invitationText, W / 2, 1312, 850, { size: 23, minSize: 18, weight: 650, maxLines: 2, color: "#4d3a2d", lineHeight: 32 });
+  drawTextBlock(`ਸੰਪਰਕ: ${state.familyNames}`, W / 2, 1392, 830, { size: 24, minSize: 18, weight: 850, maxLines: 2, color: template.accent, lineHeight: 33 });
+  drawPhoneFooter(1492, "#fff4cf", template.accent);
+  drawPremiumFloralCorner(42, H - 48, 1, -1, "#fffaf0", "#83915f", template.gold);
+  drawPremiumFloralCorner(W - 42, H - 48, -1, -1, "#fffaf0", "#83915f", template.gold);
+}
+
+function drawGoldenLampMemorial(template) {
+  const paper = ctx.createLinearGradient(0, 0, 0, H);
+  paper.addColorStop(0, "#ffffff");
+  paper.addColorStop(.62, "#fffefa");
+  paper.addColorStop(1, "#f7eddc");
+  ctx.fillStyle = paper;
+  ctx.fillRect(0, 0, W, H);
+  drawBorder(template.border, "#ead7ad");
+  drawTextBlock("ੴ ਸਤਿਗੁਰ ਪ੍ਰਸਾਦਿ ੴ", W / 2, 34, 650, { size: 29, minSize: 21, weight: 900, maxLines: 1, color: "#211f1b" });
+  drawTextBlock(state.prayer, W / 2, 83, 760, { size: 25, minSize: 19, weight: 800, maxLines: 2, color: "#302720", lineHeight: 35 });
+  ctx.fillStyle = template.gold;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  setFont(ctx, 84, 700);
+  ctx.fillText(state.symbol || "☬", 110, 110);
+  ctx.fillText(state.symbol || "☬", W - 110, 110);
+  drawHangingLamp(110, 160, 500, template.gold);
+  drawHangingLamp(W - 110, 160, 500, template.gold);
+
+  ctx.save();
+  ctx.shadowColor = "rgba(131,91,30,.24)";
+  ctx.shadowBlur = 26;
+  drawPortrait(305, 154, 470, 555, { oval: true, border: template.gold, lineWidth: 9, placeholder: "#f0e8db" });
+  ctx.restore();
+  drawLeafSpray(W / 2, 680, 630, "#fffdf5", "#7b8f5c", template.gold);
+
+  fillRound(ctx, 105, 755, 870, 92, 40, template.accent);
+  strokeRound(ctx, 105, 755, 870, 92, 40, template.gold, 5);
+  drawTextBlock(state.personName, W / 2, 770, 800, { size: 48, minSize: 27, weight: 900, maxLines: 1, color: "#fff5d9" });
+  drawTextBlock(state.identityLine, W / 2, 864, 830, { size: 25, minSize: 19, weight: 800, maxLines: 1, color: "#33251f" });
+  drawTextBlock(state.introText, W / 2, 914, 860, { size: 24, minSize: 18, weight: 650, maxLines: 4, color: "#3d312a", lineHeight: 34 });
+  drawTextBlock(state.eventTitle, W / 2, 1052, 890, { size: 49, minSize: 28, weight: 900, maxLines: 2, color: template.accent, lineHeight: 54 });
+
+  strokeRound(ctx, 115, 1172, 850, 82, 32, template.gold, 4);
+  fillRound(ctx, 115, 1172, 425, 82, 32, template.accent);
+  drawTextBlock(state.eventDate, 327, 1188, 380, { size: 31, minSize: 21, weight: 900, maxLines: 1, color: "#fff" });
+  drawTextBlock(state.eventDay, 754, 1188, 360, { size: 31, minSize: 21, weight: 900, maxLines: 1, color: template.accent });
+  drawTextBlock(state.eventTime, W / 2, 1270, 820, { size: 28, minSize: 20, weight: 850, maxLines: 2, color: "#342720", lineHeight: 37 });
+  drawTextBlock(`⌖  ${state.venue}`, W / 2, 1340, 860, { size: 27, minSize: 19, weight: 850, maxLines: 2, color: template.text, lineHeight: 37 });
+  drawTextBlock(state.invitationText, W / 2, 1415, 840, { size: 22, minSize: 17, weight: 650, maxLines: 2, color: "#4c3b32", lineHeight: 30 });
+  drawTextBlock(`ਬੇਨਤੀ ਕਰਤਾ: ${state.familyNames}`, W / 2, 1480, 820, { size: 23, minSize: 18, weight: 850, maxLines: 1, color: template.accent });
+  drawPhoneFooter(1504, "#fff3cc", template.accent);
+}
+
+function drawHeirloomRoseTribute(template) {
+  const paper = ctx.createRadialGradient(W / 2, 530, 70, W / 2, 740, 1030);
+  paper.addColorStop(0, "#fffdf7");
+  paper.addColorStop(.62, "#fff7e9");
+  paper.addColorStop(1, "#efdfc8");
+  ctx.fillStyle = paper;
+  ctx.fillRect(0, 0, W, H);
+  drawBorder(template.border, "#e6c997");
+  drawPremiumFloralCorner(48, 52, 1, 1, "#edc6c0", "#738154", template.gold);
+  drawPremiumFloralCorner(W - 48, 52, -1, 1, "#edc6c0", "#738154", template.gold);
+  drawPremiumFloralCorner(48, H - 52, 1, -1, "#f3d5c6", "#738154", template.gold);
+  drawPremiumFloralCorner(W - 48, H - 52, -1, -1, "#f3d5c6", "#738154", template.gold);
+
+  ctx.fillStyle = template.gold;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  setFont(ctx, 78, 800);
+  ctx.fillText(state.symbol || "☬", W / 2, 28);
+  drawTextBlock(state.prayer, W / 2, 110, 720, { size: 27, minSize: 20, weight: 800, maxLines: 2, color: "#4d3627", lineHeight: 37 });
+  drawPearlPortrait(310, 205, 460, 600, template.gold);
+  drawLeafSpray(W / 2, 790, 610, "#f7dfd7", "#788757", template.gold);
+
+  drawTextBlock(state.personName, W / 2, 858, 900, { size: 57, minSize: 30, weight: 900, maxLines: 1, color: template.text });
+  drawTextBlock(state.identityLine, W / 2, 930, 820, { size: 27, minSize: 19, weight: 800, maxLines: 1, color: "#513626" });
+  drawTextBlock(state.noticeTitle, W / 2, 982, 860, { size: 39, minSize: 25, weight: 900, maxLines: 1, color: template.accent });
+  drawTextBlock(state.introText, W / 2, 1040, 860, { size: 23, minSize: 18, weight: 650, maxLines: 3, color: "#4a3a31", lineHeight: 32 });
+  drawGoldDivider(1148, template.gold, 650);
+  drawTextBlock(state.eventTitle, W / 2, 1170, 870, { size: 38, minSize: 24, weight: 900, maxLines: 2, color: template.text, lineHeight: 45 });
+  drawTextBlock(`ਮਿਤੀ: ${state.eventDate} (${state.eventDay})`, W / 2, 1265, 850, { size: 27, minSize: 19, weight: 850, maxLines: 1, color: "#3e2e25" });
+  drawTextBlock(`ਸਮਾਂ: ${state.eventTime}`, W / 2, 1310, 850, { size: 26, minSize: 18, weight: 800, maxLines: 1, color: "#3e2e25" });
+  drawTextBlock(`ਸਥਾਨ: ${state.venue}`, W / 2, 1356, 860, { size: 25, minSize: 18, weight: 850, maxLines: 2, color: template.text, lineHeight: 34 });
+  fillRound(ctx, 105, 1437, 870, 106, 18, "rgba(255,255,255,.74)");
+  strokeRound(ctx, 105, 1437, 870, 106, 18, "#d4b47b", 3);
+  drawTextBlock(`ਦੁਖੀ ਹਿਰਦੇ: ${state.familyNames}`, W / 2, 1453, 810, { size: 23, minSize: 17, weight: 850, maxLines: 2, color: "#463126", lineHeight: 31 });
+  const phones = [state.phone, state.phone2].filter(Boolean).join("  •  ");
+  if (phones) drawTextBlock(`☎  ${phones}`, W / 2, 1512, 790, { size: 26, minSize: 18, weight: 900, maxLines: 1, color: template.text });
+}
+
 function renderPoster() {
   ctx.clearRect(0, 0, W, H);
   const template = getTemplate();
@@ -636,6 +849,9 @@ function renderPoster() {
   else if (template.id === 4) drawMaroon(template);
   else if (template.id === 5) drawHangingLampsTribute(template);
   else if (template.id === 6) drawPearlRoseMemorial(template);
+  else if (template.id === 7) drawRoyalIvoryArdas(template);
+  else if (template.id === 8) drawGoldenLampMemorial(template);
+  else if (template.id === 9) drawHeirloomRoseTribute(template);
   else drawCreamFloral(template);
 
   if (state.footerNote && template.id !== 2) {
@@ -656,7 +872,7 @@ function renderTemplateMenu() {
     <button class="template-option bhog-template-option ${template.id === Number(state.templateId) ? "selected" : ""}" type="button" role="option" aria-selected="${template.id === Number(state.templateId)}" data-bhog-template="${template.id}">
       ${lookMarkup(template)}
       <span class="template-option-copy"><strong>${String(template.id).padStart(2, "0")}. ${template.name}</strong><small>${template.note}</small></span>
-      <span class="bhog-template-badge">BHOG</span>
+      <span class="bhog-template-badge">${template.id >= 7 ? "PREMIUM" : "BHOG"}</span>
     </button>
   `).join("");
   menu.querySelectorAll("[data-bhog-template]").forEach((button) => {

@@ -735,6 +735,20 @@ textarea:focus { border-color: #2d7357; box-shadow: 0 0 0 3px rgba(30, 106, 76, 
 .site-footer span { color: #e5be58; font-weight: 900; letter-spacing: .08em; }
 .site-footer a { color: #fff; font-weight: 700; text-decoration: none; overflow-wrap: anywhere; }
 .site-footer a:hover { text-decoration: underline; }
+.site-footer .feedback-link {
+  min-height: 36px;
+  padding: 8px 13px;
+  border: 1px solid rgba(229,190,88,.7);
+  border-radius: 999px;
+  color: #ffe59b;
+  background: rgba(255,255,255,.08);
+  transition: transform .18s ease, background .18s ease;
+}
+.site-footer .feedback-link:hover {
+  background: rgba(229,190,88,.18);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
 
 .toast {
   position: fixed;

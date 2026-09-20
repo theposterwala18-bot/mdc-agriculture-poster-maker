@@ -120,7 +120,8 @@ button { cursor: pointer; }
 .module-hub-heading .eyebrow { color: #e3bd56; }
 .module-hub-heading > div { min-width: 0; }
 .module-hub-heading h2 { margin: 8px 0 0; font-size: clamp(1.35rem, 3vw, 2rem); line-height: 1.35; overflow-wrap: anywhere; }
-.module-hub-heading > p { max-width: 470px; margin: 0; color: #d9e9e0; font-size: .9rem; line-height: 1.65; }
+.module-hub-copy { flex: 1 1 48%; }
+.module-hub-intro { max-width: 500px; margin: 12px 0 0; color: #d9e9e0; font-size: .85rem; line-height: 1.65; }
 .module-groups { display: grid; gap: 22px; }
 .module-group {
   padding: 20px;
@@ -791,7 +792,7 @@ textarea:focus { border-color: #2d7357; box-shadow: 0 0 0 3px rgba(30, 106, 76, 
   .donate-button { min-height: 42px; padding: 8px 10px; font-size: .72rem; }
   .module-hub { width: calc(100% - 20px); margin: 14px auto 40px; }
   .module-hub-heading { align-items: flex-start; padding: 19px; border-radius: 17px; }
-  .module-hub-heading > p { display: none; }
+  .module-hub-intro { display: none; }
   .module-group { padding: 14px; border-radius: 16px; }
   .module-card-grid { grid-template-columns: 1fr; }
   .module-card { min-height: 86px; }

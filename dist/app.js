@@ -45,7 +45,12 @@ const themes = {
   teal: { dark: "#0a4144", mid: "#126a6b", accent: "#a72830", gold: "#e0b759", paper: "#f7fcf8" },
   crimson: { dark: "#441b22", mid: "#6b2833", accent: "#b31123", gold: "#e1b457", paper: "#fff8ed" },
   heritage: { dark: "#39452b", mid: "#5b6940", accent: "#8f3026", gold: "#d7b75e", paper: "#fbf8e9" },
-  blackgold: { dark: "#171b19", mid: "#2b332f", accent: "#8f1f2d", gold: "#e0b94e", paper: "#fbf7e9" }
+  blackgold: { dark: "#171b19", mid: "#2b332f", accent: "#8f1f2d", gold: "#e0b94e", paper: "#fbf7e9" },
+  auctionforest: { dark: "#123c28", mid: "#286544", accent: "#a61f26", gold: "#d8ad45", paper: "#fff9e7" },
+  pistachio: { dark: "#174f35", mid: "#54835f", accent: "#b42428", gold: "#d7a63e", paper: "#f5f5df" },
+  harvest: { dark: "#174425", mid: "#2e743c", accent: "#c82024", gold: "#edbd31", paper: "#fff5b9" },
+  estate: { dark: "#0d3e2d", mid: "#1d6848", accent: "#7f171b", gold: "#d5b15d", paper: "#fffdf1" },
+  societygreen: { dark: "#0b4934", mid: "#147052", accent: "#b21720", gold: "#e3bd54", paper: "#f9fff5" }
 };
 
 const templates = [
@@ -69,7 +74,12 @@ const templates = [
   { id: 18, name: "Legal Auction Cards", note: "4 large cards, strong date ਅਤੇ terms", layout: "classic", itemLayout: "legal", look: "bold", theme: "crimson", premium: true },
   { id: 19, name: "Farm Scene Catalog", note: "green-gold catalog with strong hierarchy", layout: "modern", itemLayout: "catalog", look: "modern", theme: "copper", premium: true },
   { id: 20, name: "Black Gold Elite", note: "premium 5 × 2 catalogue look", layout: "bold", itemLayout: "catalog", look: "premium", theme: "blackgold", premium: true },
-  { id: 21, name: "Hero Implement Spotlight", note: "ਇੱਕ ਖਾਸ ਸੰਦ ਵੱਡਾ, ਬਾਕੀ compact cards ਵਿੱਚ", layout: "classic", itemLayout: "spotlight", look: "spotlight", theme: "emerald", premium: true }
+  { id: 21, name: "Hero Implement Spotlight", note: "ਇੱਕ ਖਾਸ ਸੰਦ ਵੱਡਾ, ਬਾਕੀ compact cards ਵਿੱਚ", layout: "classic", itemLayout: "spotlight", look: "spotlight", theme: "emerald", premium: true },
+  { id: 22, name: "Forest Gold Auction", note: "Landscape reference ਵਾਲਾ green-gold premium catalog", layout: "bold", itemLayout: "catalog", look: "premium", theme: "auctionforest", premium: true },
+  { id: 23, name: "Ivory Machinery Cards", note: "Ivory-green portrait notice ਅਤੇ 3-column machinery focus", layout: "classic", itemLayout: "catalog", look: "editorial", theme: "pistachio", premium: true },
+  { id: 24, name: "Harvest Yellow Grid", note: "ਚਮਕਦਾਰ yellow-green dense machinery catalogue", layout: "bold", itemLayout: "catalog", look: "bold", theme: "harvest", premium: true },
+  { id: 25, name: "Premium Society Auction", note: "Formal society notice, rich green ਅਤੇ gold hierarchy", layout: "classic", itemLayout: "catalog", look: "premium", theme: "estate", premium: true },
+  { id: 26, name: "Clean Society Machinery", note: "White-green 8-item auction grid with strong date focus", layout: "modern", itemLayout: "catalog", look: "modern", theme: "societygreen", premium: true }
 ];
 
 const moduleGroups = [

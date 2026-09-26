@@ -187,6 +187,8 @@ const moduleConfigs = {
 };
 
 const templates = [
+  { id: 7, name: "Royal Jagran Invitation", note: "Maroon-gold religious event layout with two-photo presentation", look: "classic", modules: ["general-invite"], palette: { dark: "#4f1418", accent: "#8b1c25", soft: "#fff8e9", gold: "#d2a33a" } },
+  { id: 6, name: "Boutique Grand Opening", note: "Ivory floral opening invitation with elegant maroon hierarchy", look: "card", modules: ["general-invite"], palette: { dark: "#54202d", accent: "#8f2945", soft: "#fff5eb", gold: "#c69a43" } },
   { id: 5, name: "Premium Editorial", note: "ਨਵਾਂ magazine-style layout", look: "editorial" },
   { id: 4, name: "Elegant Portrait", note: "Soft background ਅਤੇ centered card", look: "card" },
   { id: 3, name: "Bold Spotlight", note: "ਵੱਡੀ photo ਅਤੇ high-impact heading", look: "bold" },
@@ -355,9 +357,40 @@ function drawPremiumEditorial() {
   fillRound(90, 1290, 900, 120, 26, p.soft); drawText(state.body, W / 2, 1310, 820, { size: 24, minSize: 17, weight: 650, maxLines: 3, color: p.ink, lineHeight: 33 });
   drawFooter(1470, "#fff", p.dark);
 }
+function drawBoutiqueOpening() {
+  const p = { dark: "#54202d", accent: "#8f2945", soft: "#fff5eb", gold: "#c69a43", ink: "#3e2730" };
+  const paper = ctx.createLinearGradient(0, 0, W, H); paper.addColorStop(0, "#fffdf8"); paper.addColorStop(.55, p.soft); paper.addColorStop(1, "#f7e7df"); ctx.fillStyle = paper; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = p.gold; ctx.lineWidth = 12; ctx.strokeRect(24, 24, W - 48, H - 48); ctx.lineWidth = 3; ctx.strokeRect(45, 45, W - 90, H - 90);
+  [[82,82],[W-82,82],[82,H-82],[W-82,H-82]].forEach(([x,y], index) => { ctx.save(); ctx.translate(x,y); if(index % 2) ctx.scale(-1,1); if(index > 1) ctx.scale(1,-1); ctx.fillStyle="#ead2c1"; for(let i=0;i<5;i+=1){ctx.beginPath();ctx.ellipse(18+i*13,8+i*8,24,12,-.55,0,Math.PI*2);ctx.fill();} ctx.fillStyle=p.gold;ctx.beginPath();ctx.arc(0,0,18,0,Math.PI*2);ctx.fill();ctx.restore(); });
+  drawLogo(W / 2, 100, 82); drawText(state.heading, W / 2, 150, 820, { size: 29, minSize: 19, weight: 850, maxLines: 2, color: p.dark });
+  drawText(state.title, W / 2, 242, 920, { size: 72, minSize: 34, weight: 900, maxLines: 2, color: p.accent, lineHeight: 78 });
+  ctx.fillStyle=p.gold; ctx.fillRect(180,405,720,4); drawText(state.subtitle, W / 2, 435, 830, { size: 27, minSize: 18, weight: 650, maxLines: 3, color: p.ink, lineHeight: 38 });
+  drawPhoto(state.primaryPhoto, 315, 565, 450, 420, { radius: 225, border: p.gold, lineWidth: 10, placeholder: "#f1dfd5" });
+  fillRound(170, 1015, 740, 76, 32, p.dark); drawText(state.highlight, W / 2, 1029, 680, { size: 38, minSize: 22, weight: 900, maxLines: 1, color: "#fff4d8" });
+  fillRound(105, 1120, 870, 180, 25, "rgba(255,255,255,.76)"); strokeRound(105, 1120, 870, 180, 25, p.gold, 3); drawBulletBody(170, 1150, 740, p.ink, 3, "center");
+  [["▣",state.date],["◷",state.time],["⌖",state.venue]].forEach(([icon,value],i)=>{const x=80+i*320;fillRound(x,1330,280,105,20,i===0?p.accent:"#fff");strokeRound(x,1330,280,105,20,p.gold,3);drawText(`${icon}  ${value}`,x+140,1351,245,{size:23,minSize:16,weight:850,maxLines:2,color:i===0?"#fff":p.dark,lineHeight:30});});
+  drawFooter(1472, "#fff", p.dark);
+}
+function drawRoyalJagran() {
+  const p = { dark: "#4f1418", accent: "#8b1c25", soft: "#fff8e9", gold: "#d2a33a", ink: "#351c1b" };
+  const paper=ctx.createRadialGradient(W/2,520,80,W/2,780,1000);paper.addColorStop(0,"#fffdf6");paper.addColorStop(1,"#f1dfbf");ctx.fillStyle=paper;ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle=p.gold;ctx.lineWidth=14;ctx.strokeRect(22,22,W-44,H-44);ctx.lineWidth=3;ctx.strokeRect(45,45,W-90,H-90);
+  drawLogo(92,92,74); drawText(state.heading,W/2,55,780,{size:27,minSize:18,weight:850,maxLines:2,color:p.dark});
+  drawText(state.title,W/2,145,920,{size:62,minSize:31,weight:900,maxLines:2,color:p.accent,lineHeight:68});
+  ctx.fillStyle=p.gold;ctx.fillRect(145,300,790,5);
+  drawPhoto(state.primaryPhoto,75,345,430,520,{radius:28,border:p.gold,lineWidth:8,placeholder:"#f3e3c6"});
+  drawPhoto(state.secondaryPhoto,575,345,430,520,{radius:28,border:p.gold,lineWidth:8,placeholder:"#f3e3c6"});
+  fillRound(125,900,830,84,36,p.dark);drawText(state.highlight,W/2,915,760,{size:40,minSize:23,weight:900,maxLines:1,color:"#fff2c9"});
+  drawText(state.subtitle,W/2,1015,860,{size:26,minSize:18,weight:650,maxLines:3,color:p.ink,lineHeight:36});
+  fillRound(95,1135,890,150,26,"rgba(255,255,255,.76)");strokeRound(95,1135,890,150,26,p.gold,3);drawBulletBody(155,1160,770,p.ink,3,"center");
+  [["▣",state.date],["◷",state.time],["⌖",state.venue]].forEach(([icon,value],i)=>{const x=65+i*327;fillRound(x,1322,296,108,20,i===0?p.accent:"#fff9ef");strokeRound(x,1322,296,108,20,p.gold,3);drawText(`${icon} ${value}`,x+148,1344,260,{size:22,minSize:16,weight:850,maxLines:2,color:i===0?"#fff":p.dark,lineHeight:29});});
+  drawFooter(1470,"#fff",p.dark);
+}
 function renderPoster() {
   ctx.clearRect(0, 0, W, H);
-  if (state.templateId === 1) drawHeritage();
+  if (state.templateId === 7 && moduleId === "general-invite") drawRoyalJagran();
+  else if (state.templateId === 6 && moduleId === "general-invite") drawBoutiqueOpening();
+  else if (state.templateId === 1) drawHeritage();
   else if (state.templateId === 2) drawModernSplit();
   else if (state.templateId === 3) drawBoldSpotlight();
   else if (state.templateId === 4) drawElegantPortrait();
@@ -368,8 +401,8 @@ function renderPoster() {
 
 function hiddenStorageKey() { return `mdc-hidden-templates-${moduleId}`; }
 function getHiddenTemplates() { try { return JSON.parse(localStorage.getItem(hiddenStorageKey()) || "[]"); } catch { return []; } }
-function visibleTemplates() { const hidden = new Set(getHiddenTemplates()); return templates.filter((template) => !hidden.has(template.id)); }
-function lookMarkup(template) { const p = config.palette; return `<span class="universal-template-look look-${template.look}" style="--look-bg:${p.soft};--look-border:${p.gold};--look-accent:${p.accent};--look-text:${p.dark}"><i></i></span>`; }
+function visibleTemplates() { const hidden = new Set(getHiddenTemplates()); return templates.filter((template) => (!template.modules || template.modules.includes(moduleId)) && !hidden.has(template.id)); }
+function lookMarkup(template) { const p = template.palette || config.palette; return `<span class="universal-template-look look-${template.look}" style="--look-bg:${p.soft};--look-border:${p.gold};--look-accent:${p.accent};--look-text:${p.dark}"><i></i></span>`; }
 function renderTemplateMenu() {
   const menu = document.getElementById("universalTemplateMenu");
   menu.innerHTML = visibleTemplates().map((template) => `<button class="template-option universal-template-option ${template.id === state.templateId ? "selected" : ""}" type="button" role="option" aria-selected="${template.id === state.templateId}" data-template-id="${template.id}">${lookMarkup(template)}<span class="template-option-copy"><strong>${String(template.id).padStart(2, "0")}. ${template.name}</strong><small>${template.note}</small></span><span class="universal-template-badge">${config.icon}</span></button>`).join("");

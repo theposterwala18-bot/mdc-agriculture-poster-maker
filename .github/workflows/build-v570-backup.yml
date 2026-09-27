@@ -1,0 +1,26 @@
+name: Build v5.7.0 Backup ZIP
+on:
+  push:
+    branches:
+      - backup-zip-builder-v5.7.0
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact v5.7.0 snapshot
+        uses: actions/checkout@v4
+        with:
+          ref: 92ed212004ad14adde845a76e27b253a4ba1fed1
+          fetch-depth: 1
+      - name: Create backup folder
+        run: |
+          mkdir -p backup
+          git archive --format=zip --output=backup/Poster_Maker_v5.7.0_Backup.zip 92ed212004ad14adde845a76e27b253a4ba1fed1
+      - name: Upload backup ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: Poster_Maker_v5.7.0_Backup
+          path: backup/Poster_Maker_v5.7.0_Backup.zip
+          retention-days: 30

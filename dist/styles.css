@@ -900,3 +900,5 @@ textarea:focus { border-color: #2d7357; box-shadow: 0 0 0 3px rgba(30, 106, 76, 
 .hero-promo-copy small{color:#d5e4db;font-size:.55rem;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .hero-promo-card b{color:#ffd56d;font-size:.58rem;white-space:nowrap}
 @media(max-width:720px){.module-home-button{margin-right:8px;padding:7px 9px}.hero-promo-cards{grid-template-columns:1fr}.hero-promo-card{grid-template-columns:36px 1fr auto}.hero-promo-icon{width:36px;height:36px}}
+
+.hero-promo-card.is-coming{cursor:default;opacity:.82}.hero-promo-empty{padding:10px;color:#d7e8de;font-size:.62rem;font-weight:800}

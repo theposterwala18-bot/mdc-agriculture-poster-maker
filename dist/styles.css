@@ -885,3 +885,18 @@ textarea:focus { border-color: #2d7357; box-shadow: 0 0 0 3px rgba(30, 106, 76, 
 .tool-promo-copy p{margin:0;color:#6a7a71;font-size:.66rem;line-height:1.45}
 .tool-promo-cta{color:#0b6141;font-size:.66rem;font-weight:900;white-space:nowrap}
 @media(max-width:720px){.more-tools-heading{align-items:flex-start}.more-tools-grid{grid-template-columns:1fr}.tool-promo-card{grid-template-columns:44px 1fr}.tool-promo-icon{width:44px;height:44px}.tool-promo-cta{grid-column:2}}
+
+.module-home-button{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 12px;margin-right:12px;border:1px solid rgba(255,255,255,.35);border-radius:10px;color:#fff;background:rgba(255,255,255,.08);text-decoration:none;font-size:.72rem;font-weight:900;white-space:nowrap}
+.module-home-button:hover{background:rgba(255,255,255,.16)}
+.hero-promo-zone{display:grid;gap:8px;margin:0 0 14px;padding:10px 11px;border:1px solid rgba(255,220,126,.32);border-radius:14px;background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.03));overflow:hidden}
+.hero-promo-top{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#ffd56d;font:900 .58rem/1.2 system-ui,sans-serif;letter-spacing:.08em}
+.hero-promo-top small{color:#d9eadf;font-size:.54rem;letter-spacing:0}
+.hero-promo-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.hero-promo-card{display:grid;grid-template-columns:38px 1fr auto;align-items:center;gap:9px;min-width:0;padding:8px 9px;border:1px solid rgba(255,255,255,.18);border-radius:11px;color:#fff;background:rgba(255,255,255,.08);text-decoration:none;transition:background .16s ease,transform .16s ease}
+.hero-promo-card:hover{background:rgba(255,255,255,.14);transform:translateY(-1px)}
+.hero-promo-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.12);font-size:1.15rem}
+.hero-promo-copy{display:grid;gap:2px;min-width:0}
+.hero-promo-copy strong{font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hero-promo-copy small{color:#d5e4db;font-size:.55rem;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hero-promo-card b{color:#ffd56d;font-size:.58rem;white-space:nowrap}
+@media(max-width:720px){.module-home-button{margin-right:8px;padding:7px 9px}.hero-promo-cards{grid-template-columns:1fr}.hero-promo-card{grid-template-columns:36px 1fr auto}.hero-promo-icon{width:36px;height:36px}}

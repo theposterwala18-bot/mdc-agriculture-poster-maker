@@ -109,8 +109,8 @@ const moduleGroups = [
     name: "ਗਮੀ, ਅਫਸੋਸ ਅਤੇ ਮਦਦ",
     icon: "🕊️",
     modules: [
-      { id: "missing", name: "Missing Person Notice", punjabi: "ਗੁੰਮਸ਼ੁਦਾ ਦੀ ਤਲਾਸ਼", icon: "🔎", available: true },
       { id: "death", name: "Death / Bhog Notice", punjabi: "ਮੌਤ, ਅਫਸੋਸ ਅਤੇ ਭੋਗ ਦਾ Poster", icon: "🕯️", available: true },
+      { id: "missing", name: "Missing Person Notice", punjabi: "ਗੁੰਮਸ਼ੁਦਾ ਦੀ ਤਲਾਸ਼", icon: "🔎", available: true },
       { id: "condolence", name: "Condolence Notice", punjabi: "ਸ਼ੋਕ ਅਤੇ ਅਫਸੋਸ ਸੰਦੇਸ਼", icon: "🤍", available: true }
     ]
   },

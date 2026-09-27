@@ -6,6 +6,10 @@ const saveSettingsButton=document.getElementById("saveOwnerSettings");
 let ownerConfig={modules:[],plans:[]};
 let dashboardDownloads=[];
 const LEGACY_MODULE_IDS=new Set(["car-sale","dog-sale","akhand-path","invitation"]);
+const DEFAULT_PROMOS=[
+  {title:"TripKhata",description:"Trip expenses, Shared Trip, Customer Khata & Suppliers",url:"https://theposterwala18-bot.github.io/TripKhata/",icon:"🧳",enabled:true,order:10},
+  {title:"Zameen Di Minnti",description:"Land measurement & calculation app — coming soon",url:"",icon:"📐",enabled:true,order:20}
+];
 
 function escapeHtml(value){return String(value??"").replace(/[&<>'"]/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"})[char]);}
 function money(paise){return new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:0}).format(Number(paise||0)/100);}
@@ -27,6 +31,17 @@ function moduleRow(item={module_id:"",display_name:"",is_enabled:1,is_free:0,pri
   </div>`;
 }
 
+function promoRow(item={title:"",description:"",url:"",icon:"🔗",enabled:true,order:10}){
+  return `<div class="editable-row promo-row">
+    <label><span>Icon</span><input data-key="icon" maxlength="8" value="${escapeHtml(item.icon||"🔗")}"></label>
+    <label><span>Title</span><input data-key="title" maxlength="60" value="${escapeHtml(item.title||"")}"></label>
+    <label class="promo-description"><span>Short Description</span><input data-key="description" maxlength="180" value="${escapeHtml(item.description||"")}"></label>
+    <label class="promo-url"><span>App / Website Link</span><input data-key="url" type="url" placeholder="https://..." value="${escapeHtml(item.url||"")}"></label>
+    <label><span>Order</span><input data-key="order" type="number" value="${Number(item.order||10)}"></label>
+    <label class="mini-check"><span>Enabled</span><input data-key="enabled" type="checkbox" ${item.enabled!==false?"checked":""}></label>
+    <button type="button" class="secondary-action promo-remove">Remove</button>
+  </div>`;
+}
 function planRow(item){return `<div class="editable-row plan-row" data-id="${Number(item.id)}">
   <label><span>Plan Name</span><input data-key="display_name" value="${escapeHtml(item.display_name)}"></label>
   <label><span>Price ₹</span><input data-key="price" type="number" min="1" value="${paiseToRupees(item.price_paise)}"></label>
@@ -37,6 +52,15 @@ function planRow(item){return `<div class="editable-row plan-row" data-id="${Num
   <label class="mini-check"><span>Premium Included</span><input data-key="includes_premium" type="checkbox" ${checked(item.includes_premium)}></label>
   </div>`;}
 
+function parsePromos(raw){
+  try{
+    const parsed=typeof raw==="string"?JSON.parse(raw):raw;
+    return Array.isArray(parsed)&&parsed.length?parsed:DEFAULT_PROMOS;
+  }catch(_){return DEFAULT_PROMOS;}
+}
+function bindPromoRemove(){
+  document.querySelectorAll(".promo-remove").forEach(btn=>btn.onclick=()=>btn.closest(".promo-row")?.remove());
+}
 function renderOwnerConfig(data){
   ownerConfig=data;
   const s=data.settings||{};
@@ -48,6 +72,8 @@ function renderOwnerConfig(data){
   document.getElementById("premiumPrice").value=paiseToRupees(s.premium_price_paise??4900);
   document.getElementById("unlockMinutes").value=s.unlock_minutes??30;
   document.getElementById("paidDownloadLimit").value=s.paid_download_limit??5;
+  document.getElementById("promoSettings").innerHTML=parsePromos(s.promo_cards_json).map(promoRow).join("");
+  bindPromoRemove();
   document.getElementById("moduleSettings").innerHTML=(data.modules||[]).filter(item=>!LEGACY_MODULE_IDS.has(item.module_id)).map(moduleRow).join("")||'<p class="muted">Add the first module setting.</p>';
   document.getElementById("planSettings").innerHTML=(data.plans||[]).map(planRow).join("");
 }
@@ -130,6 +156,14 @@ function readModules(){return [...document.querySelectorAll(".module-row")].map(
   price_paise:rupeesToPaise(row.querySelector('[data-key="price"]').value),offer_price_paise:row.querySelector('[data-key="offer"]').value===""?null:rupeesToPaise(row.querySelector('[data-key="offer"]').value),
   is_enabled:row.querySelector('[data-key="is_enabled"]').checked,is_free:row.querySelector('[data-key="is_free"]').checked,is_premium:row.querySelector('[data-key="is_premium"]').checked
 }));}
+function readPromos(){return [...document.querySelectorAll(".promo-row")].map((row,index)=>({
+  title:row.querySelector('[data-key="title"]').value.trim(),
+  description:row.querySelector('[data-key="description"]').value.trim(),
+  url:row.querySelector('[data-key="url"]').value.trim(),
+  icon:row.querySelector('[data-key="icon"]').value.trim()||"🔗",
+  enabled:row.querySelector('[data-key="enabled"]').checked,
+  order:Number(row.querySelector('[data-key="order"]').value)||((index+1)*10)
+})).filter(p=>p.title);}
 function readPlans(){return [...document.querySelectorAll(".plan-row")].map((row,index)=>({
   id:Number(row.dataset.id),display_name:row.querySelector('[data-key="display_name"]').value.trim(),price_paise:rupeesToPaise(row.querySelector('[data-key="price"]').value),
   offer_price_paise:row.querySelector('[data-key="offer"]').value===""?null:rupeesToPaise(row.querySelector('[data-key="offer"]').value),duration_days:Number(row.querySelector('[data-key="duration_days"]').value),
@@ -139,13 +173,14 @@ function readPlans(){return [...document.querySelectorAll(".plan-row")].map((row
 
 async function saveOwnerSettings(){
   const message=document.getElementById("settingsMessage");saveSettingsButton.disabled=true;message.textContent="Settings save ਹੋ ਰਹੀਆਂ ਹਨ…";message.className="settings-message";
-  try{const token=await window.ThePosterWalaAuth.getIdToken();const body={settings:{all_modules_free:document.getElementById("allModulesFree").checked?1:0,daily_free_enabled:document.getElementById("dailyFreeEnabled").checked?1:0,daily_free_limit:Number(document.getElementById("dailyFreeLimit").value),default_price_paise:rupeesToPaise(document.getElementById("defaultPrice").value),premium_price_paise:rupeesToPaise(document.getElementById("premiumPrice").value),unlock_minutes:Number(document.getElementById("unlockMinutes").value),paid_download_limit:Number(document.getElementById("paidDownloadLimit").value)},modules:readModules(),plans:readPlans()};
+  try{const token=await window.ThePosterWalaAuth.getIdToken();const body={settings:{all_modules_free:document.getElementById("allModulesFree").checked?1:0,daily_free_enabled:document.getElementById("dailyFreeEnabled").checked?1:0,daily_free_limit:Number(document.getElementById("dailyFreeLimit").value),default_price_paise:rupeesToPaise(document.getElementById("defaultPrice").value),premium_price_paise:rupeesToPaise(document.getElementById("premiumPrice").value),unlock_minutes:Number(document.getElementById("unlockMinutes").value),paid_download_limit:Number(document.getElementById("paidDownloadLimit").value),promo_cards_json:JSON.stringify(readPromos())},modules:readModules(),plans:readPlans()};
     const response=await fetch(PAYMENT_API+"/owner/config/save",{method:"POST",headers:{Authorization:"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify(body)});const data=await response.json().catch(()=>null);if(!response.ok||!data?.success)throw new Error(data?.error||"Settings save ਨਹੀਂ ਹੋਈਆਂ।");message.textContent=`✓ ${data.saved} settings safely saved`;message.className="settings-message success";await loadOwnerConfig(token);
   }catch(error){message.textContent=error.message||"Settings save ਨਹੀਂ ਹੋਈਆਂ।";message.className="settings-message error";}finally{saveSettingsButton.disabled=false;}
 }
 
 refreshButton.addEventListener("click",loadDashboard);
 saveSettingsButton.addEventListener("click",saveOwnerSettings);
+document.getElementById("addPromoRow")?.addEventListener("click",()=>{const holder=document.getElementById("promoSettings");holder.insertAdjacentHTML("beforeend",promoRow({order:(holder.querySelectorAll(".promo-row").length+1)*10}));bindPromoRemove();});
 document.getElementById("addModuleRow").addEventListener("click",()=>{const holder=document.getElementById("moduleSettings");holder.querySelector(".muted")?.remove();holder.insertAdjacentHTML("beforeend",moduleRow());});
 document.getElementById("downloadPeriod")?.addEventListener("change",renderDownloads);
 document.getElementById("downloadSearch")?.addEventListener("input",renderDownloads);

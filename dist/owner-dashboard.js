@@ -4,6 +4,7 @@ const content=document.getElementById("dashboardContent");
 const refreshButton=document.getElementById("refreshDashboard");
 const saveSettingsButton=document.getElementById("saveOwnerSettings");
 let ownerConfig={modules:[],plans:[]};
+let dashboardDownloads=[];
 const LEGACY_MODULE_IDS=new Set(["car-sale","dog-sale","akhand-path","invitation"]);
 
 function escapeHtml(value){return String(value??"").replace(/[&<>'"]/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"})[char]);}
@@ -58,6 +59,39 @@ async function loadOwnerConfig(token){
   renderOwnerConfig(data);
 }
 
+function parseRowDate(value){
+  if(!value)return null;
+  const normalized=/Z|[+-]\d\d:?\d\d$/.test(value)?value:value.replace(" ","T")+"Z";
+  const d=new Date(normalized);return Number.isNaN(d.getTime())?null:d;
+}
+function renderDownloads(){
+  const period=document.getElementById("downloadPeriod")?.value||"week";
+  const q=(document.getElementById("downloadSearch")?.value||"").trim().toLowerCase();
+  const fromInput=document.getElementById("downloadFrom"),toInput=document.getElementById("downloadTo");
+  const custom=period==="custom";
+  if(fromInput)fromInput.hidden=!custom;if(toInput)toInput.hidden=!custom;
+  const now=new Date(),startOfToday=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  let from=null,to=null;
+  if(period==="week"){from=new Date(startOfToday);from.setDate(from.getDate()-6);to=new Date(startOfToday);to.setHours(23,59,59,999);}
+  else if(period==="month"){from=new Date(now.getFullYear(),now.getMonth(),1);to=new Date(now.getFullYear(),now.getMonth()+1,0,23,59,59,999);}
+  else if(period==="year"){from=new Date(now.getFullYear(),0,1);to=new Date(now.getFullYear(),11,31,23,59,59,999);}
+  else if(period==="custom"){
+    if(fromInput?.value)from=new Date(fromInput.value+"T00:00:00");
+    if(toInput?.value)to=new Date(toInput.value+"T23:59:59");
+  }
+  const rows=dashboardDownloads.filter(row=>{
+    const d=parseRowDate(row.created_at);
+    if(from&&(!d||d<from))return false;if(to&&(!d||d>to))return false;
+    if(q){
+      const hay=[row.display_name,row.email,row.uid,row.module_id,row.file_type].map(v=>String(v||"").toLowerCase()).join(" ");
+      if(!hay.includes(q))return false;
+    }
+    return true;
+  });
+  const body=document.getElementById("downloadsBody");
+  if(body)body.innerHTML=rows.length?rows.map(row=>`<tr><td>${escapeHtml(dateTime(row.created_at))}</td><td>${userLabel(row)}</td><td>${escapeHtml(row.module_id)}</td><td>${escapeHtml(row.file_type)}</td></tr>`).join(""):'<tr><td colspan="4" class="muted">No downloads in selected period</td></tr>';
+  const count=document.getElementById("downloadCount");if(count)count.textContent=`${rows.length} of ${dashboardDownloads.length} records`;
+}
 async function loadDashboard(){
   refreshButton.disabled=true;
   statusBox.hidden=false;
@@ -79,10 +113,11 @@ async function loadDashboard(){
     document.getElementById("capturedAmount").textContent=money(data.summary.captured_amount_paise);
     document.getElementById("totalDownloads").textContent=data.summary.total_downloads||0;
     document.getElementById("paymentCount").textContent=`${data.payments.length} records`;
-    document.getElementById("downloadCount").textContent=`${data.downloads.length} records`;
+    dashboardDownloads=data.downloads||[];
+    document.getElementById("downloadCount").textContent=`${dashboardDownloads.length} records`;
 
     document.getElementById("paymentsBody").innerHTML=data.payments.length?data.payments.map(row=>`<tr><td>${escapeHtml(dateTime(row.created_at))}</td><td>${userLabel(row)}</td><td>${escapeHtml(row.module_id||"—")}</td><td>${money(row.amount_paise)}</td><td><span class="status-pill ${row.status==="created"?"created":""}">${escapeHtml(row.status)}</span></td><td>${Number(row.download_count||0)}</td><td class="muted">${escapeHtml(row.payment_id||row.order_id||"—")}</td></tr>`).join(""):'<tr><td colspan="7" class="muted">No payment records</td></tr>';
-    document.getElementById("downloadsBody").innerHTML=data.downloads.length?data.downloads.map(row=>`<tr><td>${escapeHtml(dateTime(row.created_at))}</td><td>${userLabel(row)}</td><td>${escapeHtml(row.module_id)}</td><td>${escapeHtml(row.file_type)}</td></tr>`).join(""):'<tr><td colspan="4" class="muted">No download records</td></tr>';
+    renderDownloads();
     statusBox.hidden=true;
     content.hidden=false;
     await loadOwnerConfig(token);
@@ -112,5 +147,9 @@ async function saveOwnerSettings(){
 refreshButton.addEventListener("click",loadDashboard);
 saveSettingsButton.addEventListener("click",saveOwnerSettings);
 document.getElementById("addModuleRow").addEventListener("click",()=>{const holder=document.getElementById("moduleSettings");holder.querySelector(".muted")?.remove();holder.insertAdjacentHTML("beforeend",moduleRow());});
+document.getElementById("downloadPeriod")?.addEventListener("change",renderDownloads);
+document.getElementById("downloadSearch")?.addEventListener("input",renderDownloads);
+document.getElementById("downloadFrom")?.addEventListener("change",renderDownloads);
+document.getElementById("downloadTo")?.addEventListener("change",renderDownloads);
 window.addEventListener("tpw-auth-changed",()=>setTimeout(loadDashboard,0));
 setTimeout(loadDashboard,0);

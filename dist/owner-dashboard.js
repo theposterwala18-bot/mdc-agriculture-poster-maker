@@ -6,6 +6,14 @@ const saveSettingsButton=document.getElementById("saveOwnerSettings");
 let ownerConfig={modules:[],plans:[]};
 let dashboardDownloads=[];
 const LEGACY_MODULE_IDS=new Set(["car-sale","dog-sale","akhand-path","invitation"]);
+const PROMO_DRAFT_KEY="tpw_owner_promo_draft_v573";
+let saveToastTimer=null;
+function showSaveToast(message,type="saving"){
+  const box=document.getElementById("ownerSaveToast");if(!box)return;
+  box.hidden=false;box.textContent=message;box.className="owner-save-toast "+type;
+  clearTimeout(saveToastTimer);
+  if(type!=="saving")saveToastTimer=setTimeout(()=>{box.hidden=true},5000);
+}
 const DEFAULT_PROMOS=[
   {title:"TripKhata",description:"Trip expenses, Shared Trip, Customer Khata & Suppliers",url:"https://theposterwala18-bot.github.io/TripKhata/",icon:"🧳",enabled:true,order:10},
   {title:"Zameen Di Minnti",description:"Land measurement & calculation app — coming soon",url:"",icon:"📐",enabled:true,order:20}
@@ -55,8 +63,13 @@ function planRow(item){return `<div class="editable-row plan-row" data-id="${Num
 function parsePromos(raw){
   try{
     const parsed=typeof raw==="string"?JSON.parse(raw):raw;
-    return Array.isArray(parsed)&&parsed.length?parsed:DEFAULT_PROMOS;
-  }catch(_){return DEFAULT_PROMOS;}
+    if(Array.isArray(parsed)&&parsed.length){localStorage.removeItem(PROMO_DRAFT_KEY);return parsed;}
+  }catch(_){}
+  try{
+    const draft=JSON.parse(localStorage.getItem(PROMO_DRAFT_KEY)||"null");
+    if(Array.isArray(draft)&&draft.length)return draft;
+  }catch(_){}
+  return DEFAULT_PROMOS;
 }
 function bindPromoRemove(){
   document.querySelectorAll(".promo-remove").forEach(btn=>btn.onclick=()=>btn.closest(".promo-row")?.remove());
@@ -172,10 +185,53 @@ function readPlans(){return [...document.querySelectorAll(".plan-row")].map((row
 }));}
 
 async function saveOwnerSettings(){
-  const message=document.getElementById("settingsMessage");saveSettingsButton.disabled=true;message.textContent="Settings save ਹੋ ਰਹੀਆਂ ਹਨ…";message.className="settings-message";
-  try{const token=await window.ThePosterWalaAuth.getIdToken();const body={settings:{all_modules_free:document.getElementById("allModulesFree").checked?1:0,daily_free_enabled:document.getElementById("dailyFreeEnabled").checked?1:0,daily_free_limit:Number(document.getElementById("dailyFreeLimit").value),default_price_paise:rupeesToPaise(document.getElementById("defaultPrice").value),premium_price_paise:rupeesToPaise(document.getElementById("premiumPrice").value),unlock_minutes:Number(document.getElementById("unlockMinutes").value),paid_download_limit:Number(document.getElementById("paidDownloadLimit").value),promo_cards_json:JSON.stringify(readPromos())},modules:readModules(),plans:readPlans()};
-    const response=await fetch(PAYMENT_API+"/owner/config/save",{method:"POST",headers:{Authorization:"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify(body)});const data=await response.json().catch(()=>null);if(!response.ok||!data?.success)throw new Error(data?.error||"Settings save ਨਹੀਂ ਹੋਈਆਂ।");message.textContent=`✓ ${data.saved} settings safely saved`;message.className="settings-message success";await loadOwnerConfig(token);
-  }catch(error){message.textContent=error.message||"Settings save ਨਹੀਂ ਹੋਈਆਂ।";message.className="settings-message error";}finally{saveSettingsButton.disabled=false;}
+  const message=document.getElementById("settingsMessage");
+  const promos=readPromos();
+  localStorage.setItem(PROMO_DRAFT_KEY,JSON.stringify(promos));
+  saveSettingsButton.disabled=true;
+  message.textContent="Settings save ਹੋ ਰਹੀਆਂ ਹਨ…";message.className="settings-message";
+  showSaveToast("Saving settings…","saving");
+  try{
+    const token=await window.ThePosterWalaAuth.getIdToken();
+    const body={settings:{
+      all_modules_free:document.getElementById("allModulesFree").checked?1:0,
+      daily_free_enabled:document.getElementById("dailyFreeEnabled").checked?1:0,
+      daily_free_limit:Number(document.getElementById("dailyFreeLimit").value),
+      default_price_paise:rupeesToPaise(document.getElementById("defaultPrice").value),
+      premium_price_paise:rupeesToPaise(document.getElementById("premiumPrice").value),
+      unlock_minutes:Number(document.getElementById("unlockMinutes").value),
+      paid_download_limit:Number(document.getElementById("paidDownloadLimit").value),
+      promo_cards_json:JSON.stringify(promos)
+    },modules:readModules(),plans:readPlans()};
+    const response=await fetch(PAYMENT_API+"/owner/config/save",{method:"POST",headers:{Authorization:"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify(body)});
+    const data=await response.json().catch(()=>null);
+    if(!response.ok||!data?.success)throw new Error(data?.error||"Settings save ਨਹੀਂ ਹੋਈਆਂ।");
+
+    const verifyResponse=await fetch(PAYMENT_API+"/owner/config",{method:"POST",headers:{Authorization:"Bearer "+token,"Content-Type":"application/json"},body:"{}"});
+    const verify=await verifyResponse.json().catch(()=>null);
+    const serverPromoRaw=verify?.settings?.promo_cards_json;
+    let promoSaved=false;
+    try{
+      const serverPromos=typeof serverPromoRaw==="string"?JSON.parse(serverPromoRaw):serverPromoRaw;
+      promoSaved=Array.isArray(serverPromos)&&JSON.stringify(serverPromos)===JSON.stringify(promos);
+    }catch(_){}
+
+    if(!promoSaved){
+      message.textContent="Main settings saved, ਪਰ Homepage Promotions server ਤੇ save ਨਹੀਂ ਹੋਏ। Promotion draft ਇਸ browser ਵਿੱਚ safe ਹੈ.";
+      message.className="settings-message error";
+      showSaveToast("⚠ Promotions not saved to server — backend update required","error");
+      return;
+    }
+
+    localStorage.removeItem(PROMO_DRAFT_KEY);
+    message.textContent=`✓ ${data.saved} settings safely saved`;
+    message.className="settings-message success";
+    showSaveToast("✓ All settings saved successfully","success");
+    await loadOwnerConfig(token);
+  }catch(error){
+    message.textContent=error.message||"Settings save ਨਹੀਂ ਹੋਈਆਂ।";message.className="settings-message error";
+    showSaveToast("✕ Save failed: "+(error.message||"Unknown error"),"error");
+  }finally{saveSettingsButton.disabled=false;}
 }
 
 refreshButton.addEventListener("click",loadDashboard);

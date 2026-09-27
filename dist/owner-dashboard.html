@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex,nofollow" />
   <title>Owner Dashboard | The Poster Wala</title>
   <link rel="stylesheet" href="./auth.css" />
-  <link rel="stylesheet" href="./owner-dashboard.css?v=5.7.0" />
+  <link rel="stylesheet" href="./owner-dashboard.css?v=5.7.2" />
 </head>
 <body>
   <header class="owner-topbar">
@@ -51,6 +51,9 @@
           <label><span>Payment Unlock (minutes)</span><input id="unlockMinutes" type="number" min="1" /></label>
           <label><span>Downloads per Payment</span><input id="paidDownloadLimit" type="number" min="1" /></label>
         </div>
+        <div class="sub-heading"><h3>Homepage Promotions</h3><button id="addPromoRow" type="button" class="secondary-action">Add Promotion</button></div>
+        <p class="muted promo-help">TripKhata, Zameen Di Minnti ਜਾਂ ਹੋਰ app/web link ਇੱਥੋਂ manage ਕਰੋ. Enabled promos homepage ਦੇ top area ਵਿੱਚ show ਹੋਣਗੇ.</p>
+        <div id="promoSettings" class="editable-list promo-list"></div>
         <div class="sub-heading"><h3>Module-wise Controls</h3><button id="addModuleRow" type="button" class="secondary-action">Add Module</button></div>
         <div id="moduleSettings" class="editable-list"></div>
         <div class="sub-heading"><h3>Monthly / 6 Month / Yearly Plans</h3></div>
@@ -95,6 +98,6 @@
   </main>
 
   <script type="module" src="./auth.js?v=5.6.6"></script>
-  <script type="module" src="./owner-dashboard.js?v=5.7.0"></script>
+  <script type="module" src="./owner-dashboard.js?v=5.7.2"></script>
 </body>
 </html>

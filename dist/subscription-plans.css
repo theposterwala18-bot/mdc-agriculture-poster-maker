@@ -2,6 +2,7 @@
 .home-offer-card::after{content:"";position:absolute;inset:-70% auto -70% -30%;width:28%;transform:rotate(18deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.72),transparent);animation:offerShimmer 5s ease-in-out infinite;pointer-events:none}
 .home-offer-topline{display:flex;align-items:center;gap:7px;color:#785000;font:900 .62rem/1.2 system-ui,sans-serif;letter-spacing:.09em}
 .home-offer-live-dot{width:8px;height:8px;border-radius:50%;background:#e24b36;box-shadow:0 0 0 0 rgba(226,75,54,.55);animation:offerPulse 2s ease-out infinite}
+.home-poster-price-flash{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 12px;padding:11px 13px;border:1px solid #f0c55f;border-radius:13px;background:linear-gradient(135deg,#fff2bf,#fffaf0);box-shadow:0 8px 20px rgba(145,92,0,.10);animation:priceFlash 2.4s ease-in-out infinite}.home-poster-price-flash span{color:#6f4a00;font-size:.72rem;font-weight:900}.home-poster-price-flash strong{grid-row:1/3;grid-column:2;color:#b42318;font:1000 1.75rem/1 system-ui,sans-serif}.home-poster-price-flash small{color:#897044;font-size:.56rem;font-weight:700}.home-poster-price-flash strong::after{content:" only";font-size:.52rem;color:#9b5715;margin-left:3px}@keyframes priceFlash{0%,100%{transform:scale(1);box-shadow:0 8px 20px rgba(145,92,0,.10)}50%{transform:scale(1.015);box-shadow:0 10px 28px rgba(180,35,24,.18)}}
 .home-free-message{min-height:2.9em;margin:0;color:#073d2b;font-size:.91rem;font-weight:900;line-height:1.45;transition:opacity .18s ease,transform .18s ease}
 .home-free-message.is-changing,.home-plan-grid.is-changing{opacity:0;transform:translateY(5px)}
 .home-plan-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;transition:opacity .18s ease,transform .18s ease}
@@ -20,4 +21,4 @@
 @keyframes offerPulse{70%{box-shadow:0 0 0 7px rgba(226,75,54,0)}100%{box-shadow:0 0 0 0 rgba(226,75,54,0)}}
 @media(max-width:900px){.module-hub-heading{align-items:stretch}.home-offer-card{width:min(440px,52%);min-width:350px}}
 @media(max-width:720px){.module-hub-heading{display:grid}.home-offer-card{width:100%;min-width:0}.home-steps{grid-template-columns:1fr;margin-top:-12px}.plans-grid{grid-template-columns:1fr}.plans-card{padding:22px 16px}}
-@media(prefers-reduced-motion:reduce){.home-offer-card::after,.home-offer-live-dot{animation:none}}
+@media(prefers-reduced-motion:reduce){.home-offer-card::after,.home-offer-live-dot,.home-poster-price-flash{animation:none}}

@@ -179,7 +179,9 @@ function getActiveTemplate() {
 
 function renderModuleHub() {
   const holder = document.getElementById("moduleGroups");
-  holder.innerHTML = moduleGroups.map((group) => `
+  const groupOrder = ["invitation", "grief-help", "sale", "public"];
+  const orderedGroups = [...moduleGroups].sort((a, b) => groupOrder.indexOf(a.id) - groupOrder.indexOf(b.id));
+  holder.innerHTML = orderedGroups.map((group) => `
     <section class="module-group" aria-labelledby="module-group-${group.id}">
       <h3 class="module-group-title" id="module-group-${group.id}"><span aria-hidden="true">${group.icon}</span>${group.name}</h3>
       <div class="module-card-grid">
@@ -219,6 +221,7 @@ function openModule(moduleId) {
   document.getElementById("activeModuleTitle").textContent = selected.name;
   document.getElementById("moduleHub").classList.add("is-hidden");
   document.getElementById("posterWorkspace").classList.remove("is-hidden");
+  window.showModuleCounter?.("agri-sale", selected.name);
   window.scrollTo({ top: 0, behavior: "smooth" });
   renderPoster();
 }

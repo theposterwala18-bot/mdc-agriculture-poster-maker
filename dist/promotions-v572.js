@@ -4,7 +4,7 @@ const API="https://the-poster-wala-payment-api.theposterwala18.workers.dev";
 const PROMO_DRAFT_KEY="tpw_owner_promo_draft_v573";
 const defaults=[
   {title:"TripKhata",description:"Trip expenses, Shared Trip, Customer Khata & Suppliers",url:"https://theposterwala18-bot.github.io/TripKhata/",icon:"🧳",enabled:true,order:10},
-  {title:"Zameen",description:"Land measurement & calculation app — coming soon",url:"",icon:"📐",enabled:true,order:20}
+  {title:"Zameen",description:"Land measurement & calculation app",url:"https://theposterwala18-bot.github.io/TripKhata/",icon:"📐",enabled:true,order:20}
 ];
 function esc(v){return String(v??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));}
 function safeUrl(value){

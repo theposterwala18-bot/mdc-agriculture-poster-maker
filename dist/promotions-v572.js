@@ -23,6 +23,18 @@ function normalize(list){
     order:Number.isFinite(Number(x?.order))?Number(x.order):(i+1)*10
   })).filter(x=>x.title&&x.enabled).sort((a,b)=>a.order-b.order);
 }
+function repairLegacyPromotion(cards){
+  return cards.map(card=>{
+    if(card.order!==20)return card;
+    const legacyTitle=/^zameen di minnti$/i.test(card.title);
+    return {
+      ...card,
+      title:legacyTitle?defaults[1].title:card.title,
+      description:legacyTitle?defaults[1].description:card.description,
+      url:card.url||defaults[1].url
+    };
+  });
+}
 function render(cards){
   const holder=document.getElementById("heroPromoCards");if(!holder)return;
   holder.innerHTML=cards.map(card=>{
@@ -44,7 +56,7 @@ async function load(){
     const raw=data?.settings?.promo_cards_json;
     if(!raw)return;
     const list=typeof raw==="string"?JSON.parse(raw):raw;
-    if(!localDraft)render(normalize(list));
+    if(!localDraft)render(repairLegacyPromotion(normalize(list)));
   }catch(_){}
 }
 load();

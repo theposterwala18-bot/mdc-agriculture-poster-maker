@@ -1,9 +1,10 @@
 (function(){
 "use strict";
 const API="https://the-poster-wala-payment-api.theposterwala18.workers.dev";
+const PROMO_DRAFT_KEY="tpw_owner_promo_draft_v573";
 const defaults=[
   {title:"TripKhata",description:"Trip expenses, Shared Trip, Customer Khata & Suppliers",url:"https://theposterwala18-bot.github.io/TripKhata/",icon:"🧳",enabled:true,order:10},
-  {title:"Zameen Di Minnti",description:"Land measurement & calculation app — coming soon",url:"",icon:"📐",enabled:true,order:20}
+  {title:"Zameen",description:"Land measurement & calculation app — coming soon",url:"",icon:"📐",enabled:true,order:20}
 ];
 function esc(v){return String(v??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));}
 function safeUrl(value){
@@ -30,7 +31,12 @@ function render(cards){
   }).join("")||'<div class="hero-promo-empty">More tools coming soon.</div>';
 }
 async function load(){
-  render(defaults);
+  let localDraft=null;
+  try{
+    const parsed=JSON.parse(localStorage.getItem(PROMO_DRAFT_KEY)||"null");
+    if(Array.isArray(parsed)&&parsed.length)localDraft=normalize(parsed);
+  }catch(_){}
+  render(localDraft||defaults);
   try{
     const res=await fetch(API+"/public/config",{method:"GET",cache:"no-store"});
     if(!res.ok)return;
@@ -38,7 +44,7 @@ async function load(){
     const raw=data?.settings?.promo_cards_json;
     if(!raw)return;
     const list=typeof raw==="string"?JSON.parse(raw):raw;
-    render(normalize(list));
+    if(!localDraft)render(normalize(list));
   }catch(_){}
 }
 load();

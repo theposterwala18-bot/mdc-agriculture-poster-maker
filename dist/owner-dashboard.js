@@ -15,8 +15,7 @@ function showSaveToast(message,type="saving"){
   if(type!=="saving")saveToastTimer=setTimeout(()=>{box.hidden=true},5000);
 }
 const DEFAULT_PROMOS=[
-  {title:"TripKhata",description:"Trip expenses, Shared Trip, Customer Khata & Suppliers",url:"https://theposterwala18-bot.github.io/TripKhata/",icon:"🧳",enabled:true,order:10},
-  {title:"Zameen Di Minnti",description:"Land measurement & calculation app — coming soon",url:"",icon:"📐",enabled:true,order:20}
+  {title:"TripKhata",description:"Trip expenses, Shared Trip, Customer Khata & Suppliers",url:"https://theposterwala18-bot.github.io/TripKhata/",icon:"🧳",enabled:true,order:10}
 ];
 
 function escapeHtml(value){return String(value??"").replace(/[&<>'"]/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"})[char]);}
@@ -63,11 +62,11 @@ function planRow(item){return `<div class="editable-row plan-row" data-id="${Num
 function parsePromos(raw){
   try{
     const parsed=typeof raw==="string"?JSON.parse(raw):raw;
-    if(Array.isArray(parsed)&&parsed.length){localStorage.removeItem(PROMO_DRAFT_KEY);return parsed;}
+    if(Array.isArray(parsed)){localStorage.removeItem(PROMO_DRAFT_KEY);return parsed;}
   }catch(_){}
   try{
     const draft=JSON.parse(localStorage.getItem(PROMO_DRAFT_KEY)||"null");
-    if(Array.isArray(draft)&&draft.length)return draft;
+    if(Array.isArray(draft))return draft;
   }catch(_){}
   return DEFAULT_PROMOS;
 }

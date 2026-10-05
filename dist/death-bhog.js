@@ -1,4 +1,4 @@
-import { createPosterExportController } from "./poster-export.js";
+import { createPosterExportController } from "./poster-export.js?v=5.7.6";
 
 const canvas = document.getElementById("bhogPosterCanvas");
 const ctx = canvas.getContext("2d");
@@ -1326,6 +1326,10 @@ exportController = createPosterExportController({
   previewNote: document.querySelector(".bhog-preview-panel .preview-note"),
   filename: safeFilename,
   showToast,
+  getPricingContext: () => ({
+    isPremium: getActiveTemplate().id >= 7,
+    templateId: getActiveTemplate().id
+  }),
   storageKey: "mdc-bhog-poster-size",
   defaultFormat: "social"
 });

@@ -3,8 +3,7 @@
 const API="https://the-poster-wala-payment-api.theposterwala18.workers.dev";
 const PROMO_DRAFT_KEY="tpw_owner_promo_draft_v573";
 const defaults=[
-  {title:"TripKhata",description:"Trip expenses, Shared Trip, Customer Khata & Suppliers",url:"https://theposterwala18-bot.github.io/TripKhata/",icon:"🧳",enabled:true,order:10},
-  {title:"Zameen",description:"Land measurement & calculation app",url:"https://theposterwala18-bot.github.io/TripKhata/",icon:"📐",enabled:true,order:20}
+  {title:"TripKhata",description:"Trip expenses, Shared Trip, Customer Khata & Suppliers",url:"https://theposterwala18-bot.github.io/TripKhata/",icon:"🧳",enabled:true,order:10}
 ];
 function esc(v){return String(v??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));}
 function safeUrl(value){
@@ -23,18 +22,6 @@ function normalize(list){
     order:Number.isFinite(Number(x?.order))?Number(x.order):(i+1)*10
   })).filter(x=>x.title&&x.enabled).sort((a,b)=>a.order-b.order);
 }
-function repairLegacyPromotion(cards){
-  return cards.map(card=>{
-    if(card.order!==20)return card;
-    const legacyTitle=/^zameen di minnti$/i.test(card.title);
-    return {
-      ...card,
-      title:legacyTitle?defaults[1].title:card.title,
-      description:legacyTitle?defaults[1].description:card.description,
-      url:card.url||defaults[1].url
-    };
-  });
-}
 function render(cards){
   const holder=document.getElementById("heroPromoCards");if(!holder)return;
   holder.innerHTML=cards.map(card=>{
@@ -46,7 +33,7 @@ async function load(){
   let localDraft=null;
   try{
     const parsed=JSON.parse(localStorage.getItem(PROMO_DRAFT_KEY)||"null");
-    if(Array.isArray(parsed)&&parsed.length)localDraft=normalize(parsed);
+    if(Array.isArray(parsed))localDraft=normalize(parsed);
   }catch(_){}
   render(localDraft||defaults);
   try{
@@ -54,9 +41,9 @@ async function load(){
     if(!res.ok)return;
     const data=await res.json();
     const raw=data?.settings?.promo_cards_json;
-    if(!raw)return;
+    if(raw==null)return;
     const list=typeof raw==="string"?JSON.parse(raw):raw;
-    if(!localDraft)render(repairLegacyPromotion(normalize(list)));
+    if(!localDraft)render(normalize(list));
   }catch(_){}
 }
 load();

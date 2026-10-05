@@ -47,13 +47,13 @@
           <label class="switch-setting"><span>All Modules Free<small>ਇੱਕ click ਨਾਲ ਸਾਰੇ posters free</small></span><input id="allModulesFree" type="checkbox" /></label>
           <label class="switch-setting"><span>Daily Free PNG<small>ਰੋਜ਼ਾਨਾ free quota ON/OFF</small></span><input id="dailyFreeEnabled" type="checkbox" /></label>
           <label><span>Daily Free Limit</span><input id="dailyFreeLimit" type="number" min="0" max="100" /></label>
-          <label><span>Main Poster Price / Offer Banner (₹)</span><input id="defaultPrice" type="number" min="1" /><small>This price is shown on the main Poster Maker offer.</small></label>
-          <label><span>Premium Price (₹)</span><input id="premiumPrice" type="number" min="1" /></label>
+          <label><span>Live Poster Offer Price (₹)</span><input id="defaultPrice" type="number" min="1" /><small>Homepage LIVE POSTER OFFER ਅਤੇ basic template payment ਦੋਵਾਂ ਲਈ। Daily/weekly price ਇੱਥੋਂ update ਕਰੋ.</small></label>
+          <label><span>Premium Template Price (₹)</span><input id="premiumPrice" type="number" min="1" /><small>PREMIUM badge ਵਾਲੇ templates ਲਈ ਵੱਖਰੀ payment price.</small></label>
           <label><span>Payment Unlock (minutes)</span><input id="unlockMinutes" type="number" min="1" /></label>
           <label><span>Downloads per Payment</span><input id="paidDownloadLimit" type="number" min="1" /></label>
         </div>
         <div class="sub-heading"><h3>Homepage Promotions</h3><button id="addPromoRow" type="button" class="secondary-action">Add Promotion</button></div>
-        <p class="muted promo-help">TripKhata, Zameen Di Minnti ਜਾਂ ਹੋਰ app/web link ਇੱਥੋਂ manage ਕਰੋ. Enabled promos homepage ਦੇ top area ਵਿੱਚ show ਹੋਣਗੇ.</p>
+        <p class="muted promo-help">TripKhata ਜਾਂ ਹੋਰ app/web link ਇੱਥੋਂ manage ਕਰੋ. Remove ਕਰਨ ਨਾਲ card homepage ਤੋਂ ਹਟੇਗਾ; add ਕੀਤੀ exact link ਹੀ ਖੁੱਲ੍ਹੇਗੀ.</p>
         <div id="promoSettings" class="editable-list promo-list"></div>
         <div class="sub-heading"><h3>Module-wise Controls</h3><button id="addModuleRow" type="button" class="secondary-action">Add Module</button></div>
         <div id="moduleSettings" class="editable-list"></div>
@@ -99,6 +99,6 @@
   </main>
 
   <script type="module" src="./auth.js?v=5.6.6"></script>
-  <script type="module" src="./owner-dashboard.js?v=5.7.3"></script>
+  <script type="module" src="./owner-dashboard.js?v=5.7.6"></script>
 </body>
 </html>

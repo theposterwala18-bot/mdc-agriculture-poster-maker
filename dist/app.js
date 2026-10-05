@@ -1,4 +1,4 @@
-import { createPosterExportController } from "./poster-export.js";
+import { createPosterExportController } from "./poster-export.js?v=5.7.6";
 
 const canvas = document.getElementById("posterCanvas");
 const ctx = canvas.getContext("2d");
@@ -1810,6 +1810,10 @@ exportController = createPosterExportController({
   previewNote: document.querySelector(".preview-panel .preview-note"),
   filename: safeFilename,
   showToast,
+  getPricingContext: () => ({
+    isPremium: Boolean(getActiveTemplate().premium),
+    templateId: getActiveTemplate().id
+  }),
   storageKey: "mdc-agri-poster-size",
   defaultFormat: "social"
 });

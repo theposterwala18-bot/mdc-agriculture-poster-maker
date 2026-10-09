@@ -43,7 +43,9 @@ const templates = [
   { id: 12, name: "Classic Sangat Notice", note: "Minimal ivory-gold layout, red name ਅਤੇ bold black event band", look: "center", bg: "#fffdf0", border: "#b78629", accent: "#9d1b12", text: "#1d1915", gold: "#c49338" },
   { id: 13, name: "Wheat Ardas Tribute", note: "Warm antique paper, wheat florals ਅਤੇ dignified maroon hierarchy", look: "center", bg: "#fbf1df", border: "#b59460", accent: "#9d1f1b", text: "#47261d", gold: "#b68b48" },
   { id: 14, name: "Royal Burgundy Memorial", note: "Burgundy-gold floral portrait, statement banner ਅਤੇ premium date panel", look: "center", bg: "#fff8e5", border: "#8f1628", accent: "#891126", text: "#26170f", gold: "#c49735" },
-  { id: 15, name: "Rose Vine Tribute", note: "White-gold canvas, green rose vines ਅਤੇ soft peach typography", look: "center", bg: "#fffefa", border: "#c3a145", accent: "#43816d", text: "#3f806d", gold: "#c79b4e" }
+  { id: 15, name: "Rose Vine Tribute", note: "White-gold canvas, green rose vines ਅਤੇ soft peach typography", look: "center", bg: "#fffefa", border: "#c3a145", accent: "#43816d", text: "#3f806d", gold: "#c79b4e" },
+  { id: 16, name: "Navy Gold Ardas", note: "Royal navy name banner, white florals ਅਤੇ clear icon-style event rows", look: "center", bg: "#fff8e5", border: "#0b376f", accent: "#082f69", text: "#102f5d", gold: "#c39328" },
+  { id: 17, name: "Minimal Ivory Memorial", note: "Spacious ivory layout, blue-red hierarchy ਅਤੇ elegant floral portrait", look: "center", bg: "#fffdf2", border: "#b58b3b", accent: "#9d1223", text: "#123b78", gold: "#c29b50" }
 ];
 
 const defaultState = {
@@ -1021,6 +1023,119 @@ function drawRoseVineTribute(template) {
   drawPhoneFooter(1510,"#fff",template.accent);
 }
 
+function drawNavyGoldArdas(template) {
+  const paper = ctx.createRadialGradient(W / 2, 430, 80, W / 2, 820, 1080);
+  paper.addColorStop(0, "#fffef7");
+  paper.addColorStop(.64, "#fff8e7");
+  paper.addColorStop(1, "#f3dfb6");
+  ctx.fillStyle = paper;
+  ctx.fillRect(0, 0, W, H);
+  drawBorder(template.accent, template.gold, true);
+
+  drawTextBlock("“ ਘਲੇ ਆਵਹਿ ਨਾਨਕਾ ਸਦੇ ਉਠੀ ਜਾਹਿ ”", W / 2, 28, 790, { size: 32, minSize: 22, weight: 900, maxLines: 1, color: template.accent });
+  ctx.fillStyle = template.accent;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  setFont(ctx, 82, 800);
+  ctx.fillText(state.symbol || "ੴ", 112, 86);
+  ctx.fillText(state.symbol || "ੴ", W - 112, 86);
+  drawTextBlock(state.prayer, W / 2, 82, 650, { size: 25, minSize: 18, weight: 800, maxLines: 2, color: template.text, lineHeight: 34 });
+
+  drawPremiumFloralCorner(220, 255, 1, 1, "#fffdf2", "#6d8a50", template.gold);
+  drawPremiumFloralCorner(W - 220, 255, -1, 1, "#fffdf2", "#6d8a50", template.gold);
+  ctx.save();
+  ctx.shadowColor = "rgba(8,47,105,.20)";
+  ctx.shadowBlur = 24;
+  drawPortrait(315, 155, 450, 465, { border: template.gold, lineWidth: 11, placeholder: "#e8eef3" });
+  ctx.restore();
+  drawLeafSpray(W / 2, 590, 590, "#fffdf5", "#718950", template.gold);
+
+  fillRound(ctx, 90, 655, 900, 142, 42, template.accent);
+  strokeRound(ctx, 90, 655, 900, 142, 42, template.gold, 6);
+  drawTextBlock(state.personName, W / 2, 674, 830, { size: 51, minSize: 28, weight: 900, maxLines: 1, color: "#fff6d4" });
+  drawTextBlock(state.passingDate, W / 2, 742, 720, { size: 28, minSize: 20, weight: 850, maxLines: 1, color: "#ffffff" });
+  drawTextBlock(state.identityLine, W / 2, 817, 830, { size: 25, minSize: 18, weight: 800, maxLines: 1, color: template.text });
+  drawTextBlock(state.introText, W / 2, 864, 850, { size: 23, minSize: 17, weight: 650, maxLines: 4, color: "#302a24", lineHeight: 32 });
+
+  fillRound(ctx, 135, 998, 810, 68, 22, "#98151c");
+  drawTextBlock(state.eventTitle, W / 2, 1007, 750, { size: 34, minSize: 21, weight: 900, maxLines: 1, color: "#fff" });
+  const rows = [
+    ["▣", "ਤਰੀਕ", `${state.eventDate} • ${state.eventDay}`],
+    ["◷", "ਸਮਾਂ", state.eventTime],
+    ["⌖", "ਸਥਾਨ", state.venue]
+  ];
+  rows.forEach(([icon, label, value], index) => {
+    const y = 1090 + index * 82;
+    ctx.fillStyle = template.accent;
+    ctx.beginPath();
+    ctx.arc(153, y + 29, 30, 0, Math.PI * 2);
+    ctx.fill();
+    drawTextBlock(icon, 153, y + 6, 52, { size: 24, minSize: 18, weight: 900, maxLines: 1, color: "#fff" });
+    drawTextBlock(`${label}:`, 216, y, 150, { align: "left", size: 25, minSize: 18, weight: 900, maxLines: 1, color: template.text });
+    drawTextBlock(value, 375, y, 560, { align: "left", size: 25, minSize: 18, weight: 800, maxLines: index === 2 ? 2 : 1, color: template.text, lineHeight: 31 });
+  });
+
+  fillRound(ctx, 310, 1360, 460, 53, 24, template.accent);
+  drawTextBlock("ਸ਼ੋਕਮਗਨ ਪਰਿਵਾਰ", W / 2, 1368, 420, { size: 23, minSize: 18, weight: 900, maxLines: 1, color: "#fff" });
+  drawTextBlock(state.familyNames, W / 2, 1430, 850, { size: 24, minSize: 17, weight: 850, maxLines: 2, color: template.text, lineHeight: 32 });
+  drawPhoneFooter(1510, template.accent, "#fff");
+}
+
+function drawMinimalIvoryMemorial(template) {
+  const paper = ctx.createLinearGradient(0, 0, 0, H);
+  paper.addColorStop(0, "#fffef8");
+  paper.addColorStop(.55, "#fffdf3");
+  paper.addColorStop(1, "#f5ecd8");
+  ctx.fillStyle = paper;
+  ctx.fillRect(0, 0, W, H);
+  drawBorder(template.gold, "#ead9b3");
+  drawPremiumFloralCorner(48, 50, 1, 1, "#fffdf7", "#7d8d59", template.gold);
+  drawPremiumFloralCorner(W - 48, 50, -1, 1, "#fffdf7", "#7d8d59", template.gold);
+  drawPremiumFloralCorner(48, H - 48, 1, -1, "#fffdf7", "#7d8d59", template.gold);
+  drawPremiumFloralCorner(W - 48, H - 48, -1, -1, "#fffdf7", "#7d8d59", template.gold);
+
+  ctx.fillStyle = template.text;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  setFont(ctx, 88, 800);
+  ctx.fillText(state.symbol || "ੴ", W / 2, 28);
+  drawTextBlock(state.prayer, W / 2, 112, 760, { size: 27, minSize: 19, weight: 800, maxLines: 2, color: template.text, lineHeight: 36 });
+
+  ctx.save();
+  ctx.shadowColor = "rgba(168,125,45,.18)";
+  ctx.shadowBlur = 24;
+  drawPortrait(355, 202, 370, 390, { oval: true, border: template.gold, lineWidth: 9, placeholder: "#ede6d6" });
+  ctx.restore();
+  drawLeafSpray(W / 2, 570, 510, "#fffdf6", "#6f8956", template.gold);
+
+  drawTextBlock("ਦਇਆਲੂ ਸਤਿਗੁਰੂ ਜੀ ਦੀ ਅਪਾਰ ਕਿਰਪਾ ਨਾਲ", W / 2, 650, 830, { size: 25, minSize: 18, weight: 800, maxLines: 1, color: template.text });
+  drawTextBlock(state.noticeTitle, W / 2, 706, 920, { size: 58, minSize: 31, weight: 900, maxLines: 1, color: template.accent });
+  drawTextBlock(state.personName, W / 2, 785, 870, { size: 44, minSize: 25, weight: 900, maxLines: 1, color: template.text });
+  drawTextBlock(state.identityLine, W / 2, 846, 820, { size: 24, minSize: 18, weight: 800, maxLines: 1, color: "#302922" });
+
+  strokeRound(ctx, 175, 904, 730, 96, 20, template.gold, 3);
+  ctx.strokeStyle = template.gold;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(W / 2, 915);
+  ctx.lineTo(W / 2, 989);
+  ctx.stroke();
+  drawTextBlock("ਅਕਾਲ ਚਲਾਣਾ", 360, 920, 310, { size: 23, minSize: 18, weight: 850, maxLines: 1, color: template.text });
+  drawTextBlock(state.passingDate, 360, 958, 310, { size: 25, minSize: 18, weight: 900, maxLines: 1, color: template.text });
+  drawTextBlock("ਭੋਗ ਅਤੇ ਅੰਤਿਮ ਅਰਦਾਸ", 720, 920, 320, { size: 22, minSize: 17, weight: 850, maxLines: 1, color: template.text });
+  drawTextBlock(state.eventDate, 720, 958, 310, { size: 25, minSize: 18, weight: 900, maxLines: 1, color: template.accent });
+
+  drawTextBlock(state.introText, W / 2, 1030, 850, { size: 23, minSize: 17, weight: 650, maxLines: 4, color: "#302a24", lineHeight: 32 });
+  drawTextBlock(state.eventTitle, W / 2, 1165, 880, { size: 38, minSize: 23, weight: 900, maxLines: 2, color: template.accent, lineHeight: 44 });
+  drawTextBlock(`${state.eventTime}\n${state.venue}`, W / 2, 1260, 850, { size: 27, minSize: 18, weight: 850, maxLines: 3, color: template.text, lineHeight: 37 });
+  drawGoldDivider(1380, template.gold, 650);
+  drawTextBlock(state.invitationText, W / 2, 1405, 830, { size: 22, minSize: 17, weight: 650, maxLines: 2, color: template.text, lineHeight: 30 });
+  fillRound(ctx, 330, 1480, 420, 50, 22, template.text);
+  drawTextBlock(`ਵੱਲੋਂ: ${state.familyNames}`, W / 2, 1487, 380, { size: 21, minSize: 15, weight: 900, maxLines: 1, color: "#fff" });
+  const phones = [state.phone, state.phone2].filter(Boolean).join("  •  ");
+  if (phones) drawTextBlock(`☎  ${phones}`, W / 2, 1540, 760, { size: 24, minSize: 17, weight: 900, maxLines: 1, color: template.text });
+}
+
 function renderPoster() {
   ctx.clearRect(0, 0, W, H);
   const template = getTemplate();
@@ -1038,6 +1153,8 @@ function renderPoster() {
   else if (template.id === 13) drawWheatArdasTribute(template);
   else if (template.id === 14) drawRoyalBurgundyMemorial(template);
   else if (template.id === 15) drawRoseVineTribute(template);
+  else if (template.id === 16) drawNavyGoldArdas(template);
+  else if (template.id === 17) drawMinimalIvoryMemorial(template);
   else drawCreamFloral(template);
 
   if (state.footerNote && template.id !== 2) {

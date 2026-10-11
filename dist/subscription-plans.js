@@ -27,14 +27,14 @@ function planCards(plans,enabled=true){return plans.map(plan=>`<article class="p
 async function loadPlans(){try{const data=await loadPublicConfig();list.innerHTML=data.plans.length?planCards(data.plans):"<p>ਕੋਈ plan active ਨਹੀਂ ਹੈ।</p>";status.textContent="";status.className="plans-status";}catch(_error){list.innerHTML=planCards(fallbackPlans,false);status.textContent="Plan service connect ਨਹੀਂ ਹੋਈ। Page refresh ਕਰਕੇ ਦੁਬਾਰਾ try ਕਰੋ।";status.className="plans-status error";}}
 function showFreeMessage(){if(!homeFreeMessage)return;homeFreeMessage.classList.add("is-changing");window.setTimeout(()=>{homeFreeMessage.textContent=freeMessages[freeMessageIndex];homeFreeMessage.lang=["en","pa","hi"][freeMessageIndex];homeFreeMessage.classList.remove("is-changing");freeMessageIndex=(freeMessageIndex+1)%freeMessages.length;},180);}
 function posterPriceFromConfig(data){
-  const direct=Number(data?.settings?.default_price_paise??data?.default_price_paise);
+  const direct=Number(data?.settings?.defaultPricePaise??data?.settings?.default_price_paise??data?.defaultPricePaise??data?.default_price_paise);
   if(Number.isFinite(direct)&&direct>0)return direct;
   const prices=(data?.modules||[]).filter(m=>Number(m.is_enabled)!==0&&Number(m.is_free)!==1).map(m=>{
     const offer=m.offer_price_paise==null?null:Number(m.offer_price_paise);
     const price=Number(m.price_paise);
     return Number.isFinite(offer)&&offer>0?offer:price;
   }).filter(v=>Number.isFinite(v)&&v>0);
-  return prices.length?Math.min(...prices):1200;
+  return prices.length?Math.min(...prices):2500;
 }
 function showPosterPrice(data){
   if(!homePosterPrice)return;
@@ -44,7 +44,7 @@ function showPlanOffers(plans){if(!homePlanOffer||!plans.length)return;homePlanO
 async function startHomeOffers(){
   if(!homeFreeMessage||!homePlanOffer)return;
   showFreeMessage();window.setInterval(showFreeMessage,3600);showPlanOffers(fallbackPlans);
-  showPosterPrice({default_price_paise:1200});
+  showPosterPrice({defaultPricePaise:2500});
   try{
     const data=await loadPublicConfig();
     showPosterPrice(data);

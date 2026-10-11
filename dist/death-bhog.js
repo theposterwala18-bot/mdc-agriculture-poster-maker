@@ -1,4 +1,5 @@
 import { createPosterExportController } from "./poster-export.js?v=5.7.6";
+import { createModuleBackgroundController } from "./module-background.js?v=5.8.0";
 
 const canvas = document.getElementById("bhogPosterCanvas");
 const ctx = canvas.getContext("2d");
@@ -9,6 +10,7 @@ const W = 1080;
 const H = 1620;
 const FONT = '"Noto Sans Gurmukhi", "Raavi", sans-serif';
 let exportController;
+let backgroundController;
 
 function installStableTextAlignment(context) {
   const nativeFillText = CanvasRenderingContext2D.prototype.fillText;
@@ -45,7 +47,8 @@ const templates = [
   { id: 14, name: "Royal Burgundy Memorial", note: "Burgundy-gold floral portrait, statement banner ਅਤੇ premium date panel", look: "center", bg: "#fff8e5", border: "#8f1628", accent: "#891126", text: "#26170f", gold: "#c49735" },
   { id: 15, name: "Rose Vine Tribute", note: "White-gold canvas, green rose vines ਅਤੇ soft peach typography", look: "center", bg: "#fffefa", border: "#c3a145", accent: "#43816d", text: "#3f806d", gold: "#c79b4e" },
   { id: 16, name: "Navy Gold Ardas", note: "Royal navy name banner, white florals ਅਤੇ clear icon-style event rows", look: "center", bg: "#fff8e5", border: "#0b376f", accent: "#082f69", text: "#102f5d", gold: "#c39328" },
-  { id: 17, name: "Minimal Ivory Memorial", note: "Spacious ivory layout, blue-red hierarchy ਅਤੇ elegant floral portrait", look: "center", bg: "#fffdf2", border: "#b58b3b", accent: "#9d1223", text: "#123b78", gold: "#c29b50" }
+  { id: 17, name: "Minimal Ivory Memorial", note: "Spacious ivory layout, blue-red hierarchy ਅਤੇ elegant floral portrait", look: "center", bg: "#fffdf2", border: "#b58b3b", accent: "#9d1223", text: "#123b78", gold: "#c29b50" },
+  { id: 18, name: "Red Rose Bhog", note: "Soft ivory, red rose frame ਅਤੇ strong bhog information hierarchy", look: "center", bg: "#fffaf0", border: "#9f1722", accent: "#a20e20", text: "#173d78", gold: "#c69b42" }
 ];
 
 const defaultState = {
@@ -1136,6 +1139,39 @@ function drawMinimalIvoryMemorial(template) {
   if (phones) drawTextBlock(`☎  ${phones}`, W / 2, 1540, 760, { size: 24, minSize: 17, weight: 900, maxLines: 1, color: template.text });
 }
 
+function drawRedRoseBhog(template) {
+  const paper = ctx.createRadialGradient(W / 2, 410, 70, W / 2, 800, 1080);
+  paper.addColorStop(0, "#fffef8"); paper.addColorStop(.66, "#fff8e9"); paper.addColorStop(1, "#f4e5c8");
+  ctx.fillStyle = paper; ctx.fillRect(0, 0, W, H);
+  drawBorder(template.accent, template.gold, true);
+  drawRoseVine(68, 175, 1110, 1, "#9f1722", "#f0c2bd");
+  drawRoseVine(W - 68, 175, 1110, -1, "#9f1722", "#f0c2bd");
+  ctx.fillStyle = template.accent; ctx.textAlign = "center"; ctx.textBaseline = "top"; setFont(ctx, 78, 800); ctx.fillText(state.symbol || "ੴ", W / 2, 26);
+  drawTextBlock(state.prayer, W / 2, 104, 760, { size: 26, minSize: 18, weight: 850, maxLines: 2, color: template.text, lineHeight: 35 });
+
+  ctx.save(); ctx.shadowColor = "rgba(123,25,35,.18)"; ctx.shadowBlur = 28;
+  drawPortrait(345, 190, 390, 430, { oval: true, border: template.gold, lineWidth: 10, placeholder: "#f1e4d3" });
+  ctx.restore();
+  drawLeafSpray(W / 2, 590, 560, "#fff8e9", "#628353", template.gold);
+
+  drawTextBlock("ਆਪ ਜੀ ਨੂੰ ਬੜੇ ਦੁਖੀ ਹਿਰਦੇ ਨਾਲ ਸੂਚਿਤ ਕੀਤਾ ਜਾਂਦਾ ਹੈ ਕਿ ਸਾਡੇ ਪਿਆਰੇ", W / 2, 645, 850, { size: 23, minSize: 17, weight: 700, maxLines: 2, color: template.text, lineHeight: 32 });
+  drawTextBlock(state.personName, W / 2, 712, 900, { size: 58, minSize: 30, weight: 900, maxLines: 1, color: template.accent });
+  drawTextBlock(state.identityLine, W / 2, 785, 800, { size: 24, minSize: 17, weight: 800, maxLines: 1, color: template.text });
+  drawTextBlock(state.introText, W / 2, 835, 850, { size: 22, minSize: 16, weight: 650, maxLines: 4, color: "#332720", lineHeight: 31 });
+
+  fillRound(ctx, 115, 995, 850, 96, 32, template.accent); strokeRound(ctx, 115, 995, 850, 96, 32, template.gold, 4);
+  drawTextBlock(state.eventTitle, W / 2, 1014, 790, { size: 38, minSize: 23, weight: 900, maxLines: 2, color: "#fff8e8", lineHeight: 43 });
+  fillRound(ctx, 145, 1115, 790, 190, 24, "rgba(255,255,255,.78)"); strokeRound(ctx, 145, 1115, 790, 190, 24, template.gold, 3);
+  drawTextBlock(`▣  ${state.eventDate}  •  ${state.eventDay}`, W / 2, 1136, 720, { size: 28, minSize: 19, weight: 900, maxLines: 1, color: template.accent });
+  drawTextBlock(`◷  ${state.eventTime}`, W / 2, 1187, 720, { size: 27, minSize: 18, weight: 850, maxLines: 1, color: template.text });
+  drawTextBlock(`⌖  ${state.venue}`, W / 2, 1238, 720, { size: 25, minSize: 18, weight: 850, maxLines: 2, color: template.text, lineHeight: 33 });
+  drawTextBlock(state.invitationText, W / 2, 1333, 800, { size: 22, minSize: 16, weight: 650, maxLines: 2, color: "#34251e", lineHeight: 30 });
+  fillRound(ctx, 350, 1410, 380, 48, 22, template.accent);
+  drawTextBlock("ਦੁਖੀ ਹਿਰਦੇ", W / 2, 1417, 330, { size: 22, minSize: 17, weight: 900, maxLines: 1, color: "#fff" });
+  drawTextBlock(state.familyNames, W / 2, 1470, 820, { size: 24, minSize: 17, weight: 850, maxLines: 2, color: template.text, lineHeight: 31 });
+  drawPhoneFooter(1530, template.accent, "#fff");
+}
+
 function renderPoster() {
   ctx.clearRect(0, 0, W, H);
   const template = getTemplate();
@@ -1155,12 +1191,14 @@ function renderPoster() {
   else if (template.id === 15) drawRoseVineTribute(template);
   else if (template.id === 16) drawNavyGoldArdas(template);
   else if (template.id === 17) drawMinimalIvoryMemorial(template);
+  else if (template.id === 18) drawRedRoseBhog(template);
   else drawCreamFloral(template);
 
-  if (state.footerNote && template.id !== 2) {
+  if (state.footerNote && template.id !== 2 && template.id !== 18) {
     const footerY = template.id === 4 ? 1570 : template.id === 3 ? 1584 : template.id >= 5 ? 1583 : 1582;
     drawTextBlock(state.footerNote, W / 2, footerY, 850, { size: 15, minSize: 13, weight: 600, maxLines: 1, color: template.text });
   }
+  backgroundController?.apply(ctx, W, H);
   if (document.getElementById("bhogPosterModal").classList.contains("open")) exportController?.copyToModal();
   exportController?.refreshPreview();
 }
@@ -1343,6 +1381,7 @@ function downloadPoster() {
 
 function resetApp() {
   state = cloneDefaults();
+  backgroundController?.reset();
   document.getElementById("bhogSmartText").value = "";
   document.getElementById("bhogPortraitInput").value = "";
   document.getElementById("bhogVenueInput").value = "";
@@ -1434,6 +1473,17 @@ function bindEvents() {
   });
 }
 
+backgroundController = createModuleBackgroundController({
+  prefix: "bhogMedia",
+  insertAfter: document.getElementById("bhogPortraitCard").closest("details"),
+  targets: [
+    { value: "portrait", label: "ਮੁੱਖ Portrait Photo", setImage: image => { state.portrait = image; updatePhotoCards(); } },
+    { value: "venue", label: "ਗੁਰਦੁਆਰਾ / ਸਥਾਨ Photo", setImage: image => { state.venueImage = image; updatePhotoCards(); } }
+  ],
+  getDefaultQuery: () => state.venue || "Gurdwara Sahib Punjab",
+  getPalette: () => getTemplate(),
+  onChange: renderPoster
+});
 updateFormFields();
 bindEvents();
 exportController = createPosterExportController({
@@ -1444,8 +1494,8 @@ exportController = createPosterExportController({
   filename: safeFilename,
   showToast,
   getPricingContext: () => ({
-    isPremium: getActiveTemplate().id >= 7,
-    templateId: getActiveTemplate().id
+    isPremium: getTemplate().id >= 7,
+    templateId: getTemplate().id
   }),
   storageKey: "mdc-bhog-poster-size",
   defaultFormat: "social"

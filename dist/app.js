@@ -1,4 +1,5 @@
 import { createPosterExportController } from "./poster-export.js?v=5.7.6";
+import { createModuleBackgroundController } from "./module-background.js?v=5.8.0";
 
 const canvas = document.getElementById("posterCanvas");
 const ctx = canvas.getContext("2d");
@@ -9,6 +10,7 @@ const W = 1080;
 const H = 1620;
 const FONT = '"Noto Sans Gurmukhi", "Raavi", sans-serif';
 let exportController;
+let backgroundController;
 
 function installStableTextAlignment(context) {
   const nativeFillText = CanvasRenderingContext2D.prototype.fillText;
@@ -1305,6 +1307,7 @@ function renderPoster() {
   drawInfoStrip(theme);
   drawConditions(theme);
   drawContactFooter(theme);
+  backgroundController?.apply(ctx, W, H);
   if (document.getElementById("posterModal").classList.contains("open")) exportController?.copyToModal();
   exportController?.refreshPreview();
 }
@@ -1669,6 +1672,7 @@ function downloadPoster() {
 
 function resetApp() {
   state = cloneDefaults();
+  backgroundController?.reset();
   document.getElementById("smartText").value = "";
   updateFormFields();
   renderItemEditors();
@@ -1803,6 +1807,25 @@ updateFormFields();
 renderItemEditors();
 renderContactEditors();
 bindEvents();
+backgroundController = createModuleBackgroundController({
+  prefix: "agriMedia",
+  insertAfter: document.getElementById("itemsEditor").closest("details"),
+  targets: [{
+    value: "featured",
+    label: "Featured Implement Photo",
+    setImage: image => {
+      const item = state.items[state.featuredItemIndex] || state.items[0];
+      item.image = image;
+      item.originalImage = image;
+      item.processedImage = null;
+      item.mode = "original";
+      renderItemEditors();
+    }
+  }],
+  getDefaultQuery: () => state.items[state.featuredItemIndex]?.name || state.title,
+  getPalette: () => themes[state.theme] || themes.green,
+  onChange: renderPoster
+});
 exportController = createPosterExportController({
   sourceCanvas: canvas,
   modalCanvas,

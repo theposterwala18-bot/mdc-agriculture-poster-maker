@@ -1,0 +1,23 @@
+.module-media-tools{border-top:1px solid rgba(10,74,53,.12)}
+.module-media-tools .details-body{display:grid;gap:16px}
+.module-background-picker{display:flex;flex-wrap:wrap;gap:8px}
+.module-bg-chip{border:1px solid #cbd9d2;border-radius:999px;background:#fff;color:#17372c;padding:9px 13px;font:800 .78rem/1.1 inherit;cursor:pointer}
+.module-bg-chip.active{border-color:#0c5a41;background:#0c5a41;color:#fff;box-shadow:0 6px 16px rgba(12,90,65,.16)}
+.module-background-actions{display:flex;flex-wrap:wrap;gap:9px}
+.module-background-actions .secondary-button,.module-background-actions .primary-button{flex:1 1 180px}
+.module-background-upload{position:relative;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.module-background-upload input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.module-online-search{display:grid;gap:10px;padding:14px;border:1px solid #d8e1dc;border-radius:14px;background:#fbfdfc}
+.module-online-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.module-online-heading strong{display:block;color:#17372c}.module-online-heading small{display:block;color:#708078;margin-top:3px}
+.module-online-badge{border-radius:999px;background:#eef7f2;color:#0c5a41;padding:5px 9px;font-size:.66rem;font-weight:900;letter-spacing:.05em}
+.module-search-row{display:grid;grid-template-columns:minmax(135px,.7fr) minmax(180px,1.4fr) auto;gap:8px}
+.module-search-row select,.module-search-row input{min-width:0;border:1px solid #c9d7d0;border-radius:10px;background:#fff;padding:10px 11px;font:inherit}
+.module-search-status,.module-selected-credit{min-height:1.2em;color:#5e6f67;font-size:.78rem}
+.module-search-results{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.module-search-result{position:relative;overflow:hidden;min-height:105px;border:1px solid #d8e1dc;border-radius:10px;background:#fff;padding:0;cursor:pointer;text-align:left}
+.module-search-result img{display:block;width:100%;height:82px;object-fit:cover;background:#edf2ef}
+.module-search-result span{display:block;padding:6px 7px;font-size:.62rem;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.module-search-result .module-format-badge{position:absolute;top:5px;right:5px;width:auto;border-radius:999px;background:#0c5a41;color:#fff;padding:3px 6px;font-size:.54rem}
+.module-selected-credit a{color:#0c5a41;font-weight:800}
+@media(max-width:720px){.module-search-row{grid-template-columns:1fr}.module-search-results{grid-template-columns:repeat(2,minmax(0,1fr))}}

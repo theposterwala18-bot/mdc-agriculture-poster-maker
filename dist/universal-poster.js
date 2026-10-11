@@ -1,4 +1,5 @@
 import { createPosterExportController } from "./poster-export.js";
+import { createModuleBackgroundController } from "./module-background.js?v=5.8.0";
 
 const canvas = document.getElementById("universalCanvas");
 const ctx = canvas.getContext("2d");
@@ -8,6 +9,7 @@ const W = 1080;
 const H = 1620;
 const FONT = '"Noto Sans Gurmukhi", "Raavi", sans-serif';
 let exportController;
+let backgroundController;
 
 function field(key, label, value, aliases = [], type = "text", wide = false) {
   return { key, label, value, aliases, type, wide };
@@ -395,6 +397,7 @@ function renderPoster() {
   else if (state.templateId === 3) drawBoldSpotlight();
   else if (state.templateId === 4) drawElegantPortrait();
   else drawPremiumEditorial();
+  backgroundController?.apply(ctx, W, H);
   if (document.getElementById("universalModal").classList.contains("open")) exportController?.copyToModal();
   exportController?.refreshPreview();
 }
@@ -448,10 +451,23 @@ function smartPlaceholder() { return config.fields.map((item) => `${item.label}:
 function showToast(message) { const toast = document.getElementById("universalToast"); toast.textContent = message; toast.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove("show"), 2500); }
 function safeFilename() { return `${String(state.title || config.name).replace(/[^\p{L}\p{N}\s-]/gu, "").trim().replace(/\s+/g, "-").slice(0, 48) || "Poster"}.png`; }
 function downloadPoster() { renderPoster(); exportController.downloadPNG(); }
-function resetPoster() { state = makeState(); localStorage.removeItem(`mdc-draft-${moduleId}`); renderFields(); updateTemplateButton(); renderTemplateMenu(); updatePhotoCards(); syncRanges(); renderPoster(); showToast("ਨਵਾਂ poster ready ਹੈ।"); }
+function resetPoster() { state = makeState(); backgroundController?.reset(); localStorage.removeItem(`mdc-draft-${moduleId}`); renderFields(); updateTemplateButton(); renderTemplateMenu(); updatePhotoCards(); syncRanges(); renderPoster(); showToast("ਨਵਾਂ poster ready ਹੈ।"); }
 function syncRanges() { [["primaryScale", Math.round(state.primaryScale * 100), "primaryScaleValue", "%"], ["primaryX", state.primaryX, "primaryXValue", ""], ["primaryY", state.primaryY, "primaryYValue", ""], ["universalLogoScale", Math.round(state.logoScale * 100), "universalLogoScaleValue", "%"]].forEach(([id, value, output, suffix]) => { document.getElementById(id).value = value; document.getElementById(output).textContent = `${value}${suffix}`; }); }
 
 function initialize() {
+  if (!backgroundController) {
+    backgroundController = createModuleBackgroundController({
+      prefix: "universalMedia",
+      insertAfter: document.getElementById("primaryPhotoCard").closest("details"),
+      targets: [
+        { value: "primary", label: config.photoLabels[0], setImage: image => { state.primaryPhoto = image; updatePhotoCards(); } },
+        { value: "secondary", label: config.photoLabels[1], setImage: image => { state.secondaryPhoto = image; updatePhotoCards(); } }
+      ],
+      getDefaultQuery: () => state.title || config.name,
+      getPalette: () => config.palette,
+      onChange: renderPoster
+    });
+  }
   document.documentElement.style.setProperty("--module-accent", config.palette.accent); document.documentElement.style.setProperty("--module-dark", config.palette.dark); document.documentElement.style.setProperty("--module-soft", config.palette.soft);
   document.title = `${config.name} — MDC`; document.getElementById("moduleIcon").textContent = config.icon; document.getElementById("modulePageTitle").textContent = config.name; document.getElementById("editorModuleTitle").textContent = config.name; document.getElementById("moduleDescription").textContent = config.description; document.getElementById("previewTitle").textContent = config.name.replace(" Poster Maker", "");
   document.getElementById("primaryPhotoLabel").textContent = config.photoLabels[0]; document.getElementById("secondaryPhotoLabel").textContent = config.photoLabels[1]; document.getElementById("universalSmartText").placeholder = smartPlaceholder();

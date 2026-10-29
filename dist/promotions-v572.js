@@ -3,7 +3,7 @@
 const API="https://the-poster-wala-payment-api.theposterwala18.workers.dev";
 const PROMO_DRAFT_KEY="tpw_owner_promo_draft_v573";
 const defaults=[
-  {title:"Professional Custom Posters",description:"Movie, Web Series, Song Poster & Lyrical Video Design",url:"https://theposterwala.in/custom-service.html",icon:"🎬",enabled:true,order:1}
+  {title:"Professional Custom Posters",description:"Movie, Web Series, Song Poster & Lyrical Video Design",url:"custom-service.html",icon:"🎬",enabled:true,order:1}
 ];
 function esc(v){return String(v??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));}
 function safeUrl(value){
@@ -26,6 +26,9 @@ function normalize(list){
 function render(cards){
   const holder=document.getElementById("heroPromoCards");if(!holder)return;
   holder.innerHTML=cards.map(card=>{
+    if(card.title.toLowerCase()==="professional custom posters"&&card.url){
+      return '<a class="hero-promo-card hero-custom-poster-card" href="'+esc(card.url)+'" aria-label="View Professional Custom Posters portfolio"><span class="hero-promo-icon">'+esc(card.icon)+'</span><span class="hero-promo-copy"><strong>'+esc(card.title)+'</strong><small>'+esc(card.description)+'</small><em>Explore Portfolio →</em></span><span class="hero-promo-mini-video" aria-hidden="true"><video autoplay muted loop playsinline preload="metadata" poster="assets/custom-promo/custom-promo-vertical.webp"><source src="assets/custom-promo/custom-promo-vertical.mp4" type="video/mp4"></video><i>SHOWREEL</i></span></a>';
+    }
     const inner='<span class="hero-promo-icon">'+esc(card.icon)+'</span><span class="hero-promo-copy"><strong>'+esc(card.title)+'</strong><small>'+esc(card.description)+'</small></span><b>'+(card.url?'Open →':'Coming Soon')+'</b>';
     return card.url?'<a class="hero-promo-card" href="'+esc(card.url)+'" target="_blank" rel="noopener noreferrer">'+inner+'</a>':'<div class="hero-promo-card is-coming">'+inner+'</div>';
   }).join("")||'<div class="hero-promo-empty">More tools coming soon.</div>';

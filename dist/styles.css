@@ -899,6 +899,19 @@ textarea:focus { border-color: #2d7357; box-shadow: 0 0 0 3px rgba(30, 106, 76, 
 .hero-promo-copy strong{font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hero-promo-copy small{color:#d5e4db;font-size:.55rem;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .hero-promo-card b{color:#ffd56d;font-size:.58rem;white-space:nowrap}
-@media(max-width:720px){.module-home-button{margin-right:8px;padding:7px 9px}.hero-promo-cards{grid-template-columns:1fr}.hero-promo-card{grid-template-columns:36px 1fr auto}.hero-promo-icon{width:36px;height:36px}}
+.hero-custom-poster-card{position:relative;grid-template-columns:40px minmax(0,1fr) 78px;min-height:106px;padding:9px 10px;overflow:hidden;border-color:rgba(255,213,109,.48);background:linear-gradient(125deg,rgba(255,255,255,.13),rgba(4,22,15,.38));box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 9px 24px rgba(0,0,0,.16)}
+.hero-custom-poster-card::after{content:"";position:absolute;inset:-70% auto -70% -38%;width:25%;transform:rotate(18deg);background:linear-gradient(90deg,transparent,rgba(255,226,145,.14),transparent);animation:heroShowcaseShine 6.5s ease-in-out infinite;pointer-events:none}
+.hero-custom-poster-card .hero-promo-icon{align-self:start;margin-top:7px;color:#1d3a2d;background:linear-gradient(145deg,#ffe59a,#d6a534);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+.hero-custom-poster-card .hero-promo-copy{align-self:center;gap:4px}
+.hero-custom-poster-card .hero-promo-copy strong{font-size:.82rem;white-space:normal;line-height:1.35;text-overflow:clip}
+.hero-custom-poster-card .hero-promo-copy small{font-size:.59rem;line-height:1.42;-webkit-line-clamp:3}
+.hero-custom-poster-card .hero-promo-copy em{display:inline-flex;align-items:center;width:max-content;margin-top:3px;padding:4px 8px;border-radius:999px;color:#173529;background:#ffd56d;font:900 .55rem/1.2 system-ui,sans-serif;font-style:normal;box-shadow:0 4px 12px rgba(0,0,0,.16)}
+.hero-promo-mini-video{position:relative;z-index:1;display:block;width:72px;aspect-ratio:4/5;justify-self:end;overflow:hidden;border:1px solid rgba(255,213,109,.58);border-radius:9px;background:#07100c;box-shadow:0 9px 20px rgba(0,0,0,.34)}
+.hero-promo-mini-video video{display:block;width:100%;height:100%;object-fit:cover}
+.hero-promo-mini-video:after{content:"";position:absolute;inset:55% 0 0;background:linear-gradient(transparent,rgba(2,12,8,.9));pointer-events:none}
+.hero-promo-mini-video i{position:absolute;z-index:2;left:0;right:0;bottom:5px;color:#ffe08b;text-align:center;font:900 .42rem/1 system-ui,sans-serif;font-style:normal;letter-spacing:.09em;text-shadow:0 1px 3px #000}
+@keyframes heroShowcaseShine{0%,32%{left:-38%}68%,100%{left:135%}}
+@media(max-width:720px){.module-home-button{margin-right:8px;padding:7px 9px}.hero-promo-cards{grid-template-columns:1fr}.hero-promo-card{grid-template-columns:36px 1fr auto}.hero-promo-icon{width:36px;height:36px}.hero-custom-poster-card{grid-template-columns:36px minmax(0,1fr) 70px;padding:9px}.hero-custom-poster-card .hero-promo-icon{margin-top:2px}.hero-promo-mini-video{width:64px}.hero-custom-poster-card .hero-promo-copy strong{font-size:.77rem}.hero-custom-poster-card .hero-promo-copy small{font-size:.54rem;-webkit-line-clamp:2}}
 
 .hero-promo-card.is-coming{cursor:default;opacity:.82}.hero-promo-empty{padding:10px;color:#d7e8de;font-size:.62rem;font-weight:800}
+@media(prefers-reduced-motion:reduce){.hero-custom-poster-card::after{animation:none!important}}

@@ -3,7 +3,7 @@
 const API="https://the-poster-wala-payment-api.theposterwala18.workers.dev";
 const PROMO_DRAFT_KEY="tpw_owner_promo_draft_v573";
 const defaults=[
-  {title:"TripKhata",description:"Trip expenses, Shared Trip, Customer Khata & Suppliers",url:"https://theposterwala18-bot.github.io/TripKhata/",icon:"🧳",enabled:true,order:10}
+  {title:"Professional Custom Posters",description:"Movie, Web Series, Song Poster & Lyrical Video Design",url:"https://theposterwala.in/custom-service.html",icon:"🎬",enabled:true,order:1}
 ];
 function esc(v){return String(v??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));}
 function safeUrl(value){
@@ -13,14 +13,15 @@ function safeUrl(value){
 }
 function normalize(list){
   if(!Array.isArray(list))return defaults;
-  return list.map((x,i)=>({
+  const cards=list.map((x,i)=>({
     title:String(x?.title||"").trim().slice(0,60),
     description:String(x?.description||"").trim().slice(0,180),
     url:safeUrl(x?.url),
     icon:String(x?.icon||"🔗").slice(0,8),
     enabled:x?.enabled!==false&&Number(x?.enabled)!==0,
     order:Number.isFinite(Number(x?.order))?Number(x.order):(i+1)*10
-  })).filter(x=>x.title&&x.enabled).sort((a,b)=>a.order-b.order);
+  })).filter(x=>x.title&&x.enabled&&x.title.toLowerCase()!=="tripkhata"&&x.title.toLowerCase()!=="professional custom posters");
+  return [...defaults,...cards].sort((a,b)=>a.order-b.order);
 }
 function render(cards){
   const holder=document.getElementById("heroPromoCards");if(!holder)return;

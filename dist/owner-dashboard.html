@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex,nofollow" />
   <title>Owner Dashboard | The Poster Wala</title>
   <link rel="stylesheet" href="./auth.css" />
-  <link rel="stylesheet" href="./owner-dashboard.css?v=5.7.3" />
+  <link rel="stylesheet" href="./owner-dashboard.css?v=5.8.1" />
 </head>
 <body>
   <header class="owner-topbar">
@@ -62,6 +62,31 @@
         <p id="settingsMessage" class="settings-message" role="status"></p>
       </section>
 
+      <section class="data-card analytics-card">
+        <div class="card-heading analytics-heading">
+          <div>
+            <h2>Custom Service Analytics</h2>
+            <span>Private owner-only visitor and contact report</span>
+          </div>
+          <button id="refreshAnalytics" type="button" class="secondary-action">Refresh Analytics</button>
+        </div>
+        <div class="analytics-summary-grid">
+          <article><span>Page Views</span><strong id="customPageViews">0</strong><small id="customTodayViews">Today: 0</small></article>
+          <article><span>Unique Visitors</span><strong id="customUniqueVisitors">0</strong><small id="customTodayVisitors">Today: 0</small></article>
+          <article><span>Instagram Clicks</span><strong id="customInstagramClicks">0</strong><small id="customTodayInstagram">Today: 0</small></article>
+          <article><span>Fiverr Clicks</span><strong id="customFiverrClicks">0</strong><small id="customTodayFiverr">Today: 0</small></article>
+          <article><span>Email Clicks</span><strong id="customEmailClicks">0</strong><small id="customTodayEmail">Today: 0</small></article>
+          <article><span>Contact Click Rate</span><strong id="customContactRate">0%</strong><small>All contact clicks ÷ page views</small></article>
+        </div>
+        <p id="customAnalyticsStatus" class="analytics-status" role="status">Analytics load ਹੋ ਰਹੀ ਹੈ…</p>
+        <div class="table-wrap">
+          <table class="analytics-table">
+            <thead><tr><th>Date</th><th>Views</th><th>Unique</th><th>Instagram</th><th>Fiverr</th><th>Email</th></tr></thead>
+            <tbody id="customAnalyticsBody"><tr><td colspan="6" class="muted">No analytics yet</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
       <section class="data-card">
         <div class="card-heading"><h2>Recent Payments</h2><span id="paymentCount"></span></div>
         <div class="table-wrap">
@@ -99,6 +124,6 @@
   </main>
 
   <script type="module" src="./auth.js?v=5.6.6"></script>
-  <script type="module" src="./owner-dashboard.js?v=5.7.6"></script>
+  <script type="module" src="./owner-dashboard.js?v=5.8.1"></script>
 </body>
 </html>

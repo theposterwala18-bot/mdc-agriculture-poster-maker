@@ -48,5 +48,6 @@
     document.querySelectorAll('.filter').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.filter').forEach(b=>b.classList.remove('active'));btn.classList.add('active');const f=btn.dataset.filter;document.querySelectorAll('.work').forEach(w=>w.hidden=f!=='all'&&!w.dataset.tags.split(' ').includes(f))}));
     let io;function observeReveals(){if(io)io.disconnect();io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.08});document.querySelectorAll('.view.active .reveal').forEach(el=>io.observe(el))}observeReveals();
   </script>
+  <script src="./custom-analytics.js?v=5.8.1"></script>
 </body>
 </html>

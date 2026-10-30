@@ -1,4 +1,5 @@
 const PAYMENT_API="https://the-poster-wala-payment-api.theposterwala18.workers.dev";
+const ANALYTICS_API="https://the-poster-wala-analytics.theposterwala18.workers.dev";
 const statusBox=document.getElementById("dashboardStatus");
 const content=document.getElementById("dashboardContent");
 const refreshButton=document.getElementById("refreshDashboard");
@@ -130,6 +131,52 @@ function renderDownloads(){
   if(body)body.innerHTML=rows.length?rows.map(row=>`<tr><td>${escapeHtml(dateTime(row.created_at))}</td><td>${userLabel(row)}</td><td>${escapeHtml(row.module_id)}</td><td>${escapeHtml(row.file_type)}</td></tr>`).join(""):'<tr><td colspan="4" class="muted">No downloads in selected period</td></tr>';
   const count=document.getElementById("downloadCount");if(count)count.textContent=`${rows.length} of ${dashboardDownloads.length} records`;
 }
+
+function setAnalyticsText(id,value){const el=document.getElementById(id);if(el)el.textContent=String(value??0);}
+function analyticsDate(value){
+  const d=new Date(String(value||"")+"T00:00:00");
+  return Number.isNaN(d.getTime())?String(value||"—"):d.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
+}
+function showAnalyticsError(message){
+  const box=document.getElementById("customAnalyticsStatus");
+  if(!box)return;
+  box.textContent=message||"Custom Service analytics load ਨਹੀਂ ਹੋਈ।";
+  box.classList.add("is-error");
+}
+async function loadCustomAnalytics(existingToken){
+  const box=document.getElementById("customAnalyticsStatus");
+  const button=document.getElementById("refreshAnalytics");
+  if(button)button.disabled=true;
+  if(box){box.textContent="Custom Service analytics load ਹੋ ਰਹੀ ਹੈ…";box.classList.remove("is-error");}
+  try{
+    const token=existingToken||await window.ThePosterWalaAuth.getIdToken();
+    const response=await fetch(ANALYTICS_API+"/owner/stats",{
+      method:"POST",
+      headers:{Authorization:"Bearer "+token,"Content-Type":"application/json"},
+      body:"{}"
+    });
+    const data=await response.json().catch(()=>null);
+    if(!response.ok||!data?.success)throw new Error(data?.error||"Analytics service response ਨਹੀਂ ਆਇਆ।");
+    const total=data.totals||{},today=data.today||{};
+    setAnalyticsText("customPageViews",total.pageViews||0);
+    setAnalyticsText("customUniqueVisitors",total.uniqueVisitors||0);
+    setAnalyticsText("customInstagramClicks",total.instagramClicks||0);
+    setAnalyticsText("customFiverrClicks",total.fiverrClicks||0);
+    setAnalyticsText("customEmailClicks",total.emailClicks||0);
+    setAnalyticsText("customContactRate",(data.contactRate||0)+"%");
+    setAnalyticsText("customTodayViews","Today: "+(today.pageViews||0));
+    setAnalyticsText("customTodayVisitors","Today: "+(today.uniqueVisitors||0));
+    setAnalyticsText("customTodayInstagram","Today: "+(today.instagramClicks||0));
+    setAnalyticsText("customTodayFiverr","Today: "+(today.fiverrClicks||0));
+    setAnalyticsText("customTodayEmail","Today: "+(today.emailClicks||0));
+    const rows=data.daily||[];
+    const body=document.getElementById("customAnalyticsBody");
+    if(body)body.innerHTML=rows.length?rows.map(row=>`<tr><td>${escapeHtml(analyticsDate(row.day))}</td><td>${Number(row.pageViews||0)}</td><td>${Number(row.uniqueVisitors||0)}</td><td>${Number(row.instagramClicks||0)}</td><td>${Number(row.fiverrClicks||0)}</td><td>${Number(row.emailClicks||0)}</td></tr>`).join(""):'<tr><td colspan="6" class="muted">Tracking publish ਹੋਣ ਤੋਂ ਬਾਅਦ data ਇੱਥੇ ਆਵੇਗਾ।</td></tr>';
+    if(box){box.textContent="Live report updated • Last 30 active days";box.classList.remove("is-error");}
+  }catch(error){showAnalyticsError(error.message);}
+  finally{if(button)button.disabled=false;}
+}
+
 async function loadDashboard(){
   refreshButton.disabled=true;
   statusBox.hidden=false;
@@ -159,6 +206,7 @@ async function loadDashboard(){
     statusBox.hidden=true;
     content.hidden=false;
     await loadOwnerConfig(token);
+    loadCustomAnalytics(token).catch(error=>showAnalyticsError(error.message));
   }catch(error){statusBox.textContent=error.message||"Dashboard load ਨਹੀਂ ਹੋਇਆ।";statusBox.classList.add("is-error");}
   finally{refreshButton.disabled=false;}
 }
@@ -234,6 +282,7 @@ async function saveOwnerSettings(){
 }
 
 refreshButton.addEventListener("click",loadDashboard);
+document.getElementById("refreshAnalytics")?.addEventListener("click",()=>loadCustomAnalytics());
 saveSettingsButton.addEventListener("click",saveOwnerSettings);
 document.getElementById("addPromoRow")?.addEventListener("click",()=>{const holder=document.getElementById("promoSettings");holder.insertAdjacentHTML("beforeend",promoRow({order:(holder.querySelectorAll(".promo-row").length+1)*10}));bindPromoRemove();});
 document.getElementById("addModuleRow").addEventListener("click",()=>{const holder=document.getElementById("moduleSettings");holder.querySelector(".muted")?.remove();holder.insertAdjacentHTML("beforeend",moduleRow());});

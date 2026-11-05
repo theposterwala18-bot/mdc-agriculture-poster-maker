@@ -396,8 +396,7 @@
 }
 
 @media (max-width: 760px) {
-  .gs-module-link,
-  .gs-topbar .donate-button {
+  .gs-module-link {
     min-width: 0;
   }
 

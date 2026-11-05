@@ -1489,26 +1489,10 @@ function bindEvents() {
     if (event.target === modal) closeModal();
   });
 
-  const donateModal = document.getElementById("donateModal");
-  const closeDonate = () => {
-    donateModal.classList.remove("open");
-    donateModal.setAttribute("aria-hidden", "true");
-    document.body.style.overflow = "";
-  };
-  document.getElementById("donateButton").addEventListener("click", () => {
-    donateModal.classList.add("open");
-    donateModal.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
-  });
-  document.getElementById("donateClose").addEventListener("click", closeDonate);
-  donateModal.addEventListener("click", (event) => {
-    if (event.target === donateModal) closeDonate();
-  });
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       closeModal();
-      closeDonate();
     }
   });
 }

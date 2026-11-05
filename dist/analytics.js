@@ -37,8 +37,6 @@ if (/^G-[A-Z0-9]+$/i.test(measurementId)) {
 document.addEventListener("click", (event) => {
   const moduleCard = event.target.closest?.("[data-module-id]");
   if (moduleCard) safeTrack("module_open", { selected_module: moduleCard.dataset.moduleId || "unknown" });
-
-  if (event.target.closest?.("#donateButton")) safeTrack("donation_qr_view");
   if (event.target.closest?.("#downloadButton, #gsDownloadButton, #bhogDownloadButton, #universalDownloadButton")) safeTrack("poster_download");
   if (event.target.closest?.("#smartFillButton, #gsSmartFillButton, #bhogSmartFillButton, #universalSmartFillButton")) safeTrack("smart_fill_used");
 

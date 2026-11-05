@@ -22,6 +22,7 @@
     @media(max-width:680px){.shell{width:min(100% - 24px,1240px)}.preview-pill{display:none}.nav{height:64px}.nav-cta{font-size:11px;padding:10px}.main-hero{min-height:auto;padding:54px 0}.main-hero h1{font-size:54px}.lead{font-size:14px}.trust-row{gap:15px}.stage{height:480px}.stage-ring{width:370px;height:370px}.stack-card{width:61%}.stack-card.left{transform:translate3d(-90px,25px,-40px) rotateY(20deg) rotateZ(-7deg)}.stack-card.right{transform:translate3d(90px,20px,-20px) rotateY(-20deg) rotateZ(7deg)}.stage-badge{left:0}.teaser,.portfolio,.rates,.showreels{padding:64px 0}.section-head{display:block}.teaser-grid{display:block}.feature-frame{height:500px}.side-mosaic{margin-top:12px}.tile{min-height:220px}.studio-hero{padding:60px 0}.studio-hero .portrait-wall{grid-template-columns:1fr 1fr}.studio-hero .portrait-wall figure:nth-child(2){transform:none}.studio-hero .portrait-wall figure:nth-child(3){grid-column:1/-1;width:50%;justify-self:center}.showreel-grid{grid-template-columns:1fr}.showreel-card.wide{width:min(100%,360px);justify-self:center}.showreel-card.vertical{width:min(76%,270px)}.showreel-meta{padding:11px 12px}.gallery{columns:2 145px;column-gap:10px}.work{margin-bottom:10px;border-radius:13px}.work figcaption{padding:11px}.work b{font-size:12px}.rate-grid,.workflow{grid-template-columns:1fr}.cta-inner{display:block}.cta .actions{margin:25px 0 0}.switch{left:12px;right:12px;bottom:12px;justify-content:center}.switch button{flex:1}.footer{padding-bottom:90px}}
     @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
   </style>
+  <link rel="stylesheet" href="./site-notice.css?v=1.0.0" />
 </head>
 <body>
   <div class="noise"></div>
@@ -49,5 +50,6 @@
     let io;function observeReveals(){if(io)io.disconnect();io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.08});document.querySelectorAll('.view.active .reveal').forEach(el=>io.observe(el))}observeReveals();
   </script>
   <script src="./custom-analytics.js?v=5.8.1"></script>
+  <script src="./site-notice.js?v=1.0.0" defer></script>
 </body>
 </html>

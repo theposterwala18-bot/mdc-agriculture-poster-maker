@@ -1,0 +1,15 @@
+/* Isolated owner notice controls */
+.tpw-notice-panel{margin:18px 0;padding:22px;border-radius:15px;background:var(--card-bg,#fff);border:1px solid #cbd5e1}
+.tpw-notice-panel h2{margin:0 0 8px;font-size:20px}
+.tpw-notice-panel p{margin:0 0 14px;opacity:.8}
+.tpw-notice-form{display:grid;gap:14px}
+.tpw-notice-form label{display:grid;gap:6px;font-weight:600}
+.tpw-notice-form textarea,.tpw-notice-form select{width:100%;box-sizing:border-box;padding:11px;border:1px solid #9ca3af;border-radius:9px;background:#fff;color:#111}
+.tpw-notice-form textarea{min-height:100px;font:inherit;resize:vertical}
+.tpw-notice-toggle{display:flex!important;align-items:center;gap:10px}
+.tpw-notice-toggle input{width:18px;height:18px}
+.tpw-notice-actions{display:flex;flex-wrap:wrap;gap:10px}
+.tpw-notice-actions button{border-radius:9px;padding:10px 14px;cursor:pointer}
+.tpw-notice-preview{padding:12px 16px;border-radius:9px;white-space:pre-wrap;background:#fff0d6;color:#71410a}
+.tpw-notice-preview[data-kind="info"]{background:#e7f2ff;color:#173f69}
+.tpw-notice-preview[data-kind="success"]{background:#e4f7eb;color:#175837}

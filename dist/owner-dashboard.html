@@ -7,6 +7,7 @@
   <title>Owner Dashboard | The Poster Wala</title>
   <link rel="stylesheet" href="./auth.css" />
   <link rel="stylesheet" href="./owner-dashboard.css?v=5.8.1" />
+  <link rel="stylesheet" href="./owner-site-notice.css?v=1.0.0" />
 </head>
 <body>
   <header class="owner-topbar">
@@ -38,6 +39,22 @@
         <article><span>Total Downloads</span><strong id="totalDownloads">0</strong></article>
       </div>
 
+      <section class="tpw-notice-panel" aria-labelledby="siteNoticeTitle">
+        <h2 id="siteNoticeTitle">Website Notice Manager</h2>
+        <p>Show an urgent status message at the top of every public website page. This is saved independently of payment settings.</p>
+        <form id="siteNoticeForm" class="tpw-notice-form">
+          <label class="tpw-notice-toggle"><input id="noticeEnabled" type="checkbox" /> Show Notice on Website</label>
+          <label>Notice Type
+            <select id="noticeType"><option value="warning">⚠ Warning / Payment Issue</option><option value="info">ℹ General Information</option><option value="success">✓ Problem Solved</option></select>
+          </label>
+          <label>Custom Message (Punjabi / English)
+            <textarea id="noticeMessage" maxlength="500" placeholder="Write the message you want visitors to see…"></textarea>
+          </label>
+          <div id="noticePreview" class="tpw-notice-preview" data-kind="warning">⚠ Important Notice: Your message preview appears here</div>
+          <div class="tpw-notice-actions"><button id="noticePublish" type="submit">Save &amp; Publish Settings</button><button id="noticeHide" type="button" class="secondary-action">Hide Notice Now</button></div>
+          <p id="noticeFeedback" role="status" aria-live="polite"></p>
+        </form>
+      </section>
       <section class="control-panel data-card">
         <div class="card-heading">
           <div><h2>Owner Controls</h2><span id="paymentModeBadge">Mode check…</span></div>
@@ -125,5 +142,6 @@
 
   <script type="module" src="./auth.js?v=5.6.6"></script>
   <script type="module" src="./owner-dashboard.js?v=5.8.1"></script>
+  <script src="./owner-site-notice.js?v=1.0.0" defer></script>
 </body>
 </html>

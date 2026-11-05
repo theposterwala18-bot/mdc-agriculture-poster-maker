@@ -80,31 +80,6 @@ button { cursor: pointer; }
 .topbar h1 { margin: 0; font-size: clamp(1rem, 2vw, 1.3rem); line-height: 1.25; overflow-wrap: anywhere; }
 .app-version { display: inline-block; margin-top: 3px; color: #b8d5c8; font-size: .62rem; font-weight: 800; letter-spacing: .05em; }
 .topbar-actions { display: flex; align-items: center; gap: 8px; }
-.donate-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  min-height: 42px;
-  padding: 9px 15px;
-  border: 1px solid #efc65d;
-  border-radius: 11px;
-  color: #5a3300;
-  background: linear-gradient(145deg, #ffe59a, #dba937);
-  font-size: .8rem;
-  font-weight: 900;
-}
-.payment-icon {
-  display: grid;
-  place-items: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  color: #fff7df;
-  background: #7a4c00;
-  font: 900 .8rem/1 system-ui, sans-serif;
-}
-
 .module-hub {
   width: min(1260px, calc(100% - 32px));
   margin: 28px auto 64px;
@@ -643,90 +618,6 @@ textarea:focus { border-color: #2d7357; box-shadow: 0 0 0 3px rgba(30, 106, 76, 
   font: 300 28px/1 system-ui, sans-serif;
 }
 
-.donate-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 110;
-  display: none;
-  place-items: center;
-  padding: 20px;
-  background: rgba(4,16,10,.82);
-  backdrop-filter: blur(8px);
-  overflow-y: auto;
-}
-.donate-modal.open { display: grid; }
-.donate-card {
-  position: relative;
-  width: min(430px, 100%);
-  padding: 30px;
-  border: 2px solid #e0b54a;
-  border-radius: 24px;
-  color: #22362c;
-  background: #fffdf7;
-  box-shadow: 0 28px 90px rgba(0,0,0,.35);
-  text-align: center;
-  max-height: calc(100dvh - 40px);
-  overflow-y: auto;
-}
-.donate-card h2 { margin: 8px 0 7px; font-size: 1.35rem; }
-.donate-card p { margin: 0 auto 18px; color: #64746b; font-size: .84rem; line-height: 1.65; }
-.donate-payment-icon {
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  margin: 0 auto;
-  border-radius: 15px;
-  color: #fff8df;
-  background: linear-gradient(145deg, #0b6141, #073d2b);
-  box-shadow: inset 0 0 0 2px rgba(255,255,255,.18), 0 8px 20px rgba(8,60,42,.18);
-  font: 900 1.55rem/1 system-ui, sans-serif;
-}
-.donate-close {
-  position: absolute;
-  top: 10px;
-  right: 12px;
-  width: 34px;
-  height: 34px;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  color: #53635b;
-  background: #eef3ef;
-  font: 400 22px/1 system-ui, sans-serif;
-}
-.donation-qr-frame {
-  width: min(290px, 100%);
-  margin: 0 auto 18px;
-  overflow: hidden;
-  border: 2px solid #d5b457;
-  border-radius: 18px;
-  background: #f1f4fb;
-  box-shadow: 0 12px 30px rgba(26,46,36,.12);
-}
-.donation-qr-frame img { display: block; width: 100%; height: auto; }
-.upi-pay-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  min-height: 46px;
-  margin-bottom: 12px;
-  padding: 10px 15px;
-  border-radius: 12px;
-  color: #fff;
-  background: linear-gradient(135deg, #0d6140, #083a28);
-  box-shadow: 0 8px 20px rgba(8,60,42,.2);
-  text-decoration: none;
-  font-size: .86rem;
-  font-weight: 900;
-}
-.upi-pay-button span { font: 900 1rem/1 system-ui, sans-serif; }
-.donate-card .upi-id { margin-bottom: 8px; color: #394b42; font-family: system-ui, sans-serif; font-size: .76rem; overflow-wrap: anywhere; }
-.support-email { display: inline-block; margin-bottom: 16px; color: #0b6141; font-size: .75rem; font-weight: 800; overflow-wrap: anywhere; }
-.donate-card .donate-note { margin-bottom: 0; color: #8b6d20; font-size: .7rem; }
-
 .site-footer {
   display: flex;
   align-items: center;
@@ -802,8 +693,7 @@ textarea:focus { border-color: #2d7357; box-shadow: 0 0 0 3px rgba(30, 106, 76, 
     width: 100%;
     gap: 8px;
   }
-  .topbar-actions .ghost-button,
-  .topbar-actions .donate-button { width: 100%; min-width: 0; }
+  .topbar-actions .ghost-button { width: 100%; min-width: 0; }
   #resetButton { display: none; }
 }
 
@@ -812,7 +702,6 @@ textarea:focus { border-color: #2d7357; box-shadow: 0 0 0 3px rgba(30, 106, 76, 
   .topbar .eyebrow { display: none; }
   .topbar h1 { font-size: .96rem; }
   .ghost-button { min-height: 42px; padding: 8px 10px; font-size: .72rem; }
-  .donate-button { min-height: 42px; padding: 8px 10px; font-size: .72rem; }
   .module-hub { width: calc(100% - 20px); margin: 14px auto 40px; }
   .module-hub-heading { align-items: flex-start; padding: 19px; border-radius: 17px; }
   .module-hub-intro { display: none; }
@@ -851,15 +740,11 @@ textarea:focus { border-color: #2d7357; box-shadow: 0 0 0 3px rgba(30, 106, 76, 
   .logo-size-grid { grid-template-columns: 1fr; }
   .photo-bg-color { margin-left: 0; }
   .contact-row { grid-template-columns: 1fr; padding: 11px; border: 1px solid var(--line); border-radius: 12px; }
-  .donate-modal { place-items: start center; padding: 10px; }
-  .donate-card { width: 100%; max-height: calc(100dvh - 20px); padding: 24px 16px 20px; border-radius: 18px; }
-  .donation-qr-frame { width: min(270px, 100%); }
   .site-footer { padding: 15px 12px; font-size: .7rem; }
 }
 
 @media (max-width: 360px) {
   .topbar-actions { grid-template-columns: 1fr 1fr; }
-  .payment-icon { width: 20px; height: 20px; }
   .module-hub-heading { padding: 16px; }
   .module-hub-heading h2 { font-size: 1.2rem; }
   .workspace { padding-inline: 7px; }
@@ -924,7 +809,3 @@ textarea:focus { border-color: #2d7357; box-shadow: 0 0 0 3px rgba(30, 106, 76, 
 
 .hero-promo-card.is-coming{cursor:default;opacity:.82}.hero-promo-empty{padding:10px;color:#d7e8de;font-size:.62rem;font-weight:800}
 @media(prefers-reduced-motion:reduce){.hero-custom-poster-card::after{animation:none!important}.hero-selected-slide{transition:none!important}}
-
-
-/* Razorpay compliance: temporarily hide public donation entry point. */
-.donate-button{display:none!important}

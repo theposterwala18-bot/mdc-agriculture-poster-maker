@@ -924,3 +924,7 @@ textarea:focus { border-color: #2d7357; box-shadow: 0 0 0 3px rgba(30, 106, 76, 
 
 .hero-promo-card.is-coming{cursor:default;opacity:.82}.hero-promo-empty{padding:10px;color:#d7e8de;font-size:.62rem;font-weight:800}
 @media(prefers-reduced-motion:reduce){.hero-custom-poster-card::after{animation:none!important}.hero-selected-slide{transition:none!important}}
+
+
+/* Razorpay compliance: temporarily hide public donation entry point. */
+.donate-button{display:none!important}

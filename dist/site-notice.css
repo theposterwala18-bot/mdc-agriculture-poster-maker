@@ -1,0 +1,9 @@
+/* Isolated public status banner */
+.tpw-site-notice[hidden]{display:none!important}
+.tpw-site-notice{position:relative;z-index:10000;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 12px;padding:12px 20px;border-bottom:1px solid rgba(0,0,0,.12);font:600 14px/1.55 "Noto Sans Gurmukhi",system-ui,sans-serif;text-align:center;overflow-wrap:anywhere}
+.tpw-site-notice-icon{font-size:18px;line-height:1}
+.tpw-site-notice-message{font-weight:500}
+.tpw-site-notice-warning{background:#fff0d6;color:#71410a}
+.tpw-site-notice-info{background:#e7f2ff;color:#173f69}
+.tpw-site-notice-success{background:#e4f7eb;color:#175837}
+@media(max-width:640px){.tpw-site-notice{padding:10px 12px;font-size:12px;gap:4px 8px}}

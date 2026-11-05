@@ -488,8 +488,6 @@ document.getElementById("universalResetButton").addEventListener("click", resetP
 document.getElementById("universalDownloadButton").addEventListener("click", downloadPoster);
 document.getElementById("universalZoomButton").addEventListener("click", () => { renderPoster(); exportController.copyToModal(); document.getElementById("universalModal").classList.add("open"); document.getElementById("universalModal").setAttribute("aria-hidden", "false"); });
 document.getElementById("universalModalClose").addEventListener("click", () => { document.getElementById("universalModal").classList.remove("open"); document.getElementById("universalModal").setAttribute("aria-hidden", "true"); });
-document.getElementById("donateButton").addEventListener("click", () => { document.getElementById("donateModal").classList.add("open"); document.getElementById("donateModal").setAttribute("aria-hidden", "false"); });
-document.getElementById("donateClose").addEventListener("click", () => { document.getElementById("donateModal").classList.remove("open"); document.getElementById("donateModal").setAttribute("aria-hidden", "true"); });
 
 exportController = createPosterExportController({
   sourceCanvas: canvas,

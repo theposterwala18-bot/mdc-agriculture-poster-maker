@@ -210,7 +210,7 @@ let toastTimer;
 
 function makeState() {
   const values = Object.fromEntries(config.fields.map((item) => [item.key, item.value]));
-  return { ...values, templateId: moduleId==="wedding" ? 101 : 5, primaryPhoto: null, secondaryPhoto: null, logo: null, primaryScale: 1, primaryX: 0, primaryY: 0, logoScale: 1 };
+  return { ...values, weddingTradition: "sikh", templateId: moduleId==="wedding" ? 101 : 5, primaryPhoto: null, secondaryPhoto: null, logo: null, primaryScale: 1, primaryX: 0, primaryY: 0, logoScale: 1 };
 }
 
 function installStableTextAlignment(context) {
@@ -443,7 +443,13 @@ function initializeWeddingControls(){
   for(const [id,name] of weddingLanguages)languageSelect.add(new Option(name,id));
   language.append(languageSelect);
   const hint=document.createElement("p");hint.textContent="New styles are original vector artwork. Change names, time, date, venue and program in the fields below.";
-  controls.append(category,language,hint);
+  const tradition=document.createElement("label");tradition.textContent="Ceremony / Tradition";
+  const traditionSelect=document.createElement("select");traditionSelect.id="weddingTradition";
+  for(const [id,name] of [["sikh","Sikh / Anand Karaj"],["hindu","Hindu"],["muslim","Muslim"],["neutral","Modern / Neutral"]]) traditionSelect.add(new Option(name,id));
+  traditionSelect.value=state.weddingTradition||"sikh";
+  tradition.append(traditionSelect);
+  controls.append(category,language,tradition,hint);
+  traditionSelect.addEventListener("change",()=>{state.weddingTradition=traditionSelect.value;renderPoster()});
   anchor.parentElement.insertBefore(controls,anchor);
   categorySelect.addEventListener("change",()=>{
     weddingFilter=categorySelect.value;

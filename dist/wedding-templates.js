@@ -121,7 +121,7 @@ export function drawWeddingTemplate(ctx,state,t,customBackground=null){
    ctx.drawImage(im,540-im.width*scale/2,535-im.height*scale/2,im.width*scale,im.height*scale);
    ctx.restore();stroke(c.gold,6);ctx.beginPath();ctx.ellipse(540,535,160,130,0,0,Math.PI*2);ctx.stroke();
  }else{
-   fit(variant==="rings"?"♡":variant==="leaf"?"❀":variant==="lights"?"✧":"ੴ",490,430,110,60,c.gold,500);
+   fit(state.weddingTradition==="sikh"?"ੴ":state.weddingTradition==="hindu"?"ॐ":state.weddingTradition==="muslim"?"✦":"♡",490,430,110,60,c.gold,500);
  }
  fit(state.title,725,830,76,28,c.dark,800);
  line(345,825,735,825,c.gold,3);

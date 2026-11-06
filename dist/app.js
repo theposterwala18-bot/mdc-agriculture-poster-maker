@@ -102,7 +102,7 @@ const moduleGroups = [
     name: "ਖੁਸ਼ੀ ਅਤੇ Invitation",
     icon: "✨",
     modules: [
-      { id: "wedding", name: "Wedding Invitation", punjabi: "ਵਿਆਹ ਦਾ ਸੱਦਾ", icon: "💍", available: true },
+      { id: "wedding", name: "Wedding Studio", punjabi: "ਵਿਆਹ, ਮੰਗਣੀ, ਮਹਿੰਦੀ ਤੇ ਹੋਰ ਸਮਾਗਮ", icon: "💍", available: true },
       { id: "path", name: "Akhand Path / Sukhmani Sahib", punjabi: "ਧਾਰਮਿਕ ਸਮਾਗਮ ਦਾ ਸੱਦਾ", icon: "🙏", available: true },
       { id: "general-invite", name: "General Invitation", punjabi: "ਕਿਸੇ ਵੀ ਖੁਸ਼ੀ ਦਾ Invitation", icon: "💌", available: true }
     ]

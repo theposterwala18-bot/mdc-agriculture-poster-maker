@@ -1,3 +1,4 @@
+import { modulePreviewMarkup } from "./module-thumbnails.js";
 import { createPosterExportController } from "./poster-export.js?v=5.7.6";
 import { createModuleBackgroundController } from "./module-background.js?v=5.8.0";
 
@@ -101,7 +102,7 @@ const moduleGroups = [
     name: "ਖੁਸ਼ੀ ਅਤੇ Invitation",
     icon: "✨",
     modules: [
-      { id: "wedding", name: "Wedding Invitation", punjabi: "ਵਿਆਹ ਦਾ ਸੱਦਾ", icon: "💍", available: true },
+      { id: "wedding", name: "Wedding Studio", punjabi: "ਵਿਆਹ, ਮੰਗਣੀ, ਮਹਿੰਦੀ ਤੇ ਹੋਰ ਸਮਾਗਮ", icon: "💍", available: true },
       { id: "path", name: "Akhand Path / Sukhmani Sahib", punjabi: "ਧਾਰਮਿਕ ਸਮਾਗਮ ਦਾ ਸੱਦਾ", icon: "🙏", available: true },
       { id: "general-invite", name: "General Invitation", punjabi: "ਕਿਸੇ ਵੀ ਖੁਸ਼ੀ ਦਾ Invitation", icon: "💌", available: true }
     ]
@@ -192,6 +193,7 @@ function renderModuleHub() {
             <span class="module-card-icon" aria-hidden="true">${module.icon}</span>
             <span class="module-card-copy"><strong>${module.name}</strong><small>${module.punjabi}</small></span>
             <span class="module-status">${module.available ? "OPEN" : "COMING NEXT"}</span>
+            ${modulePreviewMarkup(module.id)}
           </button>
         `).join("")}
       </div>

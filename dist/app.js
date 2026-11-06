@@ -1,3 +1,4 @@
+import { modulePreviewMarkup } from "./module-thumbnails.js";
 import { createPosterExportController } from "./poster-export.js?v=5.7.6";
 import { createModuleBackgroundController } from "./module-background.js?v=5.8.0";
 
@@ -192,6 +193,7 @@ function renderModuleHub() {
             <span class="module-card-icon" aria-hidden="true">${module.icon}</span>
             <span class="module-card-copy"><strong>${module.name}</strong><small>${module.punjabi}</small></span>
             <span class="module-status">${module.available ? "OPEN" : "COMING NEXT"}</span>
+            ${modulePreviewMarkup(module.id)}
           </button>
         `).join("")}
       </div>

@@ -45,7 +45,18 @@ export function weddingLanguageText(language,category){
  const p=sayings[language]||sayings.pa;
  return {highlight:p.headings[category]||p.headings["wedding-anand-karaj"],subtitle:p.subtitle,body:p.body};
 }
-export function drawWeddingTemplate(ctx,state,t){
+const weddingArtworkCache = new Map();
+export function preloadWeddingArtwork(onChange){
+  for(const category of new Set(weddingTemplates.map(t=>t.category))){
+    if(weddingArtworkCache.has(category))continue;
+    const image=new Image();
+    weddingArtworkCache.set(category,{image,ready:false});
+    image.onload=()=>{weddingArtworkCache.get(category).ready=true;onChange?.();};
+    image.onerror=()=>{weddingArtworkCache.get(category).ready=false;};
+    image.src="./assets/wedding-original/"+category+".svg";
+  }
+}
+export function drawWeddingTemplate(ctx,state,t,customBackground=null){
  const W=1080,H=1620;
  const c=t.palette,variant=t.layout;
  const safe=v=>String(v??"").trim();
@@ -71,7 +82,17 @@ export function drawWeddingTemplate(ctx,state,t){
    for(const l of lines){ctx.fillText(l,W/2,pos,max);pos+=gap}
    ctx.restore();
  }
- const g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,c.soft);g.addColorStop(.56,"#fffdf8");g.addColorStop(1,c.soft);fill(g);
+ const art=weddingArtworkCache.get(t.category);
+ if(customBackground?.naturalWidth){
+    const scale=Math.max(W/customBackground.naturalWidth,H/customBackground.naturalHeight);
+    ctx.drawImage(customBackground,(W-customBackground.naturalWidth*scale)/2,(H-customBackground.naturalHeight*scale)/2,customBackground.naturalWidth*scale,customBackground.naturalHeight*scale);
+    ctx.fillStyle="rgba(255,252,244,.83)";ctx.fillRect(115,225,850,1175);
+    stroke(c.gold,7);ctx.strokeRect(42,42,W-84,H-84);
+    stroke(c.gold,2);ctx.strokeRect(61,61,W-122,H-122);
+ }else if(art?.ready){
+    ctx.drawImage(art.image,0,0,W,H);
+ }else{
+  const g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,c.soft);g.addColorStop(.56,"#fffdf8");g.addColorStop(1,c.soft);fill(g);
  const margin=variant==="minimal"?82:38;
  stroke(c.gold,variant==="heritage"?12:6);ctx.strokeRect(margin,margin,W-margin*2,H-margin*2);
  stroke(c.dark,1.5);ctx.globalAlpha=.43;ctx.strokeRect(margin+14,margin+14,W-margin*2-28,H-margin*2-28);ctx.globalAlpha=1;
@@ -89,6 +110,8 @@ export function drawWeddingTemplate(ctx,state,t){
  }
  if(variant==="floral"){for(let x=300;x<850;x+=120){flower(x,86,18,6,c.accent)}}
  if(variant==="heritage"){for(let x=140;x<960;x+=90){ctx.save();ctx.globalAlpha=.28;flower(x,1510,14,8,c.gold);ctx.restore()}}
+
+ }
  ctx.save();ctx.globalAlpha=.7;ctx.fillStyle=c.gold;ctx.font='52px "Noto Sans Gurmukhi",Georgia,serif';ctx.textAlign="center";ctx.fillText("✦",540,155);ctx.restore();
  fit(safe(state.highlight)||"WEDDING CELEBRATION",270,730,53,25,c.dark,750);
  line(280,335,800,335,c.gold,3);

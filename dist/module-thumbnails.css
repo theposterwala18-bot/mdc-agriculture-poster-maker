@@ -1,0 +1,12 @@
+/* Scoped compact, poster-shaped right thumbnails. No editor or payment styles touched. */
+.module-card-grid .module-card { grid-template-columns: 39px minmax(0,1fr) 54px; gap:8px; min-height:102px; padding:12px 9px; }
+.module-card-grid .module-card-icon { width:39px; height:39px; font-size:1.24rem; border-radius:11px; }
+.module-card-grid .module-card-copy { padding-right:1px; }
+.module-card-grid .module-card-preview { width:54px;height:72px;align-self:center;justify-self:end;border:1px solid rgba(72,58,33,.18);border-radius:5px;background:#fff;box-shadow:0 3px 9px rgba(20,30,20,.17);overflow:hidden;flex-shrink:0;pointer-events:none; }
+.module-card-grid .module-card-preview img {width:100%;height:100%;display:block;object-fit:cover;}
+.module-card-grid .module-status {right:66px;top:5px;font-size:.48rem;pointer-events:none;}
+.module-card-grid .module-card-copy strong {font-size:.78rem;overflow-wrap:anywhere;}
+.module-card-grid .module-card-copy small {font-size:.59rem;overflow-wrap:anywhere;}
+@media (max-width:1200px){.module-card-grid .module-card{grid-template-columns:35px minmax(0,1fr) 48px;min-height:99px;padding:10px 7px;gap:7px}.module-card-grid .module-card-preview{width:48px;height:65px}.module-card-grid .module-status{right:56px;}}
+@media (max-width:680px){.module-card-grid .module-card{grid-template-columns:38px minmax(0,1fr) 50px;min-height:92px;padding:10px;gap:8px}.module-card-grid .module-card-preview{width:50px;height:68px}.module-card-grid .module-status{right:60px;top:5px}}
+@media (max-width:370px){.module-card-grid .module-card{grid-template-columns:30px minmax(0,1fr) 42px;gap:6px}.module-card-grid .module-card-icon{width:30px;height:30px}.module-card-grid .module-card-preview{width:42px;height:57px}.module-card-grid .module-status{right:50px;}}

@@ -1,3 +1,4 @@
+import { weddingTemplates, weddingCategories, weddingLanguages, weddingLanguageText, drawWeddingTemplate } from "./wedding-templates.js";
 import { createPosterExportController } from "./poster-export.js";
 import { createModuleBackgroundController } from "./module-background.js?v=5.8.0";
 
@@ -198,6 +199,9 @@ const templates = [
   { id: 1, name: "Heritage Frame", note: "Traditional border ਅਤੇ balanced details", look: "classic" }
 ];
 
+templates.push(...weddingTemplates);
+let weddingFilter = "all";
+let weddingLang = "pa";
 const requestedModule = new URLSearchParams(location.search).get("module") || "missing";
 const moduleId = moduleConfigs[requestedModule] ? requestedModule : "missing";
 const config = moduleConfigs[moduleId];
@@ -206,7 +210,7 @@ let toastTimer;
 
 function makeState() {
   const values = Object.fromEntries(config.fields.map((item) => [item.key, item.value]));
-  return { ...values, templateId: 5, primaryPhoto: null, secondaryPhoto: null, logo: null, primaryScale: 1, primaryX: 0, primaryY: 0, logoScale: 1 };
+  return { ...values, templateId: moduleId==="wedding" ? 101 : 5, primaryPhoto: null, secondaryPhoto: null, logo: null, primaryScale: 1, primaryX: 0, primaryY: 0, logoScale: 1 };
 }
 
 function installStableTextAlignment(context) {
@@ -390,7 +394,8 @@ function drawRoyalJagran() {
 }
 function renderPoster() {
   ctx.clearRect(0, 0, W, H);
-  if (state.templateId === 7 && moduleId === "general-invite") drawRoyalJagran();
+  if (moduleId === "wedding" && weddingTemplates.some(t=>t.id===Number(state.templateId))) drawWeddingTemplate(ctx,state,weddingTemplates.find(t=>t.id===Number(state.templateId)));
+  else if (state.templateId === 7 && moduleId === "general-invite") drawRoyalJagran();
   else if (state.templateId === 6 && moduleId === "general-invite") drawBoutiqueOpening();
   else if (state.templateId === 1) drawHeritage();
   else if (state.templateId === 2) drawModernSplit();
@@ -404,7 +409,7 @@ function renderPoster() {
 
 function hiddenStorageKey() { return `mdc-hidden-templates-${moduleId}`; }
 function getHiddenTemplates() { try { return JSON.parse(localStorage.getItem(hiddenStorageKey()) || "[]"); } catch { return []; } }
-function visibleTemplates() { const hidden = new Set(getHiddenTemplates()); return templates.filter((template) => (!template.modules || template.modules.includes(moduleId)) && !hidden.has(template.id)); }
+function visibleTemplates() { const hidden = new Set(getHiddenTemplates()); return templates.filter((template) => (!template.modules || template.modules.includes(moduleId)) && !hidden.has(template.id) && (moduleId!=="wedding" || weddingFilter==="all" || template.category===weddingFilter)); }
 function lookMarkup(template) { const p = template.palette || config.palette; return `<span class="universal-template-look look-${template.look}" style="--look-bg:${p.soft};--look-border:${p.gold};--look-accent:${p.accent};--look-text:${p.dark}"><i></i></span>`; }
 function renderTemplateMenu() {
   const menu = document.getElementById("universalTemplateMenu");
@@ -423,7 +428,40 @@ function hideSelectedTemplate() {
   if (visible.length <= 1) { showToast("ਘੱਟੋ-ਘੱਟ ਇੱਕ template visible ਰਹਿਣਾ ਲਾਜ਼ਮੀ ਹੈ।"); return; }
   const hidden = getHiddenTemplates(); if (!hidden.includes(state.templateId)) hidden.push(state.templateId); localStorage.setItem(hiddenStorageKey(), JSON.stringify(hidden)); state.templateId = visibleTemplates()[0].id; updateTemplateButton(); renderTemplateMenu(); renderPoster(); showToast("Template ਇਸ device ’ਤੇ hide ਹੋ ਗਿਆ।");
 }
-function restoreTemplates() { localStorage.removeItem(hiddenStorageKey()); state.templateId = 5; updateTemplateButton(); renderTemplateMenu(); renderPoster(); showToast("ਸਾਰੇ templates restore ਹੋ ਗਏ।"); }
+function restoreTemplates() { localStorage.removeItem(hiddenStorageKey()); state.templateId = moduleId==="wedding" ? 101 : 5; weddingFilter="all"; const filter=document.getElementById("weddingCategory");if(filter)filter.value="all"; updateTemplateButton(); renderTemplateMenu(); renderPoster(); showToast("ਸਾਰੇ templates restore ਹੋ ਗਏ।"); }
+
+function initializeWeddingControls(){
+  const anchor=document.getElementById("universalTemplateSelect");
+  if(!anchor || document.getElementById("weddingControls"))return;
+  const controls=document.createElement("div");controls.id="weddingControls";controls.className="tpw-wedding-controls";
+  const category=document.createElement("label");category.textContent="Function / Category";
+  const categorySelect=document.createElement("select");categorySelect.id="weddingCategory";
+  for(const [id,name] of weddingCategories)categorySelect.add(new Option(name,id));
+  category.append(categorySelect);
+  const language=document.createElement("label");language.textContent="Invitation Language";
+  const languageSelect=document.createElement("select");languageSelect.id="weddingLanguage";
+  for(const [id,name] of weddingLanguages)languageSelect.add(new Option(name,id));
+  language.append(languageSelect);
+  const hint=document.createElement("p");hint.textContent="New styles are original vector artwork. Change names, time, date, venue and program in the fields below.";
+  controls.append(category,language,hint);
+  anchor.parentElement.insertBefore(controls,anchor);
+  categorySelect.addEventListener("change",()=>{
+    weddingFilter=categorySelect.value;
+    const list=visibleTemplates();
+    if(!list.length){weddingFilter="all";categorySelect.value="all";return}
+    if(!list.some(x=>x.id===state.templateId))state.templateId=list[0].id;
+    const chosen=weddingTemplates.find(x=>x.id===state.templateId);
+    if(chosen){const p=weddingLanguageText(weddingLang,chosen.category);state.highlight=p.highlight;state.subtitle=p.subtitle;state.body=p.body;renderFields()}
+    updateTemplateButton();renderTemplateMenu();renderPoster();
+  });
+  languageSelect.addEventListener("change",()=>{
+    weddingLang=languageSelect.value;
+    const chosen=weddingTemplates.find(x=>x.id===state.templateId);
+    const p=weddingLanguageText(weddingLang,chosen?.category||"wedding-anand-karaj");
+    state.highlight=p.highlight;state.subtitle=p.subtitle;state.body=p.body;
+    renderFields();renderPoster();
+  });
+}
 
 function escapeHtml(value) { return String(value).replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]); }
 function renderFields() {
@@ -471,6 +509,7 @@ function initialize() {
   document.documentElement.style.setProperty("--module-accent", config.palette.accent); document.documentElement.style.setProperty("--module-dark", config.palette.dark); document.documentElement.style.setProperty("--module-soft", config.palette.soft);
   document.title = `${config.name} — MDC`; document.getElementById("moduleIcon").textContent = config.icon; document.getElementById("modulePageTitle").textContent = config.name; document.getElementById("editorModuleTitle").textContent = config.name; document.getElementById("moduleDescription").textContent = config.description; document.getElementById("previewTitle").textContent = config.name.replace(" Poster Maker", "");
   document.getElementById("primaryPhotoLabel").textContent = config.photoLabels[0]; document.getElementById("secondaryPhotoLabel").textContent = config.photoLabels[1]; document.getElementById("universalSmartText").placeholder = smartPlaceholder();
+  if(moduleId==="wedding")initializeWeddingControls();
   renderFields(); updateTemplateButton(); renderTemplateMenu(); updatePhotoCards(); syncRanges(); renderPoster(); window.mdcTrack?.("module_view", { selected_module: moduleId });
 }
 

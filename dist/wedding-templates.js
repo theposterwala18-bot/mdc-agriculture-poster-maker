@@ -113,8 +113,9 @@ export function drawWeddingTemplate(ctx,state,t,customBackground=null){
 
  }
  ctx.save();ctx.globalAlpha=.7;ctx.fillStyle=c.gold;ctx.font='52px "Noto Sans Gurmukhi",Georgia,serif';ctx.textAlign="center";ctx.fillText("✦",540,155);ctx.restore();
- fit(safe(state.highlight)||"WEDDING CELEBRATION",270,730,53,25,c.dark,750);
- line(280,335,800,335,c.gold,3);
+ fit(state.heading,215,760,27,18,c.dark,650);
+ fit(safe(state.highlight)||"WEDDING CELEBRATION",310,730,49,23,c.dark,750);
+ line(280,362,800,362,c.gold,3);
  if(state.primaryPhoto instanceof HTMLImageElement){
    ctx.save();ctx.beginPath();ctx.ellipse(540,535,160,130,0,0,Math.PI*2);ctx.clip();
    const im=state.primaryPhoto;const scale=Math.max(320/im.width,260/im.height);
@@ -125,8 +126,9 @@ export function drawWeddingTemplate(ctx,state,t,customBackground=null){
  }
  fit(state.title,725,830,76,28,c.dark,800);
  line(345,825,735,825,c.gold,3);
- fit(state.subtitle,945,785,31,18,c.dark,500);
- fit(state.date,1110,700,45,23,c.dark,800);
+ fit(state.subtitle,895,785,29,17,c.dark,500);
+ fit(state.body,1022,760,24,16,c.dark,530);
+ fit(state.date,1130,700,40,22,c.dark,800);
  fit(safe(state.time),1185,720,29,18,c.dark,600);
  fit(state.venue,1304,760,37,18,c.dark,700);
  fit(state.footer,1415,800,29,18,c.dark,650);

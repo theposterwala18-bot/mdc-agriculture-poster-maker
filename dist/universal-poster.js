@@ -1,4 +1,4 @@
-import { weddingTemplates, weddingCategories, weddingLanguages, weddingLanguageText, drawWeddingTemplate } from "./wedding-templates.js";
+import { weddingTemplates, weddingCategories, weddingLanguages, weddingLanguageText, drawWeddingTemplate, preloadWeddingArtwork } from "./wedding-templates.js";
 import { createPosterExportController } from "./poster-export.js";
 import { createModuleBackgroundController } from "./module-background.js?v=5.8.0";
 
@@ -394,7 +394,7 @@ function drawRoyalJagran() {
 }
 function renderPoster() {
   ctx.clearRect(0, 0, W, H);
-  if (moduleId === "wedding" && weddingTemplates.some(t=>t.id===Number(state.templateId))) drawWeddingTemplate(ctx,state,weddingTemplates.find(t=>t.id===Number(state.templateId)));
+  if (moduleId === "wedding" && weddingTemplates.some(t=>t.id===Number(state.templateId))) drawWeddingTemplate(ctx,state,weddingTemplates.find(t=>t.id===Number(state.templateId)),backgroundController?.getCustomImage());
   else if (state.templateId === 7 && moduleId === "general-invite") drawRoyalJagran();
   else if (state.templateId === 6 && moduleId === "general-invite") drawBoutiqueOpening();
   else if (state.templateId === 1) drawHeritage();
@@ -402,7 +402,7 @@ function renderPoster() {
   else if (state.templateId === 3) drawBoldSpotlight();
   else if (state.templateId === 4) drawElegantPortrait();
   else drawPremiumEditorial();
-  backgroundController?.apply(ctx, W, H);
+  if (!(moduleId === "wedding" && backgroundController?.getCustomImage())) backgroundController?.apply(ctx, W, H);
   if (document.getElementById("universalModal").classList.contains("open")) exportController?.copyToModal();
   exportController?.refreshPreview();
 }
@@ -509,7 +509,7 @@ function initialize() {
   document.documentElement.style.setProperty("--module-accent", config.palette.accent); document.documentElement.style.setProperty("--module-dark", config.palette.dark); document.documentElement.style.setProperty("--module-soft", config.palette.soft);
   document.title = `${config.name} — MDC`; document.getElementById("moduleIcon").textContent = config.icon; document.getElementById("modulePageTitle").textContent = config.name; document.getElementById("editorModuleTitle").textContent = config.name; document.getElementById("moduleDescription").textContent = config.description; document.getElementById("previewTitle").textContent = config.name.replace(" Poster Maker", "");
   document.getElementById("primaryPhotoLabel").textContent = config.photoLabels[0]; document.getElementById("secondaryPhotoLabel").textContent = config.photoLabels[1]; document.getElementById("universalSmartText").placeholder = smartPlaceholder();
-  if(moduleId==="wedding")initializeWeddingControls();
+  if(moduleId==="wedding"){ initializeWeddingControls(); preloadWeddingArtwork(renderPoster); }
   renderFields(); updateTemplateButton(); renderTemplateMenu(); updatePhotoCards(); syncRanges(); renderPoster(); window.mdcTrack?.("module_view", { selected_module: moduleId });
 }
 

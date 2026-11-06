@@ -1,0 +1,27 @@
+name: Validate wedding + thumbnail updates (no deployment)
+on:
+  push:
+    branches:
+      - feature/wedding-templates-and-small-thumbnails-2026-11-06
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Check JavaScript source syntax
+        run: |
+          node --check dist/module-thumbnails.js
+          node --check dist/wedding-templates.js
+          node --check dist/app.js
+          node --check dist/universal-poster.js
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Validate Vite static build (no publishing)
+        run: npm run build

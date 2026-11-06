@@ -1,0 +1,38 @@
+name: Validate ornate wedding artwork (staging only)
+on:
+  push:
+    branches:
+      - feature/wedding-reference-artwork-2026-11-06
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Check changed JavaScript
+        run: |
+          node --check dist/wedding-templates.js
+          node --check dist/universal-poster.js
+          node --check dist/module-background.js
+      - name: Check original category artwork
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from xml.etree import ElementTree as ET
+          assets=list(Path("dist/assets/wedding-original").glob("*.svg"))
+          assert len(assets)==9, f"Expected 9 category assets, got {len(assets)}"
+          for p in assets:
+              root=ET.parse(p).getroot()
+              assert root.attrib.get('viewBox') == '0 0 1080 1620', p
+          print("Validated",len(assets),"wedding backgrounds")
+          PY
+      - name: Install dependencies
+        run: npm ci
+      - name: Build safely without deploying
+        run: npm run build

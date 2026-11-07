@@ -1,3 +1,4 @@
+import { allReferenceWeddingTemplates, weddingReferenceImage } from "./wedding-reference-library.js";
 // Original, editable vector wedding invitation designs. No reference images or third-party artwork embedded.
 // Isolated to the "wedding" module; payment, export, and other modules remain unchanged.
 const themes=[
@@ -26,6 +27,7 @@ export const weddingTemplates=styles.map(([raw,name,category,theme,layout])=>({
  look:"card",palette:{soft:themes[theme][0],dark:themes[theme][1],gold:themes[theme][2],accent:themes[theme][3]},
  wedding:true
 }));
+weddingTemplates.unshift(...allReferenceWeddingTemplates);
 export const weddingCategories=[
  ["all","All Wedding Designs"],["wedding-anand-karaj","Wedding / Anand Karaj"],
  ["engagement-ring","Engagement / Ring Ceremony"],["roka-shagan","Roka / Shagan"],
@@ -56,7 +58,7 @@ export function preloadWeddingArtwork(onChange){
     image.src="./assets/wedding-original/"+category+".svg";
   }
 }
-export function drawWeddingTemplate(ctx,state,t,customBackground=null){
+export function drawWeddingTemplate(ctx,state,t,customBackground=null,refresh=null){
  const W=1080,H=1620;
  const c=t.palette,variant=t.layout;
  const safe=v=>String(v??"").trim();
@@ -82,6 +84,7 @@ export function drawWeddingTemplate(ctx,state,t,customBackground=null){
    for(const l of lines){ctx.fillText(l,W/2,pos,max);pos+=gap}
    ctx.restore();
  }
+ const referenceArt=weddingReferenceImage(t,refresh);
  const art=weddingArtworkCache.get(t.category);
  if(customBackground?.naturalWidth){
     const scale=Math.max(W/customBackground.naturalWidth,H/customBackground.naturalHeight);
@@ -89,6 +92,8 @@ export function drawWeddingTemplate(ctx,state,t,customBackground=null){
     ctx.fillStyle="rgba(255,252,244,.83)";ctx.fillRect(115,225,850,1175);
     stroke(c.gold,7);ctx.strokeRect(42,42,W-84,H-84);
     stroke(c.gold,2);ctx.strokeRect(61,61,W-122,H-122);
+ }else if(referenceArt){
+    ctx.drawImage(referenceArt,0,0,W,H);
  }else if(art?.ready){
     ctx.drawImage(art.image,0,0,W,H);
  }else{
@@ -121,17 +126,17 @@ export function drawWeddingTemplate(ctx,state,t,customBackground=null){
    const im=state.primaryPhoto;const scale=Math.max(320/im.width,260/im.height);
    ctx.drawImage(im,540-im.width*scale/2,535-im.height*scale/2,im.width*scale,im.height*scale);
    ctx.restore();stroke(c.gold,6);ctx.beginPath();ctx.ellipse(540,535,160,130,0,0,Math.PI*2);ctx.stroke();
- }else{
+ }else if(!t.heroType){
    fit(state.weddingTradition==="sikh"?"ੴ":state.weddingTradition==="hindu"?"ॐ":state.weddingTradition==="muslim"?"✦":"♡",490,430,110,60,c.gold,500);
  }
- fit(state.title,725,830,76,28,c.dark,800);
+ fit(state.title,t.heroType==="rings-top"?770:725,t.heroType==="couple-right"?600:830,76,28,c.dark,800);
  line(345,825,735,825,c.gold,3);
  fit(state.subtitle,895,785,29,17,c.dark,500);
  fit(state.body,1022,760,24,16,c.dark,530);
  fit(state.date,1130,700,40,22,c.dark,800);
  fit(safe(state.time),1185,720,29,18,c.dark,600);
- fit(state.venue,1304,760,37,18,c.dark,700);
- fit(state.footer,1415,800,29,18,c.dark,650);
- fit(state.contact,1490,760,23,16,c.dark,600);
+ fit(state.venue,t.heroType==="couple-bottom"?1240:1304,t.heroType==="couple-right"?580:760,37,18,c.dark,700);
+ fit(state.footer,t.heroType==="couple-bottom"?1310:1415,800,29,18,c.dark,650);
+ if(t.heroType!=="couple-bottom"&&t.heroType!=="couple-right")fit(state.contact,1490,760,23,16,c.dark,600);
  line(330,1545,750,1545,c.gold,3);
 }

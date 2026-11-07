@@ -176,6 +176,7 @@ export function createModuleBackgroundController(options) {
   byId("SearchQuery").addEventListener("keydown", event => { if (event.key === "Enter") { event.preventDefault(); search(false); } });
 
   return {
+    getCustomImage() { return state.customImage; },
     apply(context, width, height) {
       if (!state.customImage && state.style === "original") return;
       const snapshot = document.createElement("canvas"); snapshot.width = width; snapshot.height = height; snapshot.getContext("2d").drawImage(context.canvas, 0, 0);

@@ -45,7 +45,18 @@ export function weddingLanguageText(language,category){
  const p=sayings[language]||sayings.pa;
  return {highlight:p.headings[category]||p.headings["wedding-anand-karaj"],subtitle:p.subtitle,body:p.body};
 }
-export function drawWeddingTemplate(ctx,state,t){
+const weddingArtworkCache = new Map();
+export function preloadWeddingArtwork(onChange){
+  for(const category of new Set(weddingTemplates.map(t=>t.category))){
+    if(weddingArtworkCache.has(category))continue;
+    const image=new Image();
+    weddingArtworkCache.set(category,{image,ready:false});
+    image.onload=()=>{weddingArtworkCache.get(category).ready=true;onChange?.();};
+    image.onerror=()=>{weddingArtworkCache.get(category).ready=false;};
+    image.src="./assets/wedding-original/"+category+".svg";
+  }
+}
+export function drawWeddingTemplate(ctx,state,t,customBackground=null){
  const W=1080,H=1620;
  const c=t.palette,variant=t.layout;
  const safe=v=>String(v??"").trim();
@@ -71,7 +82,17 @@ export function drawWeddingTemplate(ctx,state,t){
    for(const l of lines){ctx.fillText(l,W/2,pos,max);pos+=gap}
    ctx.restore();
  }
- const g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,c.soft);g.addColorStop(.56,"#fffdf8");g.addColorStop(1,c.soft);fill(g);
+ const art=weddingArtworkCache.get(t.category);
+ if(customBackground?.naturalWidth){
+    const scale=Math.max(W/customBackground.naturalWidth,H/customBackground.naturalHeight);
+    ctx.drawImage(customBackground,(W-customBackground.naturalWidth*scale)/2,(H-customBackground.naturalHeight*scale)/2,customBackground.naturalWidth*scale,customBackground.naturalHeight*scale);
+    ctx.fillStyle="rgba(255,252,244,.83)";ctx.fillRect(115,225,850,1175);
+    stroke(c.gold,7);ctx.strokeRect(42,42,W-84,H-84);
+    stroke(c.gold,2);ctx.strokeRect(61,61,W-122,H-122);
+ }else if(art?.ready){
+    ctx.drawImage(art.image,0,0,W,H);
+ }else{
+  const g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,c.soft);g.addColorStop(.56,"#fffdf8");g.addColorStop(1,c.soft);fill(g);
  const margin=variant==="minimal"?82:38;
  stroke(c.gold,variant==="heritage"?12:6);ctx.strokeRect(margin,margin,W-margin*2,H-margin*2);
  stroke(c.dark,1.5);ctx.globalAlpha=.43;ctx.strokeRect(margin+14,margin+14,W-margin*2-28,H-margin*2-28);ctx.globalAlpha=1;
@@ -89,21 +110,25 @@ export function drawWeddingTemplate(ctx,state,t){
  }
  if(variant==="floral"){for(let x=300;x<850;x+=120){flower(x,86,18,6,c.accent)}}
  if(variant==="heritage"){for(let x=140;x<960;x+=90){ctx.save();ctx.globalAlpha=.28;flower(x,1510,14,8,c.gold);ctx.restore()}}
+
+ }
  ctx.save();ctx.globalAlpha=.7;ctx.fillStyle=c.gold;ctx.font='52px "Noto Sans Gurmukhi",Georgia,serif';ctx.textAlign="center";ctx.fillText("✦",540,155);ctx.restore();
- fit(safe(state.highlight)||"WEDDING CELEBRATION",270,730,53,25,c.dark,750);
- line(280,335,800,335,c.gold,3);
+ fit(state.heading,215,760,27,18,c.dark,650);
+ fit(safe(state.highlight)||"WEDDING CELEBRATION",310,730,49,23,c.dark,750);
+ line(280,362,800,362,c.gold,3);
  if(state.primaryPhoto instanceof HTMLImageElement){
    ctx.save();ctx.beginPath();ctx.ellipse(540,535,160,130,0,0,Math.PI*2);ctx.clip();
    const im=state.primaryPhoto;const scale=Math.max(320/im.width,260/im.height);
    ctx.drawImage(im,540-im.width*scale/2,535-im.height*scale/2,im.width*scale,im.height*scale);
    ctx.restore();stroke(c.gold,6);ctx.beginPath();ctx.ellipse(540,535,160,130,0,0,Math.PI*2);ctx.stroke();
  }else{
-   fit(variant==="rings"?"♡":variant==="leaf"?"❀":variant==="lights"?"✧":"ੴ",490,430,110,60,c.gold,500);
+   fit(state.weddingTradition==="sikh"?"ੴ":state.weddingTradition==="hindu"?"ॐ":state.weddingTradition==="muslim"?"✦":"♡",490,430,110,60,c.gold,500);
  }
  fit(state.title,725,830,76,28,c.dark,800);
  line(345,825,735,825,c.gold,3);
- fit(state.subtitle,945,785,31,18,c.dark,500);
- fit(state.date,1110,700,45,23,c.dark,800);
+ fit(state.subtitle,895,785,29,17,c.dark,500);
+ fit(state.body,1022,760,24,16,c.dark,530);
+ fit(state.date,1130,700,40,22,c.dark,800);
  fit(safe(state.time),1185,720,29,18,c.dark,600);
  fit(state.venue,1304,760,37,18,c.dark,700);
  fit(state.footer,1415,800,29,18,c.dark,650);

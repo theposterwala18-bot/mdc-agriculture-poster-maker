@@ -1,0 +1,39 @@
+name: Validate complete Wedding library (no deployment)
+on:
+  push:
+    branches:
+      - feature/full-wedding-library-2026-11-07
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Check JavaScript syntax
+        run: |
+          node --check dist/wedding-reference-library.js
+          node --check dist/wedding-templates.js
+          node --check dist/universal-poster.js
+      - name: Validate reference entries and prior original templates
+        run: |
+          node --input-type=module <<'JS'
+          import { featuredWeddingTemplates, archivedWeddingTemplates } from './dist/wedding-reference-library.js';
+          import { weddingTemplates } from './dist/wedding-templates.js';
+          if (featuredWeddingTemplates.length !== 3 || archivedWeddingTemplates.length !== 52) throw new Error('Reference count mismatch');
+          if (weddingTemplates.length !== 75) throw new Error('Expected 55 new + 20 legacy templates');
+          if (new Set(weddingTemplates.map(t=>t.id)).size !== weddingTemplates.length) throw new Error('Duplicate template ID');
+          if (weddingTemplates[0].id!==301 || weddingTemplates[1].id!==302 || weddingTemplates[2].id!==303) throw new Error('Featured order incorrect');
+          const old = weddingTemplates.slice(-20);
+          if (!old.every(t => t.id>=101 && t.id<=120)) throw new Error('Legacy templates must be last');
+          console.log('Verified 3 featured, 52 reference variants, 20 legacy');
+          JS
+      - name: Install dependencies
+        run: npm ci
+      - name: Build website without deployment
+        run: npm run build

@@ -15,8 +15,9 @@ export const featuredWeddingTemplates=[
 {id:302,name:"Ivory Palace Wedding with Couple",category:"wedding-anand-karaj",family:"couple-right"},
 {id:303,name:"Floral Engagement with Rings",category:"engagement-ring",family:"rings-hands"}
 ].map((t,i)=>({...t,featured:true,wedding:true,look:"card",note:"Original illustrated premium style • Editable details",palette:palette(i)}));
+const archiveReferenceIds=[1,3,4,5,6,11,16,17,18,19,21,22,24,25,26,27,28,29,30,33,34,36,37,39,40,42,44,46,47,48,51,52,10,13,15,23,31,32,35,41,43,49,2,9,12,14,20,7,8,45,38,50];
 let counter=0;
-export const archivedWeddingTemplates=groups.flatMap(([category,names])=>names.split("|").map(name=>{const i=counter++;return {id:201+i,name,category,family:families[(i*7+Math.floor(i/3))%families.length],motif:i,wedding:true,look:"card",note:"Original design based on reference "+String(i+1).padStart(2,"0"),palette:palette(i+Math.floor(i/6))}}));
+export const archivedWeddingTemplates=groups.flatMap(([category,names])=>names.split("|").map(name=>{const i=counter++;return {id:201+i,name,category,family:families[(i*7+Math.floor(i/3))%families.length],motif:i,referenceId:"REF-"+String(archiveReferenceIds[i]).padStart(3,"0"),wedding:true,look:"card",note:"Original design based on reference "+String(i+1).padStart(2,"0"),palette:palette(i+Math.floor(i/6))}}));
 export const allReferenceWeddingTemplates=[...featuredWeddingTemplates,...archivedWeddingTemplates];
 function flower(x,y,r,p){let s='<g transform="translate('+x+' '+y+')">';for(let i=0;i<7;i++)s+='<ellipse cx="0" cy="-'+Math.round(r*.5)+'" rx="'+Math.round(r*.31)+'" ry="'+Math.round(r*.62)+'" transform="rotate('+(i*360/7)+')" fill="'+p.accent+'" opacity=".72"/>';return s+'<circle r="'+r*.2+'" fill="'+p.gold+'"/></g>';}
 function arch(p){return '<path d="M130 1480V380Q130 300 220 294Q270 228 350 211Q417 70 540 74Q663 70 730 211Q810 228 860 294Q950 300 950 380V1480" fill="none" stroke="url(#gold)" stroke-width="12"/>';}

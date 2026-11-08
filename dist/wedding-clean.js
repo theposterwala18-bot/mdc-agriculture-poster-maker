@@ -89,3 +89,28 @@ export function drawCleanWedding(ctx,state,t,uploadedBackground){
  setText(state.contact,1528,830,24,500);
  ctx.restore();
 }
+
+export const weddingCategories=[
+ ["all","All Wedding Designs"],["wedding-anand-karaj","Wedding / Anand Karaj"],
+ ["engagement-ring","Engagement / Ring Ceremony"],["roka-shagan","Roka / Shagan"],
+ ["haldi-maiyan","Haldi / Maiyan"],["mehndi","Mehndi"],["jaggo-sangeet","Jaggo / Sangeet"],
+ ["reception","Reception"],["save-date","Save the Date"],["combined","Combined Invitation"]
+];
+export const weddingLanguages=[["pa","ਪੰਜਾਬੀ"],["hi","हिन्दी"],["en","English"],["pa-en","Punjabi + English"]];
+const headings={
+ pa:["ਆਨੰਦ ਕਾਰਜ","ਮੰਗਣੀ ਅਤੇ ਰਿੰਗ ਸੈਰੇਮਨੀ","ਰੋਕਾ ਅਤੇ ਸ਼ਗਨ","ਮਾਈਆਂ / ਹਲਦੀ","ਮਹਿੰਦੀ ਸਮਾਗਮ","ਜਾਗੋ ਅਤੇ ਸੰਗੀਤ","ਰਿਸੈਪਸ਼ਨ ਪਾਰਟੀ","ਤਾਰੀਖ਼ ਯਾਦ ਰੱਖਣਾ","ਵਿਆਹ ਸਮਾਗਮ"],
+ hi:["शुभ विवाह","सगाई समारोह","रोका एवं शगुन","हल्दी समारोह","मेहंदी समारोह","संगीत संध्या","स्वागत समारोह","तारीख़ याद रखें","विवाह समारोह"],
+ en:["WEDDING INVITATION","ENGAGEMENT CEREMONY","ROKA & SHAGAN","HALDI CEREMONY","MEHNDI CELEBRATION","JAGGO & SANGEET","WEDDING RECEPTION","SAVE THE DATE","WEDDING CELEBRATION"],
+ "pa-en":["WEDDING / ਆਨੰਦ ਕਾਰਜ","ENGAGEMENT / ਮੰਗਣੀ","ROKA / ਸ਼ਗਨ","HALDI / ਮਾਈਆਂ","MEHNDI / ਮਹਿੰਦੀ","JAGGO / ਜਾਗੋ","RECEPTION / ਰਿਸੈਪਸ਼ਨ","SAVE THE DATE","WEDDING / ਵਿਆਹ"]
+};
+const copy={
+ pa:["ਸਮੂਹ ਪਰਿਵਾਰ ਵੱਲੋਂ ਆਪ ਜੀ ਨੂੰ ਸੱਦਾ ਦਿੱਤਾ ਜਾਂਦਾ ਹੈ।","ਆਪ ਜੀ ਦੀ ਹਾਜ਼ਰੀ ਸਾਡੇ ਲਈ ਵੱਡੀ ਖੁਸ਼ੀ ਹੋਵੇਗੀ।"],
+ hi:["सपरिवार आपको सादर आमंत्रित करते हैं।","आपकी उपस्थिति हमारे लिए सौभाग्य की बात होगी।"],
+ en:["Together with our families, we warmly invite you.","Your presence will make our celebration memorable."],
+ "pa-en":["ਸਮੂਹ ਪਰਿਵਾਰ ਵੱਲੋਂ ਸੱਦਾ। Together with our families, we invite you.","ਆਪ ਜੀ ਦਾ ਸਵਾਗਤ ਹੈ। We look forward to seeing you."]
+};
+export function weddingLanguageText(lang,category){
+ const index=Math.max(0,weddingCategories.findIndex(x=>x[0]===category)-1);
+ const k=headings[lang]?lang:"pa";
+ return {highlight:headings[k][index],subtitle:copy[k][0],body:copy[k][1]};
+}

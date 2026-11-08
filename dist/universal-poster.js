@@ -1,3 +1,4 @@
+import { referenceWeddingSvg } from "./wedding-reference-library.js";
 import { weddingTemplates, weddingCategories, weddingLanguages, weddingLanguageText, drawWeddingTemplate, preloadWeddingArtwork } from "./wedding-templates.js";
 import { createPosterExportController } from "./poster-export.js";
 import { createModuleBackgroundController } from "./module-background.js?v=5.8.0";
@@ -210,7 +211,7 @@ let toastTimer;
 
 function makeState() {
   const values = Object.fromEntries(config.fields.map((item) => [item.key, item.value]));
-  return { ...values, weddingTradition: "sikh", templateId: moduleId==="wedding" ? 101 : 5, primaryPhoto: null, secondaryPhoto: null, logo: null, primaryScale: 1, primaryX: 0, primaryY: 0, logoScale: 1 };
+  return { ...values, weddingTradition: "sikh", templateId: moduleId==="wedding" ? 301 : 5, primaryPhoto: null, secondaryPhoto: null, logo: null, primaryScale: 1, primaryX: 0, primaryY: 0, logoScale: 1 };
 }
 
 function installStableTextAlignment(context) {
@@ -394,7 +395,7 @@ function drawRoyalJagran() {
 }
 function renderPoster() {
   ctx.clearRect(0, 0, W, H);
-  if (moduleId === "wedding" && weddingTemplates.some(t=>t.id===Number(state.templateId))) drawWeddingTemplate(ctx,state,weddingTemplates.find(t=>t.id===Number(state.templateId)),backgroundController?.getCustomImage());
+  if (moduleId === "wedding" && weddingTemplates.some(t=>t.id===Number(state.templateId))) drawWeddingTemplate(ctx,state,weddingTemplates.find(t=>t.id===Number(state.templateId)),backgroundController?.getCustomImage(),renderPoster);
   else if (state.templateId === 7 && moduleId === "general-invite") drawRoyalJagran();
   else if (state.templateId === 6 && moduleId === "general-invite") drawBoutiqueOpening();
   else if (state.templateId === 1) drawHeritage();
@@ -409,8 +410,8 @@ function renderPoster() {
 
 function hiddenStorageKey() { return `mdc-hidden-templates-${moduleId}`; }
 function getHiddenTemplates() { try { return JSON.parse(localStorage.getItem(hiddenStorageKey()) || "[]"); } catch { return []; } }
-function visibleTemplates() { const hidden = new Set(getHiddenTemplates()); return templates.filter((template) => (!template.modules || template.modules.includes(moduleId)) && !hidden.has(template.id) && (moduleId!=="wedding" || weddingFilter==="all" || template.category===weddingFilter)); }
-function lookMarkup(template) { const p = template.palette || config.palette; return `<span class="universal-template-look look-${template.look}" style="--look-bg:${p.soft};--look-border:${p.gold};--look-accent:${p.accent};--look-text:${p.dark}"><i></i></span>`; }
+function visibleTemplates() { const hidden = new Set(getHiddenTemplates()); const matching=templates.filter((template) => (!template.modules || template.modules.includes(moduleId)) && !hidden.has(template.id) && (moduleId!=="wedding" || weddingFilter==="all" || template.category===weddingFilter)); if(moduleId!=="wedding")return matching; return matching.sort((a,b)=>{const rank=x=>x.featured?0:(x.id>=201&&x.id<=252?1:(x.wedding?2:3));return rank(a)-rank(b)}); }
+function lookMarkup(template) { const p = template.palette || config.palette; if(moduleId==="wedding"&&template.family){const url="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(referenceWeddingSvg(template));return `<span class="wedding-template-art"><img src="${url}" loading="lazy" decoding="async" alt="" /></span>`}return `<span class="universal-template-look look-${template.look}" style="--look-bg:${p.soft};--look-border:${p.gold};--look-accent:${p.accent};--look-text:${p.dark}"><i></i></span>`; }
 function renderTemplateMenu() {
   const menu = document.getElementById("universalTemplateMenu");
   menu.innerHTML = visibleTemplates().map((template) => `<button class="template-option universal-template-option ${template.id === state.templateId ? "selected" : ""}" type="button" role="option" aria-selected="${template.id === state.templateId}" data-template-id="${template.id}">${lookMarkup(template)}<span class="template-option-copy"><strong>${String(template.id).padStart(2, "0")}. ${template.name}</strong><small>${template.note}</small></span><span class="universal-template-badge">${config.icon}</span></button>`).join("");
@@ -422,13 +423,13 @@ function updateTemplateButton() {
   document.getElementById("universalSelectedName").textContent = `${String(template.id).padStart(2, "0")}. ${template.name}`;
   document.getElementById("universalSelectedNote").textContent = template.note;
 }
-function selectTemplate(id) { state.templateId = id; updateTemplateButton(); renderTemplateMenu(); document.getElementById("universalTemplateSelect").classList.remove("open"); document.getElementById("universalTemplateButton").setAttribute("aria-expanded", "false"); renderPoster(); }
+function selectTemplate(id) { state.templateId = id; if(moduleId==="wedding"){const choice=weddingTemplates.find(t=>t.id===id);if(choice){const copy=weddingLanguageText(weddingLang,choice.category);state.highlight=copy.highlight;state.subtitle=copy.subtitle;state.body=copy.body;renderFields();}} updateTemplateButton(); renderTemplateMenu(); document.getElementById("universalTemplateSelect").classList.remove("open"); document.getElementById("universalTemplateButton").setAttribute("aria-expanded", "false"); renderPoster(); }
 function hideSelectedTemplate() {
   const visible = visibleTemplates();
   if (visible.length <= 1) { showToast("ਘੱਟੋ-ਘੱਟ ਇੱਕ template visible ਰਹਿਣਾ ਲਾਜ਼ਮੀ ਹੈ।"); return; }
   const hidden = getHiddenTemplates(); if (!hidden.includes(state.templateId)) hidden.push(state.templateId); localStorage.setItem(hiddenStorageKey(), JSON.stringify(hidden)); state.templateId = visibleTemplates()[0].id; updateTemplateButton(); renderTemplateMenu(); renderPoster(); showToast("Template ਇਸ device ’ਤੇ hide ਹੋ ਗਿਆ।");
 }
-function restoreTemplates() { localStorage.removeItem(hiddenStorageKey()); state.templateId = moduleId==="wedding" ? 101 : 5; weddingFilter="all"; const filter=document.getElementById("weddingCategory");if(filter)filter.value="all"; updateTemplateButton(); renderTemplateMenu(); renderPoster(); showToast("ਸਾਰੇ templates restore ਹੋ ਗਏ।"); }
+function restoreTemplates() { localStorage.removeItem(hiddenStorageKey()); state.templateId = moduleId==="wedding" ? 301 : 5; weddingFilter="all"; const filter=document.getElementById("weddingCategory");if(filter)filter.value="all"; updateTemplateButton(); renderTemplateMenu(); renderPoster(); showToast("ਸਾਰੇ templates restore ਹੋ ਗਏ।"); }
 
 function initializeWeddingControls(){
   const anchor=document.getElementById("universalTemplateSelect");

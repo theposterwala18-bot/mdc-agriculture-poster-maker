@@ -4,3 +4,11 @@
 .tpw-wedding-controls select{width:100%;min-width:0;padding:10px;border:1px solid #d6b99b;border-radius:9px;background:white;color:#482e3d;font:inherit}
 .tpw-wedding-controls p{grid-column:1/-1;margin:0;color:#746172;font-size:.71rem;line-height:1.45}
 @media(max-width:530px){.tpw-wedding-controls{grid-template-columns:1fr}}
+
+/* Original Wedding reference gallery preview: strictly scoped to Wedding styles. */
+.wedding-template-art{display:block;flex:0 0 48px;width:48px;height:68px;border:1px solid rgba(129,93,56,.25);border-radius:6px;overflow:hidden;background:#fffcf6;box-shadow:0 2px 5px rgba(40,20,16,.13)}
+.wedding-template-art img{width:100%;height:100%;object-fit:cover;display:block}
+.universal-template-select .template-option:has(.wedding-template-art){min-height:78px;align-items:center}
+.universal-template-select .template-option:has(.wedding-template-art) .template-option-copy{min-width:0}
+.universal-template-select .template-option:has(.wedding-template-art) .template-option-copy strong{white-space:normal}
+@media(max-width:530px){.wedding-template-art{flex-basis:39px;width:39px;height:55px}}

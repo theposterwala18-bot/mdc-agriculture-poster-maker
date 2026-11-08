@@ -1,0 +1,30 @@
+name: Validate no-vector Wedding Studio
+on:
+  push:
+    branches:
+      - fix/remove-vector-wedding-designs-2026-11-08
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: |
+          node --check dist/wedding-clean.js
+          node --check dist/universal-poster.js
+          node --input-type=module <<'JS'
+          import {cleanWeddingTemplates} from './dist/wedding-clean.js';
+          if(cleanWeddingTemplates.length!==11)throw Error('Unexpected Wedding template count');
+          const content=await (await import('node:fs/promises')).readFile('dist/universal-poster.js','utf8');
+          if(content.includes('wedding-reference-library.js')||content.includes('preloadWeddingArtwork')||content.includes('drawWeddingTemplate('))throw Error('Vector wedding code still active');
+          if(!content.includes('backgroundController?.getCustomImage()'))throw Error('Manual background missing');
+          console.log('No vector illustrations registered; clean photo-ready templates:',cleanWeddingTemplates.length);
+          JS
+      - run: npm ci
+      - run: npm run build

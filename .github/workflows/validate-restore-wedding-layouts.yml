@@ -1,0 +1,35 @@
+name: Validate restored wedding layouts without cartoon figures
+on:
+  push:
+    branches:
+      - fix/restore-wedding-designs-remove-only-characters-2026-11-08
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Verify Wedding restored and illustrations absent
+        run: |
+          node --check dist/universal-poster.js
+          node --check dist/wedding-templates.js
+          node --check dist/wedding-reference-library.js
+          node --input-type=module <<'JS'
+          import {weddingTemplates} from './dist/wedding-templates.js';
+          import {referenceWeddingSvg} from './dist/wedding-reference-library.js';
+          if (weddingTemplates.length!==75)throw Error('All 75 layouts must remain');
+          if (new Set(weddingTemplates.map(t=>t.id)).size!==75)throw Error('Duplicate ID');
+          for(const id of [301,302,303]){
+            const s=referenceWeddingSvg(weddingTemplates.find(t=>t.id===id));
+            if(!s.includes('<svg')||!s.includes('floral') && !s.includes('ellipse'))throw Error('Missing artwork '+id);
+          }
+          JS
+      - name: Build Website (no deployment)
+        run: |
+          npm ci
+          npm run build

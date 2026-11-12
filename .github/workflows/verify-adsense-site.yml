@@ -1,0 +1,33 @@
+name: Verify AdSense site code (no deployment)
+on:
+  push:
+    branches:
+      - feature/adsense-verification-2026-11-12
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Check AdSense snippet only on public HTML pages
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          pages=["index.html","death-bhog.html","universal-poster.html","general-sale.html","custom-service.html"]
+          script='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9466598868897530'
+          for name in pages:
+            src=(Path('dist')/name).read_text()
+            assert src.count(script)==1, name
+            assert src.index(script)<src.index('</head>'), name
+          assert script not in Path('dist/owner-dashboard.html').read_text()
+          print("AdSense script verified on 5 public pages only")
+          PY
+      - name: Install and build
+        run: |
+          npm ci
+          npm run build

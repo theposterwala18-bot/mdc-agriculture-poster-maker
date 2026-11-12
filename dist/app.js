@@ -1,5 +1,5 @@
 import { modulePreviewMarkup } from "./module-thumbnails.js";
-import { createPosterExportController } from "./poster-export.js?v=5.7.6";
+import { createPosterExportController } from "./poster-export.js?v=5.8.7";
 import { createModuleBackgroundController } from "./module-background.js?v=5.8.0";
 
 const canvas = document.getElementById("posterCanvas");

@@ -73,6 +73,33 @@ function paintConverted(sourceCanvas, targetCanvas, formatKey) {
   );
 }
 
+// Tiny, unobtrusive attribution, rendered only on output canvases and format previews.
+// Never mutates the user's source drawing canvas or any payment-related state.
+function drawPosterCredit(canvas) {
+  const c = canvas.getContext("2d");
+  const w = canvas.width, h = canvas.height;
+  const caption = "Created by https://theposterwala.in";
+  const fontSize = Math.max(11, Math.round(w * 0.015));
+  const padX = Math.round(fontSize * 0.8);
+  const padY = Math.round(fontSize * 0.34);
+  c.save();
+  c.font = '500 ' + fontSize + 'px Arial, sans-serif';
+  c.textAlign = "center";
+  c.textBaseline = "middle";
+  const tw = c.measureText(caption).width;
+  const boxW = Math.min(w - 16, Math.ceil(tw + padX * 2));
+  const boxH = fontSize + padY * 2;
+  const boxX = (w - boxW) / 2;
+  const boxY = h - boxH - Math.max(5, Math.round(w * 0.006));
+  c.fillStyle = "rgba(0,0,0,0.52)";
+  c.beginPath();
+  c.roundRect(boxX, boxY, boxW, boxH, Math.min(9,boxH/3));
+  c.fill();
+  c.fillStyle = "rgba(255,255,255,0.94)";
+  c.fillText(caption, w / 2, boxY + boxH / 2, boxW - padX * 1.4);
+  c.restore();
+}
+
 function downloadBlob(blob, filename) {
   const url = URL.createObjectURL(blob),
     link = document.createElement("a");
@@ -629,33 +656,29 @@ export function createPosterExportController(opts) {
   }
   function makeOutputCanvas() {
     const format = FORMATS[selected];
-    if (
-      sourceCanvas.width === format.width &&
-      sourceCanvas.height === format.height
-    )
-      return sourceCanvas;
+    // Always use a copy so the small credit never becomes part of an editor's
+    // working canvas or accumulates across repeated previews/downloads.
     const output = document.createElement("canvas");
     output.width = format.width;
     output.height = format.height;
-    paintConverted(sourceCanvas, output, selected);
+    if (sourceCanvas.width === output.width && sourceCanvas.height === output.height) {
+      output.getContext("2d").drawImage(sourceCanvas, 0, 0);
+    } else {
+      paintConverted(sourceCanvas, output, selected);
+    }
+    drawPosterCredit(output);
     return output;
   }
   function refreshPreview() {
-    const format = FORMATS[selected],
-      native =
-        sourceCanvas.width === format.width &&
-        sourceCanvas.height / sourceCanvas.width ===
-          format.height / format.width;
-    sourceCanvas.classList.toggle("export-source-hidden", !native);
-    previewCanvas.hidden = native;
-    if (!native) {
-      const previewWidth = selected === "a4" ? 620 : 720;
-      previewCanvas.width = previewWidth;
-      previewCanvas.height = Math.round(
-        (previewWidth * format.height) / format.width,
-      );
-      paintConverted(sourceCanvas, previewCanvas, selected);
-    }
+    const format = FORMATS[selected];
+    // Present the same credited image the user will download, at a smaller size.
+    sourceCanvas.classList.add("export-source-hidden");
+    previewCanvas.hidden = false;
+    const previewWidth = selected === "a4" ? 620 : 720;
+    previewCanvas.width = previewWidth;
+    previewCanvas.height = Math.round((previewWidth * format.height) / format.width);
+    paintConverted(sourceCanvas, previewCanvas, selected);
+    drawPosterCredit(previewCanvas);
     previewNote.textContent = format.note;
     pdfButton.hidden = selected !== "a4";
   }

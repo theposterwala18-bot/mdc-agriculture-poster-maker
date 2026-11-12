@@ -1,4 +1,4 @@
-import { createPosterExportController } from "./poster-export.js?v=5.7.6";
+import { createPosterExportController } from "./poster-export.js?v=5.8.7";
 import { createModuleBackgroundController } from "./module-background.js?v=5.8.0";
 
 const canvas = document.getElementById("bhogPosterCanvas");
@@ -31,6 +31,8 @@ function installStableTextAlignment(context) {
 installStableTextAlignment(ctx);
 
 const templates = [
+  { id: 19, name: "Royal Blue Floral Bhog • Center Photo", note: "ਨਵੇਂ reference ਤੋਂ — blue sky, gold portrait, white florals, navy event panels", look: "center", bg: "#f1f8ff", border: "#d9a72c", accent: "#082f69", text: "#102e65", gold: "#d2a02f" },
+  { id: 20, name: "Royal Navy Antim Sanskar • Left Photo", note: "ਨਵੇਂ reference ਤੋਂ — ਖੱਬੇ ਵੱਡੀ photo, ਸੱਜੇ details, navy-gold plaques", look: "left", bg: "#f4faff", border: "#bd9433", accent: "#092c70", text: "#103173", gold: "#d0a32b" },
   { id: 1, name: "Cream Floral Tribute", note: "Cream, navy ਅਤੇ gold — centered portrait", look: "center", bg: "#fff8e6", border: "#b88724", accent: "#072a45", text: "#4b120f", gold: "#bf8a25" },
   { id: 2, name: "Black Gold Memorial", note: "Dark premium layout — ਵੱਡੀ photo ਅਤੇ gold details", look: "center", bg: "#101010", border: "#cf9d2e", accent: "#76150d", text: "#e8bb43", gold: "#e0b23e" },
   { id: 3, name: "Photo Left Classic", note: "ਖੱਬੇ portrait, ਸੱਜੇ details ਅਤੇ venue panel", look: "left", bg: "#fffaf0", border: "#bd974c", accent: "#c39b4c", text: "#5a120f", gold: "#c39b4c" },
@@ -1172,10 +1174,91 @@ function drawRedRoseBhog(template) {
   drawPhoneFooter(1530, template.accent, "#fff");
 }
 
+
+function drawBlueSkyMemorialBackground(template){
+  const sky=ctx.createLinearGradient(0,0,0,H);
+  sky.addColorStop(0,"#edf6ff");sky.addColorStop(.33,"#e0f1fd");sky.addColorStop(.69,"#fffef6");sky.addColorStop(1,"#e0effc");
+  ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+  ctx.save();
+  ctx.globalAlpha=.28;
+  for(let i=0;i<17;i++){
+    const x=105+(i*217)%925,y=155+(i*179)%1190;
+    ctx.fillStyle="#ffffff";ctx.beginPath();ctx.ellipse(x,y,85+(i%4)*27,29+(i%3)*12,(i%3)*.3,0,Math.PI*2);ctx.fill();
+  }
+  ctx.restore();
+  drawBorder(template.gold,template.accent,true);
+}
+function drawMemorialWhiteFlowers(cx,cy,size,gold){
+  // Decorative flower sprig; no customer-owned photograph or copied artwork.
+  drawLeafSpray(cx,cy,size,"#fffefa","#71904d",gold);
+  drawPremiumFloralCorner(cx-size*.36,cy-30,.75,.75,"#fffdf7","#6f8c57",gold);
+  drawPremiumFloralCorner(cx+size*.36,cy-30,-.75,.75,"#fffdf7","#6f8c57",gold);
+}
+function drawRoyalBlueCenterReference(template){
+  drawBlueSkyMemorialBackground(template);
+  fillRound(ctx,22,15,1036,177,28,template.accent);
+  ctx.fillStyle="#ffe18a";ctx.textAlign="center";setFont(ctx,76,800);
+  ctx.fillText(state.symbol||"☬",110,55);ctx.fillText(state.symbol||"☬",970,55);
+  drawTextBlock(state.prayer,W/2,44,760,{size:34,minSize:20,weight:850,maxLines:2,color:"#fff7e7",lineHeight:45});
+  drawTextBlock("ਸਤਿਨਾਮ ਵਾਹਿਗੁਰੂ",190,224,320,{size:38,minSize:23,weight:900,maxLines:2,color:template.accent,lineHeight:48});
+  drawTextBlock("ਵਾਹਿਗੁਰੂ ਵਾਹਿਗੁਰੂ",891,224,320,{size:36,minSize:23,weight:900,maxLines:2,color:template.accent,lineHeight:48});
+  drawPortrait(346,170,388,456,{border:template.gold,lineWidth:11,placeholder:"#dceeff"});
+  drawMemorialWhiteFlowers(270,585,230,template.gold);
+  drawMemorialWhiteFlowers(810,585,230,template.gold);
+  drawMemorialDiya(170,627,.66,template.gold);drawMemorialDiya(910,627,.66,template.gold);
+  drawTextBlock("ਦੇ ਮਹਾਂ ਵਾਕ ਅਨੁਸਾਰ",W/2,674,780,{size:28,minSize:20,weight:700,maxLines:1,color:template.accent});
+  drawTextBlock(state.personName,W/2,731,940,{size:76,minSize:38,weight:900,maxLines:1,color:"#a3141b"});
+  drawTextBlock(state.introText,W/2,831,900,{size:25,minSize:18,weight:700,maxLines:3,color:template.text,lineHeight:36});
+  fillRound(ctx,85,961,910,100,31,template.accent);
+  strokeRound(ctx,85,961,910,100,31,template.gold,6);
+  drawTextBlock(state.eventTitle,W/2,974,830,{size:47,minSize:25,weight:900,maxLines:2,color:"#ffe09b",lineHeight:50});
+  strokeRound(ctx,78,1094,924,175,25,template.gold,4);
+  [[state.eventDate+"  •  "+state.eventDay,310],[state.eventTime,765]].forEach(([value,x],i)=>{
+    drawTextBlock(i===0?"ਮਿਤੀ / ਦਿਨ":"ਸਮਾਂ",x,1110,390,{size:22,minSize:18,weight:800,maxLines:1,color:template.accent});
+    drawTextBlock(value,x,1156,418,{size:32,minSize:20,weight:900,maxLines:2,color:"#9d1721",lineHeight:38});
+  });
+  drawTextBlock(state.venue,W/2,1283,890,{size:26,minSize:18,weight:800,maxLines:2,color:template.accent,lineHeight:35});
+  drawTextBlock(state.invitationText,W/2,1361,900,{size:22,minSize:17,weight:650,maxLines:2,color:template.text,lineHeight:30});
+  fillRound(ctx,255,1441,570,70,29,template.accent);
+  strokeRound(ctx,255,1441,570,70,29,template.gold,5);
+  drawTextBlock(state.familyNames,W/2,1451,525,{size:27,minSize:19,weight:900,maxLines:1,color:"#ffe19a"});
+  // Phone text remains editable in the original fields.
+  if(state.phone||state.phone2)drawTextBlock([state.phone,state.phone2].filter(Boolean).join(" • "),W/2,1524,740,{size:22,minSize:17,weight:800,maxLines:1,color:template.accent});
+}
+function drawRoyalNavyLeftReference(template){
+  drawBlueSkyMemorialBackground(template);
+  ctx.fillStyle=template.accent;ctx.textAlign="center";setFont(ctx,92,800);ctx.fillText(state.symbol||"☬",W/2,35);
+  drawTextBlock(state.prayer,W/2,124,940,{size:31,minSize:20,weight:900,maxLines:2,color:template.accent});
+  // Tall left portrait with gold outline, matching the supplied layout structure.
+  ctx.save();ctx.fillStyle="#dbeaff";ctx.fillRect(50,225,440,652);ctx.restore();
+  ctx.save();roundedPath(ctx,50,225,440,652,30);ctx.clip();
+  if(state.portrait){drawCover(state.portrait,50,225,440,652,state.portraitScale,state.portraitX,state.portraitY);}
+  else{ctx.fillStyle="#e6f0ff";ctx.fillRect(50,225,440,652);drawTextBlock("ਫੋਟੋ Upload ਕਰੋ",270,538,400,{size:28,minSize:21,color:template.accent});}
+  ctx.restore();strokeRound(ctx,50,225,440,652,30,template.gold,12);
+  drawMemorialWhiteFlowers(210,864,335,template.gold);
+  drawTextBlock(state.noticeTitle,781,231,520,{size:58,minSize:29,weight:900,maxLines:2,color:template.accent,lineHeight:62});
+  drawTextBlock("ਬਹੁਤ ਹੀ ਦੁੱਖ ਅਤੇ ਭਾਰੇ ਮਨ ਨਾਲ",785,362,505,{size:23,minSize:17,weight:800,maxLines:2,color:template.text});
+  fillRound(ctx,512,435,535,211,39,template.accent);
+  strokeRound(ctx,512,435,535,211,39,template.gold,7);
+  drawTextBlock(state.personName,780,465,495,{size:46,minSize:25,weight:900,maxLines:2,color:"#ffe17a",lineHeight:52});
+  drawTextBlock(state.identityLine,780,570,485,{size:25,minSize:18,weight:750,maxLines:1,color:"#fff"});
+  drawTextBlock(state.introText,780,675,493,{size:25,minSize:17,weight:750,maxLines:5,color:template.accent,lineHeight:35});
+  drawTextBlock(state.eventTitle,W/2,948,920,{size:40,minSize:24,weight:900,maxLines:1,color:template.accent});
+  drawTextBlock(state.eventDate+" ("+state.eventDay+")",W/2,1014,930,{size:34,minSize:22,weight:900,maxLines:1,color:template.accent});
+  drawTextBlock(state.eventTime,W/2,1076,890,{size:31,minSize:19,weight:850,maxLines:2,color:template.accent});
+  drawTextBlock(state.venue,W/2,1153,905,{size:28,minSize:19,weight:850,maxLines:2,color:template.text,lineHeight:38});
+  drawTextBlock(state.invitationText,W/2,1267,920,{size:25,minSize:18,weight:750,maxLines:3,color:template.accent,lineHeight:33});
+  fillRound(ctx,120,1390,840,66,29,template.accent);strokeRound(ctx,120,1390,840,66,29,template.gold,5);
+  drawTextBlock("ਵੱਲੋਂ: "+state.familyNames,W/2,1401,785,{size:29,minSize:18,weight:900,maxLines:1,color:"#fff4d3"});
+  drawPhoneFooter(1500,"#fff5d4",template.accent);
+}
+
 function renderPoster() {
   ctx.clearRect(0, 0, W, H);
   const template = getTemplate();
-  if (template.id === 2) drawBlackGold(template);
+  if (template.id === 19) drawRoyalBlueCenterReference(template);
+  else if (template.id === 20) drawRoyalNavyLeftReference(template);
+  else if (template.id === 2) drawBlackGold(template);
   else if (template.id === 3) drawPhotoLeft(template);
   else if (template.id === 4) drawMaroon(template);
   else if (template.id === 5) drawHangingLampsTribute(template);
@@ -1194,7 +1277,7 @@ function renderPoster() {
   else if (template.id === 18) drawRedRoseBhog(template);
   else drawCreamFloral(template);
 
-  if (state.footerNote && template.id !== 2 && template.id !== 18) {
+  if (state.footerNote && ![2,18,19,20].includes(template.id)) {
     const footerY = template.id === 4 ? 1570 : template.id === 3 ? 1584 : template.id >= 5 ? 1583 : 1582;
     drawTextBlock(state.footerNote, W / 2, footerY, 850, { size: 15, minSize: 13, weight: 600, maxLines: 1, color: template.text });
   }
@@ -1213,7 +1296,7 @@ function renderTemplateMenu() {
     <button class="template-option bhog-template-option ${template.id === Number(state.templateId) ? "selected" : ""}" type="button" role="option" aria-selected="${template.id === Number(state.templateId)}" data-bhog-template="${template.id}">
       ${lookMarkup(template)}
       <span class="template-option-copy"><strong>${String(template.id).padStart(2, "0")}. ${template.name}</strong><small>${template.note}</small></span>
-      <span class="bhog-template-badge">${template.id >= 7 ? "PREMIUM" : "BHOG"}</span>
+      <span class="bhog-template-badge">${(template.id >= 7 && template.id <= 18) ? "PREMIUM" : "BHOG"}</span>
     </button>
   `).join("");
   menu.querySelectorAll("[data-bhog-template]").forEach((button) => {
@@ -1481,7 +1564,7 @@ exportController = createPosterExportController({
   filename: safeFilename,
   showToast,
   getPricingContext: () => ({
-    isPremium: getTemplate().id >= 7,
+    isPremium: (getTemplate().id >= 7 && getTemplate().id <= 18),
     templateId: getTemplate().id
   }),
   storageKey: "mdc-bhog-poster-size",

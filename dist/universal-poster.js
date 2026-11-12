@@ -1,6 +1,6 @@
 import { referenceWeddingSvg } from "./wedding-reference-library.js";
 import { weddingTemplates, weddingCategories, weddingLanguages, weddingLanguageText, drawWeddingTemplate, preloadWeddingArtwork } from "./wedding-templates.js";
-import { createPosterExportController } from "./poster-export.js";
+import { createPosterExportController } from "./poster-export.js?v=5.8.7";
 import { createModuleBackgroundController } from "./module-background.js?v=5.8.0";
 
 const canvas = document.getElementById("universalCanvas");

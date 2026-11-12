@@ -1,0 +1,46 @@
+name: Verify Bhog templates and universal poster credit
+on:
+  push:
+    branches:
+      - feature/bhog-two-templates-footer-credit-2026-11-12
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: JavaScript syntax
+        run: |
+          node --check dist/death-bhog.js
+          node --check dist/poster-export.js
+          node --check dist/app.js
+          node --check dist/general-sale.js
+          node --check dist/universal-poster.js
+      - name: Verify new templates and export credit
+        run: |
+          node --input-type=module <<'JS'
+          import {readFileSync} from 'node:fs';
+          const bhog=readFileSync('dist/death-bhog.js','utf8');
+          const exportFile=readFileSync('dist/poster-export.js','utf8');
+          for(const id of [19,20]){
+            if(!bhog.includes('id: '+id+', name:'))throw new Error('Missing Bhog template '+id);
+            if(!bhog.includes('template.id === '+id))throw new Error('Missing Bhog renderer '+id);
+          }
+          if(!exportFile.includes('Created by https://theposterwala.in'))throw new Error('Missing credit');
+          if(!exportFile.includes('drawPosterCredit(output)')||!exportFile.includes('drawPosterCredit(previewCanvas)'))throw new Error('Export/preview credit missing');
+          for(const name of ['app','general-sale','death-bhog','universal-poster']){
+            const data=readFileSync('dist/'+name+'.js','utf8');
+            if(!data.includes('poster-export.js?v=5.8.7'))throw new Error('Missing controller import for '+name);
+          }
+          console.log('Two new templates + shared export credit checks passed');
+          JS
+      - name: Build without deploying
+        run: |
+          npm ci
+          npm run build

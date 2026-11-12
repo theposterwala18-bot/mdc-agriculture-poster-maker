@@ -397,7 +397,7 @@ function drawRoyalJagran() {
 }
 function renderPoster() {
   ctx.clearRect(0, 0, W, H);
-  if (moduleId === "wedding" && weddingTemplates.some(t=>t.id===Number(state.templateId))) drawWeddingTemplate(ctx,state,weddingTemplates.find(t=>t.id===Number(state.templateId)),backgroundController?.getCustomImage(),renderPoster);
+  if (moduleId === "wedding" && weddingTemplates.some(t=>t.id===Number(state.templateId))) drawWeddingTemplate(ctx,state,weddingTemplates.find(t=>t.id===Number(state.templateId)),backgroundController?.getCustomImage(),renderPoster,(c,w,h)=>weddingPngEditor?.draw(c,w,h));
   else if (state.templateId === 7 && moduleId === "general-invite") drawRoyalJagran();
   else if (state.templateId === 6 && moduleId === "general-invite") drawBoutiqueOpening();
   else if (state.templateId === 1) drawHeritage();
@@ -406,7 +406,6 @@ function renderPoster() {
   else if (state.templateId === 4) drawElegantPortrait();
   else drawPremiumEditorial();
   if (!(moduleId === "wedding" && backgroundController?.getCustomImage())) backgroundController?.apply(ctx, W, H);
-  if(moduleId==="wedding")weddingPngEditor?.draw(ctx,W,H);
   if (document.getElementById("universalModal").classList.contains("open")) exportController?.copyToModal();
   exportController?.refreshPreview();
 }

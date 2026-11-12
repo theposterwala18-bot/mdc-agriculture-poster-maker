@@ -1277,7 +1277,7 @@ function renderPoster() {
   else if (template.id === 18) drawRedRoseBhog(template);
   else drawCreamFloral(template);
 
-  if (state.footerNote && template.id !== 2 && template.id !== 18) {
+  if (state.footerNote && ![2,18,19,20].includes(template.id)) {
     const footerY = template.id === 4 ? 1570 : template.id === 3 ? 1584 : template.id >= 5 ? 1583 : 1582;
     drawTextBlock(state.footerNote, W / 2, footerY, 850, { size: 15, minSize: 13, weight: 600, maxLines: 1, color: template.text });
   }

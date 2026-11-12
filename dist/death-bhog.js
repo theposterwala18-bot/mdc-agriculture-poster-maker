@@ -54,7 +54,7 @@ const templates = [
 ];
 
 const defaultState = {
-  templateId: 1,
+  templateId: templates[0].id,
   portrait: null,
   venueImage: null,
   portraitScale: 1,

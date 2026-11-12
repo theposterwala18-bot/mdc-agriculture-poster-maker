@@ -58,7 +58,7 @@ export function preloadWeddingArtwork(onChange){
     image.src="./assets/wedding-original/"+category+".svg";
   }
 }
-export function drawWeddingTemplate(ctx,state,t,customBackground=null,refresh=null){
+export function drawWeddingTemplate(ctx,state,t,customBackground=null,refresh=null,drawPngLayers=null){
  const W=1080,H=1620;
  const c=t.palette,variant=t.layout;
  const safe=v=>String(v??"").trim();
@@ -117,6 +117,7 @@ export function drawWeddingTemplate(ctx,state,t,customBackground=null,refresh=nu
  if(variant==="heritage"){for(let x=140;x<960;x+=90){ctx.save();ctx.globalAlpha=.28;flower(x,1510,14,8,c.gold);ctx.restore()}}
 
  }
+ if(drawPngLayers) drawPngLayers(ctx,W,H);
  ctx.save();ctx.globalAlpha=.7;ctx.fillStyle=c.gold;ctx.font='52px "Noto Sans Gurmukhi",Georgia,serif';ctx.textAlign="center";ctx.fillText("✦",540,155);ctx.restore();
  fit(state.heading,215,760,27,18,c.dark,650);
  fit(safe(state.highlight)||"WEDDING CELEBRATION",310,730,49,23,c.dark,750);

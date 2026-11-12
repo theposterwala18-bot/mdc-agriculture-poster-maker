@@ -1296,7 +1296,7 @@ function renderTemplateMenu() {
     <button class="template-option bhog-template-option ${template.id === Number(state.templateId) ? "selected" : ""}" type="button" role="option" aria-selected="${template.id === Number(state.templateId)}" data-bhog-template="${template.id}">
       ${lookMarkup(template)}
       <span class="template-option-copy"><strong>${String(template.id).padStart(2, "0")}. ${template.name}</strong><small>${template.note}</small></span>
-      <span class="bhog-template-badge">${template.id >= 7 ? "PREMIUM" : "BHOG"}</span>
+      <span class="bhog-template-badge">${(template.id >= 7 && template.id <= 18) ? "PREMIUM" : "BHOG"}</span>
     </button>
   `).join("");
   menu.querySelectorAll("[data-bhog-template]").forEach((button) => {
@@ -1564,7 +1564,7 @@ exportController = createPosterExportController({
   filename: safeFilename,
   showToast,
   getPricingContext: () => ({
-    isPremium: getTemplate().id >= 7,
+    isPremium: (getTemplate().id >= 7 && getTemplate().id <= 18),
     templateId: getTemplate().id
   }),
   storageKey: "mdc-bhog-poster-size",

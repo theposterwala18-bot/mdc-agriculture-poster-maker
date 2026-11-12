@@ -211,9 +211,11 @@ const config = moduleConfigs[moduleId];
 let state = makeState();
 let toastTimer;
 
+// When an owner-approved new design is explicitly pinned, use it as default; otherwise classic 101.
+function preferredWeddingTemplateId(){return weddingTemplates.find(t=>t.pinToTop)?.id || 101;}
 function makeState() {
   const values = Object.fromEntries(config.fields.map((item) => [item.key, item.value]));
-  return { ...values, weddingTradition: "sikh", templateId: moduleId==="wedding" ? 101 : 5, primaryPhoto: null, secondaryPhoto: null, logo: null, primaryScale: 1, primaryX: 0, primaryY: 0, logoScale: 1 };
+  return { ...values, weddingTradition: "sikh", templateId: moduleId==="wedding" ? preferredWeddingTemplateId() : 5, primaryPhoto: null, secondaryPhoto: null, logo: null, primaryScale: 1, primaryX: 0, primaryY: 0, logoScale: 1 };
 }
 
 function installStableTextAlignment(context) {
@@ -431,7 +433,7 @@ function hideSelectedTemplate() {
   if (visible.length <= 1) { showToast("ਘੱਟੋ-ਘੱਟ ਇੱਕ template visible ਰਹਿਣਾ ਲਾਜ਼ਮੀ ਹੈ।"); return; }
   const hidden = getHiddenTemplates(); if (!hidden.includes(state.templateId)) hidden.push(state.templateId); localStorage.setItem(hiddenStorageKey(), JSON.stringify(hidden)); state.templateId = visibleTemplates()[0].id; updateTemplateButton(); renderTemplateMenu(); renderPoster(); showToast("Template ਇਸ device ’ਤੇ hide ਹੋ ਗਿਆ।");
 }
-function restoreTemplates() { localStorage.removeItem(hiddenStorageKey()); state.templateId = moduleId==="wedding" ? 101 : 5; weddingFilter="all"; const filter=document.getElementById("weddingCategory");if(filter)filter.value="all"; updateTemplateButton(); renderTemplateMenu(); renderPoster(); showToast("ਸਾਰੇ templates restore ਹੋ ਗਏ।"); }
+function restoreTemplates() { localStorage.removeItem(hiddenStorageKey()); state.templateId = moduleId==="wedding" ? preferredWeddingTemplateId() : 5; weddingFilter="all"; const filter=document.getElementById("weddingCategory");if(filter)filter.value="all"; updateTemplateButton(); renderTemplateMenu(); renderPoster(); showToast("ਸਾਰੇ templates restore ਹੋ ਗਏ।"); }
 
 function initializeWeddingControls(){
   const anchor=document.getElementById("universalTemplateSelect");

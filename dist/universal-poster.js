@@ -1,5 +1,6 @@
 import { referenceWeddingSvg } from "./wedding-reference-library.js";
 import { weddingTemplates, weddingCategories, weddingLanguages, weddingLanguageText, drawWeddingTemplate, preloadWeddingArtwork } from "./wedding-templates.js";
+import { installWeddingPngLayers } from "./wedding-png-layers.js";
 import { createPosterExportController } from "./poster-export.js?v=5.8.7";
 import { createModuleBackgroundController } from "./module-background.js?v=5.8.0";
 
@@ -203,15 +204,18 @@ const templates = [
 templates.push(...weddingTemplates);
 let weddingFilter = "all";
 let weddingLang = "pa";
+let weddingPngEditor=null;
 const requestedModule = new URLSearchParams(location.search).get("module") || "missing";
 const moduleId = moduleConfigs[requestedModule] ? requestedModule : "missing";
 const config = moduleConfigs[moduleId];
 let state = makeState();
 let toastTimer;
 
+// When an owner-approved new design is explicitly pinned, use it as default; otherwise classic 101.
+function preferredWeddingTemplateId(){return weddingTemplates.find(t=>t.pinToTop)?.id || 101;}
 function makeState() {
   const values = Object.fromEntries(config.fields.map((item) => [item.key, item.value]));
-  return { ...values, weddingTradition: "sikh", templateId: moduleId==="wedding" ? 301 : 5, primaryPhoto: null, secondaryPhoto: null, logo: null, primaryScale: 1, primaryX: 0, primaryY: 0, logoScale: 1 };
+  return { ...values, weddingTradition: "sikh", templateId: moduleId==="wedding" ? preferredWeddingTemplateId() : 5, primaryPhoto: null, secondaryPhoto: null, logo: null, primaryScale: 1, primaryX: 0, primaryY: 0, logoScale: 1 };
 }
 
 function installStableTextAlignment(context) {
@@ -395,7 +399,7 @@ function drawRoyalJagran() {
 }
 function renderPoster() {
   ctx.clearRect(0, 0, W, H);
-  if (moduleId === "wedding" && weddingTemplates.some(t=>t.id===Number(state.templateId))) drawWeddingTemplate(ctx,state,weddingTemplates.find(t=>t.id===Number(state.templateId)),backgroundController?.getCustomImage(),renderPoster);
+  if (moduleId === "wedding" && weddingTemplates.some(t=>t.id===Number(state.templateId))) drawWeddingTemplate(ctx,state,weddingTemplates.find(t=>t.id===Number(state.templateId)),backgroundController?.getCustomImage(),renderPoster,(c,w,h)=>weddingPngEditor?.draw(c,w,h));
   else if (state.templateId === 7 && moduleId === "general-invite") drawRoyalJagran();
   else if (state.templateId === 6 && moduleId === "general-invite") drawBoutiqueOpening();
   else if (state.templateId === 1) drawHeritage();
@@ -410,7 +414,7 @@ function renderPoster() {
 
 function hiddenStorageKey() { return `mdc-hidden-templates-${moduleId}`; }
 function getHiddenTemplates() { try { return JSON.parse(localStorage.getItem(hiddenStorageKey()) || "[]"); } catch { return []; } }
-function visibleTemplates() { const hidden = new Set(getHiddenTemplates()); const matching=templates.filter((template) => (!template.modules || template.modules.includes(moduleId)) && !hidden.has(template.id) && (moduleId!=="wedding" || weddingFilter==="all" || template.category===weddingFilter)); if(moduleId!=="wedding")return matching; return matching.sort((a,b)=>{const rank=x=>x.featured?0:(x.id>=201&&x.id<=252?1:(x.wedding?2:3));return rank(a)-rank(b)}); }
+function visibleTemplates() { const hidden = new Set(getHiddenTemplates()); const matching=templates.filter((template) => (!template.modules || template.modules.includes(moduleId)) && !hidden.has(template.id) && (moduleId!=="wedding" || weddingFilter==="all" || template.category===weddingFilter)); if(moduleId!=="wedding")return matching; return matching.sort((a,b)=>{const rank=x=>x.pinToTop?0:(x.id>=101&&x.id<=120?1:(x.featured?2:(x.id>=201&&x.id<=252?3:4)));return rank(a)-rank(b)}); }
 function lookMarkup(template) { const p = template.palette || config.palette; if(moduleId==="wedding"&&template.family){const url="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(referenceWeddingSvg(template));return `<span class="wedding-template-art"><img src="${url}" loading="lazy" decoding="async" alt="" /></span>`}return `<span class="universal-template-look look-${template.look}" style="--look-bg:${p.soft};--look-border:${p.gold};--look-accent:${p.accent};--look-text:${p.dark}"><i></i></span>`; }
 function renderTemplateMenu() {
   const menu = document.getElementById("universalTemplateMenu");
@@ -429,7 +433,7 @@ function hideSelectedTemplate() {
   if (visible.length <= 1) { showToast("ਘੱਟੋ-ਘੱਟ ਇੱਕ template visible ਰਹਿਣਾ ਲਾਜ਼ਮੀ ਹੈ।"); return; }
   const hidden = getHiddenTemplates(); if (!hidden.includes(state.templateId)) hidden.push(state.templateId); localStorage.setItem(hiddenStorageKey(), JSON.stringify(hidden)); state.templateId = visibleTemplates()[0].id; updateTemplateButton(); renderTemplateMenu(); renderPoster(); showToast("Template ਇਸ device ’ਤੇ hide ਹੋ ਗਿਆ।");
 }
-function restoreTemplates() { localStorage.removeItem(hiddenStorageKey()); state.templateId = moduleId==="wedding" ? 301 : 5; weddingFilter="all"; const filter=document.getElementById("weddingCategory");if(filter)filter.value="all"; updateTemplateButton(); renderTemplateMenu(); renderPoster(); showToast("ਸਾਰੇ templates restore ਹੋ ਗਏ।"); }
+function restoreTemplates() { localStorage.removeItem(hiddenStorageKey()); state.templateId = moduleId==="wedding" ? preferredWeddingTemplateId() : 5; weddingFilter="all"; const filter=document.getElementById("weddingCategory");if(filter)filter.value="all"; updateTemplateButton(); renderTemplateMenu(); renderPoster(); showToast("ਸਾਰੇ templates restore ਹੋ ਗਏ।"); }
 
 function initializeWeddingControls(){
   const anchor=document.getElementById("universalTemplateSelect");
@@ -443,7 +447,7 @@ function initializeWeddingControls(){
   const languageSelect=document.createElement("select");languageSelect.id="weddingLanguage";
   for(const [id,name] of weddingLanguages)languageSelect.add(new Option(name,id));
   language.append(languageSelect);
-  const hint=document.createElement("p");hint.textContent="New styles are original vector artwork. Change names, time, date, venue and program in the fields below.";
+  const hint=document.createElement("p");hint.textContent="101–120 classic styles first. Choose a design and edit names, functions, venue or add your own PNG couple below.";
   const tradition=document.createElement("label");tradition.textContent="Ceremony / Tradition";
   const traditionSelect=document.createElement("select");traditionSelect.id="weddingTradition";
   for(const [id,name] of [["sikh","Sikh / Anand Karaj"],["hindu","Hindu"],["muslim","Muslim"],["neutral","Modern / Neutral"]]) traditionSelect.add(new Option(name,id));
@@ -496,7 +500,7 @@ function smartPlaceholder() { return config.fields.map((item) => `${item.label}:
 function showToast(message) { const toast = document.getElementById("universalToast"); toast.textContent = message; toast.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove("show"), 2500); }
 function safeFilename() { return `${String(state.title || config.name).replace(/[^\p{L}\p{N}\s-]/gu, "").trim().replace(/\s+/g, "-").slice(0, 48) || "Poster"}.png`; }
 function downloadPoster() { renderPoster(); exportController.downloadPNG(); }
-function resetPoster() { state = makeState(); backgroundController?.reset(); localStorage.removeItem(`mdc-draft-${moduleId}`); renderFields(); updateTemplateButton(); renderTemplateMenu(); updatePhotoCards(); syncRanges(); renderPoster(); showToast("ਨਵਾਂ poster ready ਹੈ।"); }
+function resetPoster() { state = makeState(); weddingPngEditor?.reset(); backgroundController?.reset(); localStorage.removeItem(`mdc-draft-${moduleId}`); renderFields(); updateTemplateButton(); renderTemplateMenu(); updatePhotoCards(); syncRanges(); renderPoster(); showToast("ਨਵਾਂ poster ready ਹੈ।"); }
 function syncRanges() { [["primaryScale", Math.round(state.primaryScale * 100), "primaryScaleValue", "%"], ["primaryX", state.primaryX, "primaryXValue", ""], ["primaryY", state.primaryY, "primaryYValue", ""], ["universalLogoScale", Math.round(state.logoScale * 100), "universalLogoScaleValue", "%"]].forEach(([id, value, output, suffix]) => { document.getElementById(id).value = value; document.getElementById(output).textContent = `${value}${suffix}`; }); }
 
 function initialize() {
@@ -516,7 +520,7 @@ function initialize() {
   document.documentElement.style.setProperty("--module-accent", config.palette.accent); document.documentElement.style.setProperty("--module-dark", config.palette.dark); document.documentElement.style.setProperty("--module-soft", config.palette.soft);
   document.title = `${config.name} — MDC`; document.getElementById("moduleIcon").textContent = config.icon; document.getElementById("modulePageTitle").textContent = config.name; document.getElementById("editorModuleTitle").textContent = config.name; document.getElementById("moduleDescription").textContent = config.description; document.getElementById("previewTitle").textContent = config.name.replace(" Poster Maker", "");
   document.getElementById("primaryPhotoLabel").textContent = config.photoLabels[0]; document.getElementById("secondaryPhotoLabel").textContent = config.photoLabels[1]; document.getElementById("universalSmartText").placeholder = smartPlaceholder();
-  if(moduleId==="wedding"){ initializeWeddingControls(); preloadWeddingArtwork(renderPoster); }
+  if(moduleId==="wedding"){ initializeWeddingControls(); weddingPngEditor=installWeddingPngLayers(document.getElementById("universalTemplateSelect"),renderPoster); preloadWeddingArtwork(renderPoster); }
   renderFields(); updateTemplateButton(); renderTemplateMenu(); updatePhotoCards(); syncRanges(); renderPoster(); window.mdcTrack?.("module_view", { selected_module: moduleId });
 }
 

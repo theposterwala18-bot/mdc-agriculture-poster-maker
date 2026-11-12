@@ -1,0 +1,16 @@
+/* Wedding-only optional PNG layers. Existing poster UI and all other modules untouched. */
+.wedding-png-panel{margin:12px 0;padding:13px;border-radius:13px;border:1px solid #ddc4ab;background:#fffdf7;display:grid;gap:9px;color:#513b33}
+.wedding-png-panel>strong{font-size:.92rem}
+.wedding-png-panel p,.wedding-png-panel small{font-size:.71rem;color:#746a62;margin:0;line-height:1.5}
+.wedding-upload{border:1px dashed #ba985e;background:#fff4dc;border-radius:9px;padding:11px;cursor:pointer;font-size:.79rem;font-weight:800;display:block;position:relative}
+.wedding-upload input{position:absolute;opacity:0;inset:0;width:100%;cursor:pointer}
+#weddingLayerList{display:flex;gap:7px;flex-wrap:wrap}
+.wedding-png-chip{background:#fff;border:1px solid #ddc4ab;display:flex;align-items:center;gap:6px;padding:4px 7px;border-radius:8px;font-size:.66rem;max-width:155px}
+.wedding-png-chip[aria-pressed="true"]{border:2px solid #16644d;background:#effbf4}
+.wedding-png-chip img{width:31px;height:35px;object-fit:contain}
+.wedding-png-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#weddingLayerEdit:not([hidden]){display:grid;grid-template-columns:1fr 1fr;gap:9px}
+#weddingLayerEdit label{font-size:.69rem;font-weight:750;display:grid;gap:3px}
+#weddingLayerEdit input{width:100%;accent-color:#0a6b4d}
+#weddingLayerEdit button{min-height:35px;border:1px solid #d5c6ad;border-radius:7px;background:#fff;color:#493e32;font-size:.7rem;font-weight:750;cursor:pointer}
+@media(max-width:500px){#weddingLayerEdit:not([hidden]){grid-template-columns:1fr}}

@@ -1,0 +1,44 @@
+name: Verify Home and Wedding PNG controls
+on:
+  push:
+    branches:
+      - feature/home-wedding-overlays-2026-11-12
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Syntax
+        run: |
+          node --check dist/universal-poster.js
+          node --check dist/wedding-png-layers.js
+          node --check dist/wedding-templates.js
+          node --check dist/death-bhog.js
+      - name: Safe regression checks
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          import {weddingTemplates} from './dist/wedding-templates.js';
+          const universal=fs.readFileSync('dist/universal-poster.js','utf8');
+          const bhog=fs.readFileSync('dist/death-bhog.js','utf8');
+          const header=fs.readFileSync('dist/death-bhog.html','utf8');
+          const editor=fs.readFileSync('dist/wedding-png-layers.js','utf8');
+          if(weddingTemplates.length!==75)throw new Error('Wedding designs unexpectedly changed');
+          if(!universal.includes('preferredWeddingTemplateId()'))throw new Error('Wedding default 101 missing');
+          if(!universal.includes('x.pinToTop'))throw new Error('New design priority missing');
+          if(!header.includes('href="index.html" aria-label="Home"'))throw new Error('Bhog Home button missing');
+          if(!bhog.includes('templateId: templates[0].id'))throw new Error('Bhog newest default missing');
+          if(!editor.includes('weddingPngFile')||!editor.includes('wedSize')||!editor.includes('wedX')||!editor.includes('wedY'))throw new Error('PNG editor incomplete');
+          if(!universal.includes('weddingPngEditor?.draw'))throw new Error('PNG export layer missing');
+          console.log('Wedding 75 layouts preserved; controls and Home verified');
+          JS
+      - name: Install and build (no deployment)
+        run: |
+          npm ci
+          npm run build

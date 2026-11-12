@@ -1,0 +1,47 @@
+name: Validate built-in Wedding Couple PNG gallery
+on:
+  push:
+    branches:
+      - feature/built-in-wedding-couples-2026-11-12
+    paths:
+      - dist/wedding-png-layers.js
+      - dist/wedding-png-layers.css
+      - dist/universal-poster.js
+      - dist/universal-poster.html
+      - .github/workflows/verify-built-in-wedding-png.yml
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Verify exact approved Wedding PNG files
+        run: |
+          sha256sum --check <<'HASHES'
+          662a138d3f902a656301b51a20fd069732e18d39c487f2c5fa6ef02a2bbbbcf6  dist/assets/wedding-couples/royal-mint-couple.png
+          8c92a14a38cb62a5329df5092a2c17310dd41ecfdf094e15e3245c75bafae9a5  dist/assets/wedding-couples/lavender-duo.png
+          f9781340cd69327cbdd976f8c9d6b395d5a172171772fc821e6b7916b3dd7405  dist/assets/wedding-couples/red-namaste-couple.png
+          HASHES
+      - name: Check Wedding JS, category and content safety
+        run: |
+          node --check dist/wedding-png-layers.js
+          node --check dist/universal-poster.js
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          import {weddingTemplates} from './dist/wedding-templates.js';
+          const file=fs.readFileSync('dist/wedding-png-layers.js','utf8');
+          if(weddingTemplates.length!==75)throw new Error('Wedding template count changed');
+          for(const term of ['royal-mint-couple.png','lavender-duo.png','red-namaste-couple.png','weddingBuiltInList','wedX','wedY','wedSize','wedOpacity']){
+            if(!file.includes(term))throw new Error('Missing built-in PNG feature '+term)
+          }
+          console.log('3 built-in wedding assets + 75 original templates verified');
+          JS
+      - name: Build without deployment
+        run: |
+          npm ci
+          npm run build

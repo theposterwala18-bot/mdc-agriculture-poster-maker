@@ -1,5 +1,6 @@
 import { referenceWeddingSvg } from "./wedding-reference-library.js";
 import { weddingTemplates, weddingCategories, weddingLanguages, weddingLanguageText, drawWeddingTemplate, preloadWeddingArtwork } from "./wedding-templates.js";
+import { installWeddingPngLayers } from "./wedding-png-layers.js";
 import { createPosterExportController } from "./poster-export.js?v=5.8.7";
 import { createModuleBackgroundController } from "./module-background.js?v=5.8.0";
 
@@ -203,6 +204,7 @@ const templates = [
 templates.push(...weddingTemplates);
 let weddingFilter = "all";
 let weddingLang = "pa";
+let weddingPngEditor=null;
 const requestedModule = new URLSearchParams(location.search).get("module") || "missing";
 const moduleId = moduleConfigs[requestedModule] ? requestedModule : "missing";
 const config = moduleConfigs[moduleId];
@@ -404,6 +406,7 @@ function renderPoster() {
   else if (state.templateId === 4) drawElegantPortrait();
   else drawPremiumEditorial();
   if (!(moduleId === "wedding" && backgroundController?.getCustomImage())) backgroundController?.apply(ctx, W, H);
+  if(moduleId==="wedding")weddingPngEditor?.draw(ctx,W,H);
   if (document.getElementById("universalModal").classList.contains("open")) exportController?.copyToModal();
   exportController?.refreshPreview();
 }
@@ -516,7 +519,7 @@ function initialize() {
   document.documentElement.style.setProperty("--module-accent", config.palette.accent); document.documentElement.style.setProperty("--module-dark", config.palette.dark); document.documentElement.style.setProperty("--module-soft", config.palette.soft);
   document.title = `${config.name} — MDC`; document.getElementById("moduleIcon").textContent = config.icon; document.getElementById("modulePageTitle").textContent = config.name; document.getElementById("editorModuleTitle").textContent = config.name; document.getElementById("moduleDescription").textContent = config.description; document.getElementById("previewTitle").textContent = config.name.replace(" Poster Maker", "");
   document.getElementById("primaryPhotoLabel").textContent = config.photoLabels[0]; document.getElementById("secondaryPhotoLabel").textContent = config.photoLabels[1]; document.getElementById("universalSmartText").placeholder = smartPlaceholder();
-  if(moduleId==="wedding"){ initializeWeddingControls(); preloadWeddingArtwork(renderPoster); }
+  if(moduleId==="wedding"){ initializeWeddingControls(); weddingPngEditor=installWeddingPngLayers(document.getElementById("universalTemplateSelect"),renderPoster); preloadWeddingArtwork(renderPoster); }
   renderFields(); updateTemplateButton(); renderTemplateMenu(); updatePhotoCards(); syncRanges(); renderPoster(); window.mdcTrack?.("module_view", { selected_module: moduleId });
 }
 

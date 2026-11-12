@@ -1,6 +1,6 @@
 import { referenceWeddingSvg } from "./wedding-reference-library.js";
 import { weddingTemplates, weddingCategories, weddingLanguages, weddingLanguageText, drawWeddingTemplate, preloadWeddingArtwork } from "./wedding-templates.js";
-import { installWeddingPngLayers } from "./wedding-png-layers.js";
+import { installWeddingPngLayers } from "./wedding-png-layers.js?v=1.1.0";
 import { createPosterExportController } from "./poster-export.js?v=5.8.7";
 import { createModuleBackgroundController } from "./module-background.js?v=5.8.0";
 

@@ -14,3 +14,14 @@
 #weddingLayerEdit input{width:100%;accent-color:#0a6b4d}
 #weddingLayerEdit button{min-height:35px;border:1px solid #d5c6ad;border-radius:7px;background:#fff;color:#493e32;font-size:.7rem;font-weight:750;cursor:pointer}
 @media(max-width:500px){#weddingLayerEdit:not([hidden]){grid-template-columns:1fr}}
+
+
+.wedding-builtins{display:grid;gap:7px}
+.wedding-builtins>span{font-size:.76rem;font-weight:850;color:#5b4137}
+.wedding-built-in-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.wedding-built-in-option{min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px;padding:7px 5px;border:1px solid #d9c7ad;border-radius:10px;background:#fffdf8;color:#5c4234;cursor:pointer}
+.wedding-built-in-option img{height:80px;width:100%;object-fit:contain;display:block}
+.wedding-built-in-option span{font-size:.64rem;line-height:1.3;font-weight:800;text-align:center}
+.wedding-built-in-option:hover{border-color:#0c684d;background:#f3fbf4}
+.wedding-built-in-option:disabled{opacity:.5;cursor:progress}
+@media(max-width:380px){.wedding-built-in-list{gap:4px}.wedding-built-in-option img{height:62px}.wedding-built-in-option span{font-size:.58rem}}

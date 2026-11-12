@@ -499,7 +499,7 @@ function smartPlaceholder() { return config.fields.map((item) => `${item.label}:
 function showToast(message) { const toast = document.getElementById("universalToast"); toast.textContent = message; toast.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove("show"), 2500); }
 function safeFilename() { return `${String(state.title || config.name).replace(/[^\p{L}\p{N}\s-]/gu, "").trim().replace(/\s+/g, "-").slice(0, 48) || "Poster"}.png`; }
 function downloadPoster() { renderPoster(); exportController.downloadPNG(); }
-function resetPoster() { state = makeState(); backgroundController?.reset(); localStorage.removeItem(`mdc-draft-${moduleId}`); renderFields(); updateTemplateButton(); renderTemplateMenu(); updatePhotoCards(); syncRanges(); renderPoster(); showToast("ਨਵਾਂ poster ready ਹੈ।"); }
+function resetPoster() { state = makeState(); weddingPngEditor?.reset(); backgroundController?.reset(); localStorage.removeItem(`mdc-draft-${moduleId}`); renderFields(); updateTemplateButton(); renderTemplateMenu(); updatePhotoCards(); syncRanges(); renderPoster(); showToast("ਨਵਾਂ poster ready ਹੈ।"); }
 function syncRanges() { [["primaryScale", Math.round(state.primaryScale * 100), "primaryScaleValue", "%"], ["primaryX", state.primaryX, "primaryXValue", ""], ["primaryY", state.primaryY, "primaryYValue", ""], ["universalLogoScale", Math.round(state.logoScale * 100), "universalLogoScaleValue", "%"]].forEach(([id, value, output, suffix]) => { document.getElementById(id).value = value; document.getElementById(output).textContent = `${value}${suffix}`; }); }
 
 function initialize() {

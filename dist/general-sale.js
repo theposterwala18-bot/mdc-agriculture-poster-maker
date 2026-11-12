@@ -1,4 +1,4 @@
-import { createPosterExportController } from "./poster-export.js";
+import { createPosterExportController } from "./poster-export.js?v=5.8.7";
 
 const canvas = document.getElementById("gsPosterCanvas");
 const ctx = canvas.getContext("2d");

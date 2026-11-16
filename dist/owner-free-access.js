@@ -66,3 +66,5 @@ $("freeAccessForm").addEventListener("submit",async event=>{
 window.addEventListener("tpw-auth-changed",()=>setTimeout(()=>{if(!$("dashboardContent").hidden)load()},350));
 const observer=new MutationObserver(()=>{if(!$("dashboardContent").hidden){observer.disconnect();load()}});
 observer.observe($("dashboardContent"),{attributes:true,attributeFilter:["hidden"]});
+if(!$("dashboardContent").hidden){observer.disconnect();load()}
+

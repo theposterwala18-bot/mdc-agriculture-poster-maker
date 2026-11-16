@@ -327,6 +327,19 @@ async function ownerRevokeFreeAccess(request,env){
   return json({success:true,revoked:Boolean(result.meta?.changes)},200,request,env);
 }
 
+
+async function ownerDeleteFreeAccess(request,env){
+  const owner=await requireOwner(request,env);
+  const body=await readJson(request);
+  const email=normalizedGrantEmail(body.email);
+  if(email===normalizedGrantEmail(env.OWNER_EMAIL))throw new Error("Permanent owner cannot be deleted");
+  if(body.confirmEmail!==email)throw new Error("Type the exact email to confirm permanent deletion");
+  // Only remove the owner-managed grant record, never customer profile, payments,
+  // subscriptions, download history, or any other table.
+  const result=await env.DB.prepare("DELETE FROM free_access_grants WHERE email=?").bind(email).run();
+  return json({success:true,deleted:Boolean(result.meta?.changes)},200,request,env);
+}
+
 async function getAppSettings(env) {
   const result = await env.DB.prepare(
     `SELECT setting_key, setting_value FROM app_settings`
@@ -1446,6 +1459,7 @@ export default {
         if(url.pathname==="/owner/free-access/list")return await ownerFreeAccessList(request,env);
         if(url.pathname==="/owner/free-access/grant")return await ownerGrantFreeAccess(request,env);
         if(url.pathname==="/owner/free-access/revoke")return await ownerRevokeFreeAccess(request,env);
+        if(url.pathname==="/owner/free-access/delete")return await ownerDeleteFreeAccess(request,env);
 
         if (url.pathname === "/owner/config") {
           return await ownerConfig(request, env);

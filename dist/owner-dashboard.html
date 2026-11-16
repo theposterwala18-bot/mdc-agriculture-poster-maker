@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex,nofollow" />
   <title>Owner Dashboard | The Poster Wala</title>
   <link rel="stylesheet" href="./auth.css" />
-  <link rel="stylesheet" href="./owner-dashboard.css?v=5.9.0" />
+  <link rel="stylesheet" href="./owner-dashboard.css?v=5.9.1" />
   <link rel="stylesheet" href="./owner-site-notice.css?v=1.0.0" />
 </head>
 <body>
@@ -64,6 +64,7 @@
             <label>Duration <select id="freeAccessDays"><option value="1">1 Day</option><option value="7" selected>1 Week</option><option value="30">30 Days</option><option value="90">90 Days</option><option value="180">180 Days</option><option value="365">1 Year</option><option value="custom">Custom Days</option></select></label>
             <label id="freeCustomLabel" hidden>Custom Days (1–365) <input type="number" id="freeCustomDays" min="1" max="365" value="15" /></label>
             <button type="submit" id="freeAccessGrant">Grant / Extend Access</button>
+            <button type="button" id="freeAccessCancel" hidden>Cancel Edit</button>
           </form>
           <p class="muted">Removal or expiry restores standard customer rules immediately. Paid purchases and download history are preserved. Granting free access never grants Owner Dashboard permissions.</p>
           <p id="freeAccessStatus" role="status" aria-live="polite"></p>
@@ -158,6 +159,6 @@
   <script type="module" src="./auth.js?v=5.6.6"></script>
   <script type="module" src="./owner-dashboard.js?v=5.8.1"></script>
   <script src="./owner-site-notice.js?v=1.0.0" defer></script>
-  <script type="module" src="./owner-free-access.js?v=1.0.1"></script>
+  <script type="module" src="./owner-free-access.js?v=1.1.0"></script>
 </body>
 </html>

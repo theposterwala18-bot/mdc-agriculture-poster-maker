@@ -16,7 +16,7 @@ jobs:
           cache: npm
       - name: Recovery rule tests
         run: |
-          node --test tests/poster-recovery-policy.test.mjs
+          node --test tests/poster-recovery-policy.test.mjs tests/poster-recovery-api.test.mjs
       - name: SQL migration and schema safety
         run: |
           python3 - <<'PY'

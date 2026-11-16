@@ -1,0 +1,36 @@
+name: Validate staged poster recovery (no deployment)
+on:
+  push:
+    branches:
+      - feature/poster-recovery-r2-staged-2026-11-16
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Recovery rule tests
+        run: |
+          node --test tests/poster-recovery-policy.test.mjs tests/poster-recovery-api.test.mjs
+      - name: SQL migration and schema safety
+        run: |
+          python3 - <<'PY'
+          import pathlib,sqlite3
+          s=pathlib.Path("cloudflare/Poster-Recovery-v1-STAGED.sql").read_text()
+          assert "DROP TABLE" not in s and "DELETE FROM" not in s
+          db=sqlite3.connect(":memory:")
+          db.executescript(s)
+          db.executescript(s)
+          names={r[0] for r in db.execute("select name from sqlite_master where type='table'")}
+          assert {'poster_recovery_orders','poster_recovery_events'}.issubset(names)
+          print("Additive migration idempotence verified")
+          PY
+      - name: Existing site build regression
+        run: |
+          npm ci
+          npm run build

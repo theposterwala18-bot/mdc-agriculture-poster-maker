@@ -45,3 +45,12 @@
 #freeAccessStatus.error{color:#ab3029}
 @media(max-width:960px){.free-access-form{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.free-access-form{grid-template-columns:1fr}.free-access-body{padding:12px}}
+
+
+.free-row-actions{display:flex;gap:6px;flex-wrap:wrap;min-width:280px}
+.free-row-actions button,#freeAccessCancel{padding:8px 10px;border-radius:8px;font-size:12px;font-weight:750;cursor:pointer}
+.free-row-actions .free-edit{background:#f0f8f3;border:1px solid #77b89a;color:#12553c}
+.free-row-actions .free-permanent-delete{background:#fff;border:1px solid #d28076;color:#a52d25}
+#freeAccessCancel{background:#fff;color:#465568;border:1px solid #9eacbd}
+.free-access-form input[readonly]{background:#f3f6f9;color:#5c6470}
+@media(max-width:620px){.free-row-actions{min-width:0}}

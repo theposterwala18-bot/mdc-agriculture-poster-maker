@@ -1,0 +1,51 @@
+name: Verify Free Access Edit Reactivate and Delete
+on:
+  push:
+    branches:
+      - feature/free-access-edit-reactivate-delete-2026-11-16
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22', cache: npm}
+      - name: JavaScript syntax
+        run: |
+          node --check backend/payment-api.worker.js
+          node --check dist/owner-free-access.js
+          node --check dist/poster-export.js
+      - name: No-impact comparison and permission checks
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const backend=fs.readFileSync('backend/payment-api.worker.js','utf8');
+          const front=fs.readFileSync('dist/owner-free-access.js','utf8');
+          const markup=fs.readFileSync('dist/owner-dashboard.html','utf8');
+          for(const keyword of ['async function ownerDeleteFreeAccess','/owner/free-access/delete','DELETE FROM free_access_grants WHERE email=?','Permanent owner cannot be deleted','body.confirmEmail!==email'])if(!backend.includes(keyword))throw Error('Missing backend safety: '+keyword);
+          for(const keyword of ['Edit Duration','Reactivate','Permanent Delete','freeAccessCancel','owner/free-access/grant','confirmEmail'])if(!front.includes(keyword)&&!markup.includes(keyword))throw Error('Missing interface option: '+keyword);
+          for(const forbidden of ['DELETE FROM payments','DELETE FROM daily_downloads','DELETE FROM users','DELETE FROM user_subscriptions','DROP TABLE'])if(backend.includes(forbidden))throw Error('Unsafe SQL detected');
+          console.log('Owner-only delete, edit, reactivate, confirmation checks passed');
+          JS
+      - name: Database simulation of Reactivate Edit Permanent Delete
+        run: |
+          python3 - <<'PY'
+          import sqlite3
+          db=sqlite3.connect(':memory:')
+          db.executescript(open('cloudflare/Free-Access-Manager-v1.sql').read())
+          db.execute("INSERT INTO free_access_grants (email,expires_at,created_by) VALUES ('guest@example.com',strftime('%s','now')+604800,'owner@example.com')")
+          assert db.execute("select count(*) from free_access_grants where revoked_at is null").fetchone()[0]==1
+          db.execute("UPDATE free_access_grants SET revoked_at=unixepoch() WHERE email='guest@example.com'")
+          assert db.execute("select count(*) from free_access_grants where revoked_at is null").fetchone()[0]==0
+          db.execute("UPDATE free_access_grants SET revoked_at=NULL,expires_at=unixepoch()+2592000 WHERE email='guest@example.com'")
+          assert db.execute("select count(*) from free_access_grants where revoked_at is null and expires_at>unixepoch()").fetchone()[0]==1
+          db.execute("DELETE FROM free_access_grants WHERE email=?",('guest@example.com',))
+          assert db.execute("select count(*) from free_access_grants").fetchone()[0]==0
+          print('Guest revoke/reactivate/edit/delete simulation passed')
+          PY
+      - name: Build website without deployment
+        run: |
+          npm ci
+          npm run build

@@ -284,7 +284,8 @@ function isPermanentOwner(user,env){
 }
 async function currentFreeGrant(user,env){
   if(isPermanentOwner(user,env))return {type:"owner-free",email:normalizedGrantEmail(user.email)};
-  const email=normalizedGrantEmail(user.email);
+  let email;
+  try { email=normalizedGrantEmail(user.email); } catch { return null; }
   const row=await env.DB.prepare("SELECT email, expires_at FROM free_access_grants WHERE email=? AND revoked_at IS NULL AND expires_at > unixepoch() LIMIT 1").bind(email).first();
   return row?{type:"guest-free",email:row.email,expiresAt:Number(row.expires_at)}:null;
 }
@@ -1121,7 +1122,11 @@ async function verifyPayment(request, env) {
 async function validateToken(request, env) {
   const user = await verifyFirebaseIdToken(request, env);
   const body = await readJson(request);
-  const payload = await validateAccessToken(env, body.token, user.sub);
+  const candidate = await validateAccessToken(env, body.token, user.sub);
+  // Preserve existing customer free/subscription caching semantics: only paid tokens
+  // and the new owner's grants are reusable here.
+  const payload = candidate && ["paid","owner-free","guest-free"].includes(candidate.accessType)
+    ? candidate : null;
 
   if (!payload) {
     return json(

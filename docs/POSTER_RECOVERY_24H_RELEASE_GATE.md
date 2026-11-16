@@ -46,3 +46,9 @@ Deployment gate: Cloudflare R2 must be enabled in the correct account and a PRIV
 
 ## Critical safety statement
 Do NOT merge this staged branch into main or enable a partial recovery feature simply to show UI. Until all gates pass, the existing website must keep operating unchanged.
+
+## 2026-11-16 staging continuation
+- Added standalone `backend/poster-recovery-api.mjs` with authenticated list, private single-poster serve, and owner dispute lookup routes, backed by injected D1 and private R2 bindings. Not mounted on the live Payment Worker.
+- Recovery sealing remains intentionally disabled (`503`) until a trusted editor adapter can prove the exact captured order, original canonical design, user consent and immutable file. Allowing arbitrary image upload would let a payer substitute a different poster and defeat the anti-abuse requirement.
+- Existing customers' historical poster images cannot be recreated from payment/download records.
+- Cloudflare R2 still returns error `10042`: enable R2 in the account dashboard. Do not merge or deploy before full editor support and private storage tests.

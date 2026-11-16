@@ -663,4 +663,722 @@ async function createSubscriptionOrder(request, env) {
   const authorization = btoa(`${env.RAZORPAY_KEY_ID}:${env.RAZORPAY_KEY_SECRET}`);
   const razorpayResponse = await fetch("https://api.razorpay.com/v1/orders", {
     method: "POST",
-    headers: { Authorization: `Basic ${authorization}`, "Content-Type": "ap --- TRUNCATED --- 44,578 chars
+    headers: { Authorization: `Basic ${authorization}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ amount, currency: "INR",
+      receipt: `tpw_sub_${Date.now()}_${crypto.randomUUID().slice(0, 8)}`,
+      notes: { product: "The Poster Wala subscription", plan_code: plan.plan_code,
+        user_uid: user.sub, mode: env.PAYMENT_MODE || "test" } })
+  });
+  if (!razorpayResponse.ok) return json({ success: false, error: "Unable to create subscription order" }, 502, request, env);
+  const order = await razorpayResponse.json();
+  await env.DB.prepare(
+    `INSERT INTO subscription_orders(order_id, uid, plan_id, amount_paise, status)
+     VALUES (?, ?, ?, ?, 'created')`
+  ).bind(order.id, user.sub, plan.id, amount).run();
+  return json({ success: true, keyId: env.RAZORPAY_KEY_ID, orderId: order.id,
+    amount, currency: "INR", businessName: "The Poster Wala",
+    description: plan.display_name, planId: plan.id, mode: env.PAYMENT_MODE || "test" }, 200, request, env);
+}
+
+async function verifySubscriptionPayment(request, env) {
+  const user = await verifyFirebaseIdToken(request, env);
+  const body = await readJson(request);
+  const paymentId = String(body.razorpay_payment_id || "");
+  const orderId = String(body.razorpay_order_id || "");
+  const signature = String(body.razorpay_signature || "");
+  if (!paymentId || !orderId || !signature) return json({ success: false, error: "Missing payment details" }, 400, request, env);
+  const saved = await env.DB.prepare(
+    `SELECT so.uid, so.plan_id, so.amount_paise, so.status, sp.duration_days,
+      sp.download_limit FROM subscription_orders so
+      JOIN subscription_plans sp ON sp.id = so.plan_id
+      WHERE so.order_id = ? LIMIT 1`
+  ).bind(orderId).first();
+  if (!saved || saved.uid !== user.sub) return json({ success: false, error: "Subscription order is invalid" }, 403, request, env);
+  if (saved.status === "captured") return json({ success: true, alreadyActive: true }, 200, request, env);
+  const signatureValid = await verifyHexHmac(env.RAZORPAY_KEY_SECRET, `${orderId}|${paymentId}`, signature);
+  if (!signatureValid) return json({ success: false, error: "Payment signature verification failed" }, 401, request, env);
+  const authorization = btoa(`${env.RAZORPAY_KEY_ID}:${env.RAZORPAY_KEY_SECRET}`);
+  const response = await fetch(`https://api.razorpay.com/v1/payments/${encodeURIComponent(paymentId)}`,
+    { headers: { Authorization: `Basic ${authorization}` } });
+  if (!response.ok) return json({ success: false, error: "Unable to confirm subscription payment" }, 502, request, env);
+  const payment = await response.json();
+  if (payment.order_id !== orderId || Number(payment.amount) !== Number(saved.amount_paise) ||
+      payment.currency !== "INR" || payment.status !== "captured") {
+    return json({ success: false, error: "Subscription payment is not captured" }, 409, request, env);
+  }
+  await env.DB.batch([
+    env.DB.prepare(`UPDATE user_subscriptions SET status = 'expired', updated_at = CURRENT_TIMESTAMP
+      WHERE uid = ? AND status = 'active'`).bind(user.sub),
+    env.DB.prepare(`INSERT INTO user_subscriptions(uid, plan_id, payment_id, starts_at,
+      expires_at, status, download_limit, downloads_used)
+      VALUES (?, ?, ?, CURRENT_TIMESTAMP, datetime('now', ?), 'active', ?, 0)`)
+      .bind(user.sub, saved.plan_id, paymentId, `+${Number(saved.duration_days)} days`, saved.download_limit),
+    env.DB.prepare(`UPDATE subscription_orders SET payment_id = ?, status = 'captured',
+      updated_at = CURRENT_TIMESTAMP WHERE order_id = ?`).bind(paymentId, orderId)
+  ]);
+  return json({ success: true, active: true, durationDays: Number(saved.duration_days) }, 200, request, env);
+}
+
+async function createUnlockToken(env, payment, user, moduleId) {
+  const settings = await getAppSettings(env);
+  const unlockMinutes = settings.unlockMinutes;
+
+  const payload = {
+    version: 2,
+    uid: user.sub,
+    moduleId,
+    paymentId: payment.id,
+    orderId: payment.order_id,
+    amount: payment.amount,
+    expiresAt: Math.floor(Date.now() / 1000) + unlockMinutes * 60
+  };
+
+  const encodedPayload = bytesToBase64Url(
+    encoder.encode(JSON.stringify(payload))
+  );
+
+  const signature = await hmacBytes(
+    env.DOWNLOAD_TOKEN_SECRET,
+    encodedPayload
+  );
+
+  return `${encodedPayload}.${bytesToBase64Url(signature)}`;
+}
+
+async function validateUnlockToken(env, token, expectedUid) {
+  if (typeof token !== "string") return null;
+
+  const parts = token.split(".");
+  if (parts.length !== 2) return null;
+
+  const [encodedPayload, encodedSignature] = parts;
+
+  try {
+    const key = await importHmacKey(
+      env.DOWNLOAD_TOKEN_SECRET,
+      "verify"
+    );
+
+    const validSignature = await crypto.subtle.verify(
+      "HMAC",
+      key,
+      base64UrlToBytes(encodedSignature),
+      encoder.encode(encodedPayload)
+    );
+
+    if (!validSignature) return null;
+
+    const payload = JSON.parse(
+      decoder.decode(base64UrlToBytes(encodedPayload))
+    );
+
+    const now = Math.floor(Date.now() / 1000);
+    if (
+      payload.version !== 2 ||
+      typeof payload.uid !== "string" ||
+      payload.uid !== expectedUid ||
+      typeof payload.moduleId !== "string" ||
+      payload.moduleId.length === 0 ||
+      !payload.paymentId ||
+      !payload.orderId ||
+      !Number.isInteger(payload.amount) ||
+      payload.amount < 100 ||
+      !Number.isFinite(payload.expiresAt) ||
+      payload.expiresAt <= now
+    ) {
+      return null;
+    }
+
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+async function validateAccessToken(env, token, expectedUid) {
+  const paid = await validateUnlockToken(env, token, expectedUid);
+  if (paid) return { ...paid, accessType: "paid" };
+  if (typeof token !== "string") return null;
+  const parts = token.split(".");
+  if (parts.length !== 2) return null;
+  try {
+    const key = await importHmacKey(env.DOWNLOAD_TOKEN_SECRET, "verify");
+    const valid = await crypto.subtle.verify(
+      "HMAC", key, base64UrlToBytes(parts[1]), encoder.encode(parts[0])
+    );
+    if (!valid) return null;
+    const payload = JSON.parse(decoder.decode(base64UrlToBytes(parts[0])));
+    if (
+      payload.version !== 3 || payload.uid !== expectedUid ||
+      typeof payload.moduleId !== "string" || !payload.moduleId ||
+      !["daily-free", "module-free", "subscription"].includes(payload.accessType) ||
+      !Number.isFinite(payload.expiresAt) || payload.expiresAt <= Math.floor(Date.now() / 1000)
+    ) return null;
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+async function createOrder(request, env) {
+  const user = await verifyFirebaseIdToken(request, env);
+  await saveUserSession(env, user);
+  const body = await readJson(request);
+  const moduleId = typeof body.module === "string"
+    ? body.module.trim().slice(0, 80)
+    : "";
+
+  if (!moduleId) {
+    return json(
+      { success: false, error: "Poster module is required" },
+      400,
+      request,
+      env
+    );
+  }
+  const settings = await getAppSettings(env);
+  const moduleConfig = await getModuleConfig(env, moduleId, settings);
+  const amount = moduleConfig.premium ? settings.premiumPricePaise : moduleConfig.amount;
+
+  if (!Number.isInteger(amount) || amount < 100) {
+    return json(
+      { success: false, error: "Invalid server payment amount" },
+      500,
+      request,
+      env
+    );
+  }
+
+  const authorization = btoa(
+    `${env.RAZORPAY_KEY_ID}:${env.RAZORPAY_KEY_SECRET}`
+  );
+
+  const razorpayResponse = await fetch(
+    "https://api.razorpay.com/v1/orders",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${authorization}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        amount,
+        currency: "INR",
+        receipt: `tpw_${Date.now()}_${crypto.randomUUID().slice(0, 8)}`,
+        notes: {
+          product: "The Poster Wala poster download",
+          mode: env.PAYMENT_MODE || "test",
+          user_uid: user.sub
+        }
+      })
+    }
+  );
+
+  if (!razorpayResponse.ok) {
+    return json(
+      { success: false, error: "Unable to create payment order" },
+      502,
+      request,
+      env
+    );
+  }
+
+  const order = await razorpayResponse.json();
+
+  await env.DB.prepare(
+    `INSERT INTO payments (
+       order_id, uid, module_id, amount_paise, status, created_at, updated_at
+     ) VALUES (?, ?, ?, ?, 'created', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+     ON CONFLICT(order_id) DO UPDATE SET
+       uid = excluded.uid,
+       module_id = excluded.module_id,
+       amount_paise = excluded.amount_paise,
+       status = 'created',
+       updated_at = CURRENT_TIMESTAMP`
+  )
+    .bind(
+      order.id,
+      user.sub,
+      moduleId,
+      order.amount
+    )
+    .run();
+
+  return json(
+    {
+      success: true,
+      keyId: env.RAZORPAY_KEY_ID,
+      orderId: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      businessName: "The Poster Wala",
+      description: `Poster download – ${settings.unlockMinutes} minute access`,
+      mode: env.PAYMENT_MODE || "test"
+    },
+    200,
+    request,
+    env
+  );
+}
+
+async function verifyPayment(request, env) {
+  const user = await verifyFirebaseIdToken(request, env);
+  const body = await readJson(request);
+
+  const paymentId = body.razorpay_payment_id;
+  const orderId = body.razorpay_order_id;
+  const signature = body.razorpay_signature;
+
+  if (!paymentId || !orderId || !signature) {
+    return json(
+      { success: false, error: "Missing payment verification details" },
+      400,
+      request,
+      env
+    );
+  }
+
+  const savedOrder = await env.DB.prepare(
+    `SELECT uid, module_id, amount_paise FROM payments WHERE order_id = ? LIMIT 1`
+  )
+    .bind(orderId)
+    .first();
+
+  if (!savedOrder || savedOrder.uid !== user.sub) {
+    return json(
+      { success: false, error: "Payment order does not belong to this user" },
+      403,
+      request,
+      env
+    );
+  }
+
+  const signatureValid = await verifyHexHmac(
+    env.RAZORPAY_KEY_SECRET,
+    `${orderId}|${paymentId}`,
+    signature
+  );
+
+  if (!signatureValid) {
+    return json(
+      { success: false, error: "Payment signature verification failed" },
+      401,
+      request,
+      env
+    );
+  }
+
+  const authorization = btoa(
+    `${env.RAZORPAY_KEY_ID}:${env.RAZORPAY_KEY_SECRET}`
+  );
+
+  const paymentResponse = await fetch(
+    `https://api.razorpay.com/v1/payments/${encodeURIComponent(paymentId)}`,
+    {
+      headers: {
+        Authorization: `Basic ${authorization}`
+      }
+    }
+  );
+
+  if (!paymentResponse.ok) {
+    return json(
+      { success: false, error: "Unable to confirm payment" },
+      502,
+      request,
+      env
+    );
+  }
+
+  const payment = await paymentResponse.json();
+  const requiredAmount = Number(savedOrder.amount_paise);
+
+  if (
+    payment.order_id !== orderId ||
+    payment.amount !== requiredAmount ||
+    payment.currency !== "INR" ||
+    payment.status !== "captured"
+  ) {
+    return json(
+      { success: false, error: "Payment is not captured or amount is invalid" },
+      402,
+      request,
+      env
+    );
+  }
+
+  const settings = await getAppSettings(env);
+  await env.DB.prepare(
+    `UPDATE payments SET
+       payment_id = ?,
+       status = 'captured',
+       unlock_expires_at = datetime('now', ?),
+       updated_at = CURRENT_TIMESTAMP
+     WHERE order_id = ? AND uid = ?`
+  )
+    .bind(
+      payment.id,
+      `+${settings.unlockMinutes} minutes`,
+      orderId,
+      user.sub
+    )
+    .run();
+
+  const token = await createUnlockToken(
+    env,
+    payment,
+    user,
+    savedOrder.module_id
+  );
+
+  return json(
+    {
+      success: true,
+      token,
+      expiresInMinutes: settings.unlockMinutes
+    },
+    200,
+    request,
+    env
+  );
+}
+
+async function validateToken(request, env) {
+  const user = await verifyFirebaseIdToken(request, env);
+  const body = await readJson(request);
+  const payload = await validateUnlockToken(env, body.token, user.sub);
+
+  if (!payload) {
+    return json(
+      { success: false, error: "Download access is invalid or expired" },
+      401,
+      request,
+      env
+    );
+  }
+
+  return json(
+    {
+      success: true,
+      expiresAt: payload.expiresAt,
+      moduleId: payload.moduleId
+    },
+    200,
+    request,
+    env
+  );
+}
+
+async function recoverAccess(request, env) {
+  const user = await verifyFirebaseIdToken(request, env);
+  const body = await readJson(request);
+  const orderId = typeof body.orderId === "string" ? body.orderId.trim() : "";
+  const moduleId = typeof body.module === "string" ? body.module.trim() : "";
+
+  if (!/^order_[A-Za-z0-9]+$/.test(orderId) || !moduleId) {
+    return json({ success: false, error: "Valid Order ID is required" }, 400, request, env);
+  }
+
+  const payment = await env.DB.prepare(
+    `SELECT payment_id AS id, order_id, module_id, amount_paise AS amount
+       FROM payments
+      WHERE order_id = ?
+        AND uid = ?
+        AND module_id = ?
+        AND status = 'captured'
+        AND created_at >= datetime('now', '-24 hours')
+      LIMIT 1`
+  )
+    .bind(orderId, user.sub, moduleId)
+    .first();
+
+  if (!payment) {
+    return json(
+      { success: false, error: "Payment recovery is unavailable or older than 24 hours" },
+      404,
+      request,
+      env
+    );
+  }
+
+  const count = await env.DB.prepare(
+    `SELECT COUNT(*) AS total FROM daily_downloads WHERE payment_id = ?`
+  )
+    .bind(payment.id)
+    .first();
+  const downloadsUsed = Number(count?.total || 0);
+
+  const settings = await getAppSettings(env);
+  if (downloadsUsed >= settings.paidDownloadLimit) {
+    return json(
+      { success: false, error: `This payment has reached the ${settings.paidDownloadLimit}-download limit` },
+      429,
+      request,
+      env
+    );
+  }
+
+  const token = await createUnlockToken(env, payment, user, payment.module_id);
+
+  return json(
+    {
+      success: true,
+      token,
+      orderId: payment.order_id,
+      moduleId: payment.module_id,
+      downloadsUsed,
+      downloadsRemaining: settings.paidDownloadLimit - downloadsUsed,
+      expiresInMinutes: settings.unlockMinutes
+    },
+    200,
+    request,
+    env
+  );
+}
+
+async function recordDownload(request, env) {
+  const user = await verifyFirebaseIdToken(request, env);
+  const body = await readJson(request);
+  const payload = await validateAccessToken(env, body.token, user.sub);
+
+  if (!payload) {
+    return json(
+      { success: false, error: "Download access is invalid or expired" },
+      401,
+      request,
+      env
+    );
+  }
+
+  if (body.module !== payload.moduleId) {
+    return json(
+      { success: false, error: "This payment belongs to a different poster module" },
+      403,
+      request,
+      env
+    );
+  }
+
+  const format = typeof body.format === "string" ? body.format.slice(0, 40) : "unknown";
+
+  const settings = await getAppSettings(env);
+
+  if (payload.accessType === "daily-free") {
+    const today = indiaDate();
+    if (payload.dailyDate !== today) {
+      return json({ success: false, error: "Daily free access has expired" }, 401, request, env);
+    }
+    const result = await env.DB.prepare(
+      `INSERT INTO daily_downloads (
+         uid, payment_id, subscription_id, download_date, module_id,
+         file_type, access_type, created_at
+       )
+       SELECT ?, NULL, NULL, ?, ?, ?, 'daily-free', CURRENT_TIMESTAMP
+       WHERE (SELECT COUNT(*) FROM daily_downloads
+              WHERE uid = ? AND download_date = ? AND access_type = 'daily-free') < ?`
+    ).bind(
+      user.sub, today, payload.moduleId, format,
+      user.sub, today, settings.dailyFreeLimit
+    ).run();
+    if (!result.meta?.changes) {
+      return json({ success: false, error: "Today's free PNG limit is finished" }, 429, request, env);
+    }
+    return json({ success: true, access: "daily-free" }, 200, request, env);
+  }
+
+  if (payload.accessType === "module-free") {
+    await env.DB.prepare(
+      `INSERT INTO daily_downloads (
+         uid, payment_id, subscription_id, download_date, module_id,
+         file_type, access_type, created_at
+       ) VALUES (?, NULL, NULL, ?, ?, ?, 'module-free', CURRENT_TIMESTAMP)`
+    ).bind(user.sub, indiaDate(), payload.moduleId, format).run();
+    return json({ success: true, access: "module-free" }, 200, request, env);
+  }
+
+  if (payload.accessType === "subscription") {
+    const subscription = await env.DB.prepare(
+      `SELECT id, download_limit, downloads_used FROM user_subscriptions
+        WHERE id = ? AND uid = ? AND status = 'active'
+          AND starts_at <= CURRENT_TIMESTAMP AND expires_at > CURRENT_TIMESTAMP`
+    ).bind(payload.subscriptionId, user.sub).first();
+    if (!subscription || (subscription.download_limit != null &&
+        Number(subscription.downloads_used) >= Number(subscription.download_limit))) {
+      return json({ success: false, error: "Subscription access is unavailable" }, 403, request, env);
+    }
+    await env.DB.batch([
+      env.DB.prepare(
+        `INSERT INTO daily_downloads (
+           uid, payment_id, subscription_id, download_date, module_id,
+           file_type, access_type, created_at
+         ) VALUES (?, NULL, ?, ?, ?, ?, 'subscription', CURRENT_TIMESTAMP)`
+      ).bind(user.sub, subscription.id, indiaDate(), payload.moduleId, format),
+      env.DB.prepare(
+        `UPDATE user_subscriptions SET downloads_used = downloads_used + 1,
+          updated_at = CURRENT_TIMESTAMP WHERE id = ?`
+      ).bind(subscription.id)
+    ]);
+    return json({ success: true, access: "subscription" }, 200, request, env);
+  }
+
+  const count = await env.DB.prepare(
+    `SELECT COUNT(*) AS total
+       FROM daily_downloads
+      WHERE payment_id = ?`
+  )
+    .bind(payload.paymentId)
+    .first();
+
+  if (Number(count?.total || 0) >= settings.paidDownloadLimit) {
+    return json(
+      { success: false, error: `This payment has reached the ${settings.paidDownloadLimit}-download limit` },
+      429,
+      request,
+      env
+    );
+  }
+
+  await env.DB.prepare(
+    `INSERT INTO daily_downloads (
+       uid, payment_id, download_date, module_id, file_type, access_type, created_at
+     )
+     SELECT ?, ?, ?, ?, ?, 'paid', CURRENT_TIMESTAMP
+     WHERE NOT EXISTS (
+       SELECT 1 FROM daily_downloads
+       WHERE uid = ?
+         AND payment_id = ?
+         AND module_id = ?
+         AND file_type = ?
+         AND created_at >= datetime('now', '-5 seconds')
+     )`
+  )
+    .bind(
+      user.sub,
+      payload.paymentId,
+      indiaDate(),
+      payload.moduleId,
+      format,
+      user.sub,
+      payload.paymentId,
+      payload.moduleId,
+      format
+    )
+    .run();
+
+  return json({ success: true }, 200, request, env);
+}
+
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+
+    if (request.method === "OPTIONS") {
+      if (request.headers.get("Origin") !== env.ALLOWED_ORIGIN) {
+        return new Response(null, { status: 403 });
+      }
+
+      return new Response(null, {
+        status: 204,
+        headers: corsHeaders(request, env)
+      });
+    }
+
+    if (request.method === "GET" && url.pathname === "/") {
+      return json(
+        {
+          success: true,
+          service: "The Poster Wala Payment API",
+          mode: env.PAYMENT_MODE || "test",
+          auth: "firebase",
+          database: Boolean(env.DB)
+        },
+        200,
+        request,
+        env
+      );
+    }
+
+    if (request.method === "POST") {
+      if (request.headers.get("Origin") !== env.ALLOWED_ORIGIN) {
+        return json(
+          { success: false, error: "Origin not allowed" },
+          403,
+          request,
+          env
+        );
+      }
+
+      try {
+        if (url.pathname === "/auth/session") {
+          return await authSession(request, env);
+        }
+
+        if (url.pathname === "/access/check") {
+          return await checkDownloadAccess(request, env);
+        }
+
+        if (url.pathname === "/create-order") {
+          return await createOrder(request, env);
+        }
+
+        if (url.pathname === "/subscription/create-order") {
+          return await createSubscriptionOrder(request, env);
+        }
+
+        if (url.pathname === "/subscription/verify-payment") {
+          return await verifySubscriptionPayment(request, env);
+        }
+
+        if (url.pathname === "/verify-payment") {
+          return await verifyPayment(request, env);
+        }
+
+        if (url.pathname === "/validate-token") {
+          return await validateToken(request, env);
+        }
+
+        if (url.pathname === "/recover-access") {
+          return await recoverAccess(request, env);
+        }
+
+        if (url.pathname === "/record-download") {
+          return await recordDownload(request, env);
+        }
+
+        if (url.pathname === "/owner/dashboard") {
+          return await ownerDashboard(request, env);
+        }
+
+        if (url.pathname === "/owner/config") {
+          return await ownerConfig(request, env);
+        }
+
+        if (url.pathname === "/owner/config/save") {
+          return await saveOwnerConfig(request, env);
+        }
+
+        if (url.pathname === "/public/config") {
+          return await publicConfig(request, env);
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Invalid request";
+        const isAuthError = /login token|login required/i.test(message);
+        const isOwnerError = /owner access required/i.test(message);
+
+        return json(
+          { success: false, error: isAuthError || isOwnerError ? message : "Invalid request" },
+          isOwnerError ? 403 : isAuthError ? 401 : 400,
+          request,
+          env
+        );
+      }
+    }
+
+    return json(
+      { success: false, error: "Not found" },
+      404,
+      request,
+      env
+    );
+  }
+};

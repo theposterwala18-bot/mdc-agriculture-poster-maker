@@ -709,6 +709,12 @@ export function createPosterExportController(opts) {
   recovery.className="tpw-local-recovery";
   recovery.innerHTML='<strong>My Recent Downloads (This Device Only)</strong><p>Paid Poster ਦੀ ਉਹੀ Saved File 24 ਘੰਟਿਆਂ ਅੰਦਰ ਦੁਬਾਰਾ Save ਕਰੋ। Browser Data Delete ਹੋਣ, Incognito ਜਾਂ ਦੂਜੇ Device ਉੱਤੇ ਨਹੀਂ ਮਿਲੇਗੀ। Text Editing ਮੌਜੂਦਾ Paid Window ਅਤੇ Downloads Limit ਅੰਦਰ ਹੀ ਰਹੇਗੀ।</p><div class="tpw-local-recovery-list" aria-live="polite"></div>';
   toolbar.insertAdjacentElement("afterend",recovery);
+  if(!document.getElementById("tpw-local-recovery-style")){
+    const style=document.createElement("style");style.id="tpw-local-recovery-style";
+    style.textContent=".tpw-local-recovery{margin:12px 0;padding:14px;border:1px solid #b8d6cd;border-radius:12px;background:#f4fbf7;font:500 13px/1.5 system-ui,sans-serif;color:#183f35}.tpw-local-recovery[hidden]{display:none!important}.tpw-local-recovery strong{font-size:14px}.tpw-local-recovery p{margin:5px 0 10px;color:#4b605c}.tpw-local-recovery-row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;border-top:1px solid #d4e9e1;padding:8px 0}.tpw-local-recovery-row span{overflow-wrap:anywhere;flex:1;min-width:140px}.tpw-local-recovery-row button{background:#176b4f;border:0;color:#fff;border-radius:9px;padding:8px 10px;font:700 12px system-ui;cursor:pointer}.tpw-local-recovery-row button:disabled{opacity:.5}";
+    document.head.append(style);
+  }
+
   async function refreshLocalRecovery(){
     const holder=recovery.querySelector(".tpw-local-recovery-list");
     holder.replaceChildren();

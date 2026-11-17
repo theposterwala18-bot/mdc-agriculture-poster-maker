@@ -1,0 +1,11 @@
+import assert from "node:assert/strict";
+import {mayRetry,RETRY_WINDOW_MS} from "../dist/local-poster-retry.js";
+const now=Date.now();
+const row={uid:"google-user-1",savedAt:now-5000};
+assert.equal(RETRY_WINDOW_MS,86400000);
+assert.equal(mayRetry(row,"google-user-1",now),true);
+assert.equal(mayRetry(row,"google-user-2",now),false);
+assert.equal(mayRetry({...row,savedAt:now-RETRY_WINDOW_MS},"google-user-1",now),false);
+assert.equal(mayRetry({...row,savedAt:now+3600000},"google-user-1",now),false);
+assert.equal(mayRetry(null,"google-user-1",now),false);
+console.log("Device-only 24h UID and expiry checks passed");

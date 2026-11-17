@@ -1,3 +1,4 @@
+import {savePaidPoster,findPaidPosters,readPaidPoster} from "./local-poster-retry.js?v=1.0.0";
 const FORMATS = {
   social: {
     label: "Social / WhatsApp (2:3)",
@@ -691,6 +692,69 @@ export function createPosterExportController(opts) {
     mc.clearRect(0, 0, modalCanvas.width, modalCanvas.height);
     mc.drawImage(output, 0, 0, modalCanvas.width, modalCanvas.height);
   }
+  // Exact-file recovery is local-only and never creates an extra entitlement.
+  async function rememberPaidFile(blob,outputName,pricing,result){
+    if(result?.access || !localStorage.getItem(orderStorageKey(pricing)))return;
+    const user=window.ThePosterWalaAuth?.getCurrentUser();
+    if(!user?.uid)return;
+    try{
+      await savePaidPoster({uid:user.uid,orderId:localStorage.getItem(orderStorageKey(pricing)),
+        moduleId:currentModuleId(),filename:outputName,blob});
+      await refreshLocalRecovery();
+    }catch(error){
+      console.warn("Optional local poster recovery unavailable:",error?.message||error);
+    }
+  }
+  const recovery=document.createElement("div");
+  recovery.className="tpw-local-recovery";
+  recovery.innerHTML='<strong>My Recent Downloads (This Device Only)</strong><p>Paid Poster ਦੀ ਉਹੀ Saved File 24 ਘੰਟਿਆਂ ਅੰਦਰ ਦੁਬਾਰਾ Save ਕਰੋ। Browser Data Delete ਹੋਣ, Incognito ਜਾਂ ਦੂਜੇ Device ਉੱਤੇ ਨਹੀਂ ਮਿਲੇਗੀ। Text Editing ਮੌਜੂਦਾ Paid Window ਅਤੇ Downloads Limit ਅੰਦਰ ਹੀ ਰਹੇਗੀ।</p><div class="tpw-local-recovery-list" aria-live="polite"></div>';
+  toolbar.insertAdjacentElement("afterend",recovery);
+  if(!document.getElementById("tpw-local-recovery-style")){
+    const style=document.createElement("style");style.id="tpw-local-recovery-style";
+    style.textContent=".tpw-local-recovery{margin:12px 0;padding:14px;border:1px solid #b8d6cd;border-radius:12px;background:#f4fbf7;font:500 13px/1.5 system-ui,sans-serif;color:#183f35}.tpw-local-recovery[hidden]{display:none!important}.tpw-local-recovery strong{font-size:14px}.tpw-local-recovery p{margin:5px 0 10px;color:#4b605c}.tpw-local-recovery-row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;border-top:1px solid #d4e9e1;padding:8px 0}.tpw-local-recovery-row span{overflow-wrap:anywhere;flex:1;min-width:140px}.tpw-local-recovery-download{display:inline-block;text-decoration:none;background:#176b4f;border:0;color:#fff;border-radius:9px;padding:8px 10px;font:700 12px system-ui;cursor:pointer}";
+    document.head.append(style);
+  }
+
+  let localPreviewUrls=[];
+  function clearLocalPreviewUrls(){
+    for(const url of localPreviewUrls)URL.revokeObjectURL(url);
+    localPreviewUrls=[];
+  }
+  async function refreshLocalRecovery(){
+    const holder=recovery.querySelector(".tpw-local-recovery-list");
+    holder.replaceChildren();
+    clearLocalPreviewUrls();
+    const user=window.ThePosterWalaAuth?.getCurrentUser();
+    if(!user?.uid){recovery.hidden=true;return}
+    let rows=[];
+    try{rows=await findPaidPosters(user.uid,currentModuleId())}
+    catch{recovery.hidden=true;return}
+    recovery.hidden=rows.length===0;
+    for(const item of rows){
+      const line=document.createElement("div");line.className="tpw-local-recovery-row";
+      const label=document.createElement("span");label.textContent=item.filename+" • expires "+new Date(item.savedAt+24*3600000).toLocaleString();
+      // Direct link is intentionally prepared before the click. Safari/iOS often
+      // rejects programmatic downloads after an awaited IndexedDB operation.
+      const saved=await readPaidPoster(user.uid,item.key);
+      if(!saved)continue;
+      const url=URL.createObjectURL(saved.blob);
+      localPreviewUrls.push(url);
+      const link=document.createElement("a");
+      link.href=url;
+      link.download=saved.filename;
+      link.textContent="Save Same File Again";
+      link.className="tpw-local-recovery-download";
+      link.addEventListener("click",(event)=>{
+        if(window.ThePosterWalaAuth?.getCurrentUser()?.uid!==user.uid){
+          event.preventDefault();showToast?.("Correct Google account ਨਾਲ Login ਕਰੋ।");
+        }
+      });
+      line.append(label,link);holder.append(line);
+    }
+  }
+  window.addEventListener("tpw-auth-changed",refreshLocalRecovery);
+  setTimeout(refreshLocalRecovery,700);
+
   async function performDownloadPNG() {
     const pricing = getPricing();
     try {
@@ -704,18 +768,19 @@ export function createPosterExportController(opts) {
               ? "Instagram-4x5"
               : "Social-2x3",
         outputName = withSuffix(getFilename(), suffix, "png");
-      await recordDownload(
+      const recordResult=await recordDownload(
         localStorage.getItem(tokenStorageKey(pricing)),
         selected,
         outputName,
         pricing,
       );
+      await rememberPaidFile(blob,outputName,pricing,recordResult);
       downloadBlob(blob, outputName);
       window.mdcTrack?.("poster_download", {
         export_format: selected,
         export_size: format.width + "x" + format.height,
       });
-      showToast?.(format.label + " PNG download ਹੋ ਗਿਆ।");
+      showToast?.(format.label + " PNG Browser ਨੂੰ ਦਿੱਤੀ ਗਈ। Files / Downloads ਵਿੱਚ ਚੈੱਕ ਕਰੋ।");
     } catch (error) {
       if (resetSpentPayment(error, pricing)) {
         showToast?.(
@@ -733,18 +798,19 @@ export function createPosterExportController(opts) {
       const output = makeOutputCanvas(),
         blob = await makeA4Pdf(output),
         outputName = withSuffix(getFilename(), "A4-Print", "pdf");
-      await recordDownload(
+      const recordResult=await recordDownload(
         localStorage.getItem(tokenStorageKey(pricing)),
         "a4-pdf",
         outputName,
         pricing,
       );
+      await rememberPaidFile(blob,outputName,pricing,recordResult);
       downloadBlob(blob, outputName);
       window.mdcTrack?.("poster_download", {
         export_format: "a4-pdf",
         export_size: "A4",
       });
-      showToast?.("A4 Print PDF download ਹੋ ਗਿਆ।");
+      showToast?.("A4 Print PDF Browser ਨੂੰ ਦਿੱਤੀ ਗਈ। Files / Downloads ਵਿੱਚ ਚੈੱਕ ਕਰੋ।");
     } catch (error) {
       if (resetSpentPayment(error, pricing)) {
         showToast?.(

@@ -1,4 +1,4 @@
-import { createPosterExportController } from "./poster-export.js?v=5.8.7";
+import { createPosterExportController } from "./poster-export.js?v=5.9.0";
 import { createModuleBackgroundController } from "./module-background.js?v=5.8.0";
 
 const canvas = document.getElementById("bhogPosterCanvas");

@@ -1,0 +1,39 @@
+name: Validate local poster retry without billing
+on:
+  push:
+    branches:
+      - feature/local-poster-retry-2026-11-17
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Syntax and time / owner isolation checks
+        run: |
+          node --check dist/local-poster-retry.js
+          node --check dist/poster-export.js
+          node --test tests/local-poster-retry.test.mjs
+      - name: Verify payment endpoints are untouched
+        run: |
+          node --input-type=module <<'JS'
+          import fs from "node:fs";
+          const s=fs.readFileSync("dist/poster-export.js","utf8");
+          const local=fs.readFileSync("dist/local-poster-retry.js","utf8");
+          if(!s.includes('await recordDownload(')&&!s.includes('recordResult=await recordDownload('))throw Error('Missing paid record flow');
+          if(!s.includes('await rememberPaidFile(blob,outputName,pricing,recordResult)'))throw Error('Missing recovery save');
+          if(!s.includes('downloadBlob(blob, outputName)'))throw Error('Original download changed');
+          if(local.includes('/create-order')||local.includes('/verify-payment')||local.includes('fetch('))throw Error('No network calls allowed in local recovery module');
+          const pkg=fs.readFileSync('dist/poster-export.js','utf8');
+          if(!pkg.includes('This Device Only'))throw Error('Recovery limitation warning required');
+          console.log("Payment, device limitation, normal download isolation checks passed");
+          JS
+      - name: Existing website regression build
+        run: |
+          npm ci
+          npm run build

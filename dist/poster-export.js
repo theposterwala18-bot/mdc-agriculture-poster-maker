@@ -780,7 +780,7 @@ export function createPosterExportController(opts) {
         export_format: selected,
         export_size: format.width + "x" + format.height,
       });
-      showToast?.(format.label + " PNG download ਹੋ ਗਿਆ।");
+      showToast?.(format.label + " PNG Browser ਨੂੰ ਦਿੱਤੀ ਗਈ। Files / Downloads ਵਿੱਚ ਚੈੱਕ ਕਰੋ।");
     } catch (error) {
       if (resetSpentPayment(error, pricing)) {
         showToast?.(
@@ -810,7 +810,7 @@ export function createPosterExportController(opts) {
         export_format: "a4-pdf",
         export_size: "A4",
       });
-      showToast?.("A4 Print PDF download ਹੋ ਗਿਆ।");
+      showToast?.("A4 Print PDF Browser ਨੂੰ ਦਿੱਤੀ ਗਈ। Files / Downloads ਵਿੱਚ ਚੈੱਕ ਕਰੋ।");
     } catch (error) {
       if (resetSpentPayment(error, pricing)) {
         showToast?.(

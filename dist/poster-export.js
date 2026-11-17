@@ -1,3 +1,4 @@
+import {savePaidPoster,findPaidPosters,readPaidPoster} from "./local-poster-retry.js?v=1.0.0";
 const FORMATS = {
   social: {
     label: "Social / WhatsApp (2:3)",
@@ -691,6 +692,54 @@ export function createPosterExportController(opts) {
     mc.clearRect(0, 0, modalCanvas.width, modalCanvas.height);
     mc.drawImage(output, 0, 0, modalCanvas.width, modalCanvas.height);
   }
+  // Exact-file recovery is local-only and never creates an extra entitlement.
+  async function rememberPaidFile(blob,outputName,pricing,result){
+    if(result?.access || !localStorage.getItem(orderStorageKey(pricing)))return;
+    const user=window.ThePosterWalaAuth?.getCurrentUser();
+    if(!user?.uid)return;
+    try{
+      await savePaidPoster({uid:user.uid,orderId:localStorage.getItem(orderStorageKey(pricing)),
+        moduleId:currentModuleId(),filename:outputName,blob});
+      await refreshLocalRecovery();
+    }catch(error){
+      console.warn("Optional local poster recovery unavailable:",error?.message||error);
+    }
+  }
+  const recovery=document.createElement("div");
+  recovery.className="tpw-local-recovery";
+  recovery.innerHTML='<strong>My Recent Downloads (This Device Only)</strong><p>Paid Poster ਦੀ ਉਹੀ Saved File 24 ਘੰਟਿਆਂ ਅੰਦਰ ਦੁਬਾਰਾ Save ਕਰੋ। Browser Data Delete ਹੋਣ, Incognito ਜਾਂ ਦੂਜੇ Device ਉੱਤੇ ਨਹੀਂ ਮਿਲੇਗੀ। Text Editing ਮੌਜੂਦਾ Paid Window ਅਤੇ Downloads Limit ਅੰਦਰ ਹੀ ਰਹੇਗੀ।</p><div class="tpw-local-recovery-list" aria-live="polite"></div>';
+  toolbar.insertAdjacentElement("afterend",recovery);
+  async function refreshLocalRecovery(){
+    const holder=recovery.querySelector(".tpw-local-recovery-list");
+    holder.replaceChildren();
+    const user=window.ThePosterWalaAuth?.getCurrentUser();
+    if(!user?.uid){recovery.hidden=true;return}
+    let rows=[];
+    try{rows=await findPaidPosters(user.uid,currentModuleId())}
+    catch{recovery.hidden=true;return}
+    recovery.hidden=rows.length===0;
+    for(const item of rows){
+      const line=document.createElement("div");line.className="tpw-local-recovery-row";
+      const label=document.createElement("span");label.textContent=item.filename+" • expires "+new Date(item.savedAt+24*3600000).toLocaleString();
+      const btn=document.createElement("button");btn.type="button";btn.textContent="Save Same File Again";
+      btn.addEventListener("click",async()=>{
+        btn.disabled=true;
+        try{
+          const current=window.ThePosterWalaAuth?.getCurrentUser();
+          if(!current?.uid||current.uid!==user.uid)throw Error("Login account changed");
+          const saved=await readPaidPoster(current.uid,item.key);
+          if(!saved)throw Error("Recovery expired or local file missing");
+          downloadBlob(saved.blob,saved.filename);
+          showToast?.("ਉਹੀ Saved File Download ਲਈ ਦੁਬਾਰਾ ਭੇਜੀ ਗਈ। Files / Downloads Folder ਚੈੱਕ ਕਰੋ।");
+        }catch(e){showToast?.(e.message||"Local recovery unavailable");await refreshLocalRecovery()}
+        finally{btn.disabled=false}
+      });
+      line.append(label,btn);holder.append(line);
+    }
+  }
+  window.addEventListener("tpw-auth-changed",refreshLocalRecovery);
+  setTimeout(refreshLocalRecovery,700);
+
   async function performDownloadPNG() {
     const pricing = getPricing();
     try {
@@ -704,12 +753,13 @@ export function createPosterExportController(opts) {
               ? "Instagram-4x5"
               : "Social-2x3",
         outputName = withSuffix(getFilename(), suffix, "png");
-      await recordDownload(
+      const recordResult=await recordDownload(
         localStorage.getItem(tokenStorageKey(pricing)),
         selected,
         outputName,
         pricing,
       );
+      await rememberPaidFile(blob,outputName,pricing,recordResult);
       downloadBlob(blob, outputName);
       window.mdcTrack?.("poster_download", {
         export_format: selected,
@@ -733,12 +783,13 @@ export function createPosterExportController(opts) {
       const output = makeOutputCanvas(),
         blob = await makeA4Pdf(output),
         outputName = withSuffix(getFilename(), "A4-Print", "pdf");
-      await recordDownload(
+      const recordResult=await recordDownload(
         localStorage.getItem(tokenStorageKey(pricing)),
         "a4-pdf",
         outputName,
         pricing,
       );
+      await rememberPaidFile(blob,outputName,pricing,recordResult);
       downloadBlob(blob, outputName);
       window.mdcTrack?.("poster_download", {
         export_format: "a4-pdf",

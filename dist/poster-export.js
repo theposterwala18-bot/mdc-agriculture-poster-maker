@@ -711,13 +711,19 @@ export function createPosterExportController(opts) {
   toolbar.insertAdjacentElement("afterend",recovery);
   if(!document.getElementById("tpw-local-recovery-style")){
     const style=document.createElement("style");style.id="tpw-local-recovery-style";
-    style.textContent=".tpw-local-recovery{margin:12px 0;padding:14px;border:1px solid #b8d6cd;border-radius:12px;background:#f4fbf7;font:500 13px/1.5 system-ui,sans-serif;color:#183f35}.tpw-local-recovery[hidden]{display:none!important}.tpw-local-recovery strong{font-size:14px}.tpw-local-recovery p{margin:5px 0 10px;color:#4b605c}.tpw-local-recovery-row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;border-top:1px solid #d4e9e1;padding:8px 0}.tpw-local-recovery-row span{overflow-wrap:anywhere;flex:1;min-width:140px}.tpw-local-recovery-row button{background:#176b4f;border:0;color:#fff;border-radius:9px;padding:8px 10px;font:700 12px system-ui;cursor:pointer}.tpw-local-recovery-row button:disabled{opacity:.5}";
+    style.textContent=".tpw-local-recovery{margin:12px 0;padding:14px;border:1px solid #b8d6cd;border-radius:12px;background:#f4fbf7;font:500 13px/1.5 system-ui,sans-serif;color:#183f35}.tpw-local-recovery[hidden]{display:none!important}.tpw-local-recovery strong{font-size:14px}.tpw-local-recovery p{margin:5px 0 10px;color:#4b605c}.tpw-local-recovery-row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;border-top:1px solid #d4e9e1;padding:8px 0}.tpw-local-recovery-row span{overflow-wrap:anywhere;flex:1;min-width:140px}.tpw-local-recovery-download{display:inline-block;text-decoration:none;background:#176b4f;border:0;color:#fff;border-radius:9px;padding:8px 10px;font:700 12px system-ui;cursor:pointer}";
     document.head.append(style);
   }
 
+  let localPreviewUrls=[];
+  function clearLocalPreviewUrls(){
+    for(const url of localPreviewUrls)URL.revokeObjectURL(url);
+    localPreviewUrls=[];
+  }
   async function refreshLocalRecovery(){
     const holder=recovery.querySelector(".tpw-local-recovery-list");
     holder.replaceChildren();
+    clearLocalPreviewUrls();
     const user=window.ThePosterWalaAuth?.getCurrentUser();
     if(!user?.uid){recovery.hidden=true;return}
     let rows=[];
@@ -727,20 +733,23 @@ export function createPosterExportController(opts) {
     for(const item of rows){
       const line=document.createElement("div");line.className="tpw-local-recovery-row";
       const label=document.createElement("span");label.textContent=item.filename+" • expires "+new Date(item.savedAt+24*3600000).toLocaleString();
-      const btn=document.createElement("button");btn.type="button";btn.textContent="Save Same File Again";
-      btn.addEventListener("click",async()=>{
-        btn.disabled=true;
-        try{
-          const current=window.ThePosterWalaAuth?.getCurrentUser();
-          if(!current?.uid||current.uid!==user.uid)throw Error("Login account changed");
-          const saved=await readPaidPoster(current.uid,item.key);
-          if(!saved)throw Error("Recovery expired or local file missing");
-          downloadBlob(saved.blob,saved.filename);
-          showToast?.("ਉਹੀ Saved File Download ਲਈ ਦੁਬਾਰਾ ਭੇਜੀ ਗਈ। Files / Downloads Folder ਚੈੱਕ ਕਰੋ।");
-        }catch(e){showToast?.(e.message||"Local recovery unavailable");await refreshLocalRecovery()}
-        finally{btn.disabled=false}
+      // Direct link is intentionally prepared before the click. Safari/iOS often
+      // rejects programmatic downloads after an awaited IndexedDB operation.
+      const saved=await readPaidPoster(user.uid,item.key);
+      if(!saved)continue;
+      const url=URL.createObjectURL(saved.blob);
+      localPreviewUrls.push(url);
+      const link=document.createElement("a");
+      link.href=url;
+      link.download=saved.filename;
+      link.textContent="Save Same File Again";
+      link.className="tpw-local-recovery-download";
+      link.addEventListener("click",(event)=>{
+        if(window.ThePosterWalaAuth?.getCurrentUser()?.uid!==user.uid){
+          event.preventDefault();showToast?.("Correct Google account ਨਾਲ Login ਕਰੋ।");
+        }
       });
-      line.append(label,btn);holder.append(line);
+      line.append(label,link);holder.append(line);
     }
   }
   window.addEventListener("tpw-auth-changed",refreshLocalRecovery);

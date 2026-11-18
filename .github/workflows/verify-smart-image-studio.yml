@@ -1,0 +1,56 @@
+name: Verify Smart Image Studio without touching payments
+on:
+  push:
+    branches:
+      - feature/smart-image-studio-2026-11-18
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22', cache: npm}
+      - name: Syntax and compressor tests
+        run: |
+          node --check dist/smart-image-engine.js
+          node --check dist/smart-image-studio.js
+          node --check dist/app.js
+          node --test tests/smart-image-engine.test.mjs
+      - name: Validate ZIP archive with Python zipfile
+        run: |
+          python3 - <<'PY'
+          import zipfile
+          path="/tmp/smart-image-studio-test.zip"
+          with zipfile.ZipFile(path) as z:
+              assert z.namelist()==["hello.jpg","test.png"]
+              assert z.read("hello.jpg")==bytes([1,2,3,4,5])
+              assert z.read("test.png")==bytes([9,8,7])
+          print("ZIP structure and CRC checks passed")
+          PY
+      - name: Existing site untouched regression
+        run: |
+          node --input-type=module <<'JS'
+          import fs from "node:fs";
+          const read=p=>fs.readFileSync(p,"utf8");
+          const app=read("dist/app.js");
+          const index=read("dist/index.html");
+          const engine=read("dist/smart-image-engine.js");
+          const studio=read("dist/smart-image-studio.js");
+          const vite=read("vite.config.mjs");
+          for(const k of ['id: "document-tools"','id: "smart-image-studio"','smart-image-studio.html'])if(!app.includes(k))throw Error("Missing independent studio navigation "+k);
+          if(!index.includes('posterCanvas')||!app.includes('createPosterExportController'))throw Error("Poster module wiring changed");
+          for(const file of ["backend/payment-api.worker.js","dist/poster-export.js","dist/owner-dashboard.js","dist/owner-free-access.js"]){
+            if(!fs.existsSync(file))throw Error("Original financial/control file missing: "+file);
+          }
+          if(!vite.includes("dist/smart-image-studio.html"))throw Error("New page not bundled");
+          if(/fetch\(|XMLHttpRequest|sendBeacon|\.open\(["']POST/i.test(engine+studio))throw Error("Private image may be uploaded");
+          for(const k of ['govt45','govt100','doc200','oneMB','twoMB','zipFiles','enhanceImage','compressImage'])if(!engine.includes(k))throw Error("Engine missing "+k);
+          if(studio.includes('Razorpay')||studio.includes('/record-download'))throw Error("No payment change allowed");
+          console.log("Independent static image studio, existing payment and poster wiring preserved")
+          JS
+      - name: Production build
+        run: |
+          npm ci
+          npm run build

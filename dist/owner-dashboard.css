@@ -79,3 +79,5 @@
 .owner-free-wrapper>.free-access-panel>.card-heading{padding:14px 18px}
 @media(max-width:860px){.owner-home-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:580px){.owner-home-cards{grid-template-columns:1fr}.owner-view-link{flex:1 1 calc(50% - 9px)}.owner-setting-group{margin:10px 8px}.owner-home-card{padding:15px}}
+
+.owner-view-nav[hidden]{display:none!important}

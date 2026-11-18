@@ -13,7 +13,56 @@ function setMode(mode){
  for(const btn of document.querySelectorAll("[data-mode]"))btn.classList.toggle("active",btn.dataset.mode===mode);
  $("compressOptions").hidden=mode!=="compress";
  $("enhanceOptions").hidden=mode!=="enhance";
- if(!state.busy)message(mode==="compress"?"Select target KB and process.":"Free local enhancement, not AI super-resolution.");
+ if(!state.busy)message(mode==="compress"?"Select target KB and process.":"Move sliders to see the live preview before exporting.");
+ if(mode==="enhance")setupLivePreview(state.files[0]);else{++liveToken;enhanceCanvasVisible(false)}
+}
+// Real-time non-AI adjustment preview. Kept under 850px to make sliders
+// responsive even on typical phones. Export remains full-resolution engine.
+let liveImage=null,liveToken=0,liveTimer=0;
+function enhanceCanvasVisible(value){
+ $("liveEnhanceCanvas").hidden=!value;
+ $("afterImage").hidden=value;
+}
+async function setupLivePreview(file){
+ const token=++liveToken;liveImage=null;enhanceCanvasVisible(false);
+ if(!file||state.mode!=="enhance")return;
+ const source=URL.createObjectURL(file),image=new Image();
+ image.onload=()=>{
+  URL.revokeObjectURL(source);
+  if(token!==liveToken)return;
+  liveImage=image;scheduleLivePreview();
+ };
+ image.onerror=()=>{URL.revokeObjectURL(source);if(token===liveToken)message("Live preview unsupported for this image",true)};
+ image.src=source;
+}
+function scheduleLivePreview(){
+ if(state.mode!=="enhance"||!liveImage)return;
+ clearTimeout(liveTimer);
+ liveTimer=setTimeout(()=>{
+  const image=liveImage,canvas=$("liveEnhanceCanvas"),edge=850;
+  const factor=Math.min(1,edge/Math.max(image.naturalWidth,image.naturalHeight));
+  canvas.width=Math.max(1,Math.round(image.naturalWidth*factor));
+  canvas.height=Math.max(1,Math.round(image.naturalHeight*factor));
+  const ctx=canvas.getContext("2d");
+  ctx.imageSmoothingQuality="high";
+  ctx.filter=`brightness(${$("brightness").value}%) contrast(${$("contrast").value}%) saturate(${$("saturation").value}%)`;
+  ctx.drawImage(image,0,0,canvas.width,canvas.height);ctx.filter="none";
+  // Small-screen unsharp preview, never alters original uploaded file.
+  const amount=Number($("sharpness").value)/100*.55;
+  if(amount>0&&canvas.width*canvas.height<=800000){
+   const picture=ctx.getImageData(0,0,canvas.width,canvas.height),pixels=picture.data,copy=new Uint8ClampedArray(pixels);
+   for(let y=1;y<canvas.height-1;y++)for(let x=1;x<canvas.width-1;x++){
+    const j=(y*canvas.width+x)*4;
+    for(let c=0;c<3;c++){
+     const blur=(pixels[j-4+c]+pixels[j+4+c]+pixels[j-canvas.width*4+c]+pixels[j+canvas.width*4+c])/4;
+     copy[j+c]=Math.max(0,Math.min(255,pixels[j+c]+(pixels[j+c]-blur)*amount));
+    }
+   }
+   picture.data.set(copy);ctx.putImageData(picture,0,0);
+  }
+  enhanceCanvasVisible(true);
+  $("afterMeta").textContent="LIVE PREVIEW • Export applies chosen settings to full image";
+ },85);
 }
 function fileLabel(name){return name.length>28?name.slice(0,25)+"…":name}
 function dropUrls(){
@@ -43,6 +92,7 @@ function loadFiles(list){
   }
  }
  state.files=files;emptyResults();
+ setupLivePreview(files[0]);
  $("processBtn").disabled=false;
  const first=files[0];
  $("beforeImage").src=urlFor(first);
@@ -129,7 +179,7 @@ $("studioFiles").addEventListener("change",e=>loadFiles(e.target.files));
 for(const btn of document.querySelectorAll("[data-mode]"))btn.addEventListener("click",()=>{if(!state.busy)setMode(btn.dataset.mode)});
 $("preset").addEventListener("change",()=>{$("customRow").hidden=$("preset").value!=="custom"});
 for(const id of ["brightness","contrast","saturation","sharpness"]){
- $(id).addEventListener("input",()=>{$(id+"Value").textContent=$(id).value+"%"});
+ $(id).addEventListener("input",()=>{$(id+"Value").textContent=$(id).value+"%";scheduleLivePreview()});
 }
 $("processBtn").addEventListener("click",process);
 $("downloadZip").addEventListener("click",()=>{
@@ -138,6 +188,7 @@ $("downloadZip").addEventListener("click",()=>{
  document.body.append(link);link.click();link.remove();
 });
 $("resetBtn").addEventListener("click",()=>{
+ ++liveToken;liveImage=null;clearTimeout(liveTimer);enhanceCanvasVisible(false);
  if(state.busy)return;state.files=[];$("studioFiles").value="";emptyResults();
  $("processBtn").disabled=true;message("Files cleared. Nothing has been uploaded.");
 });

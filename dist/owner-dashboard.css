@@ -54,3 +54,30 @@
 #freeAccessCancel{background:#fff;color:#465568;border:1px solid #9eacbd}
 .free-access-form input[readonly]{background:#f3f6f9;color:#5c6470}
 @media(max-width:620px){.free-row-actions{min-width:0}}
+
+
+/* Owner multi-view navigation: visual only; no payment/data logic changed */
+.owner-view-hidden{display:none!important}
+.owner-view-nav{display:flex;gap:9px;flex-wrap:wrap;margin:0 0 18px;max-width:100%;padding:5px 0}
+.owner-view-link{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;min-height:38px;padding:9px 13px;border-radius:11px;background:#fff;border:1px solid #dce5ef;font-weight:750;font-size:13px;color:#30445c}
+.owner-view-link:hover,.owner-view-link:focus-visible{border-color:#337f69;color:#075a42}
+.owner-view-link.is-current{color:#fff;background:#0c6750;border-color:#0c6750}
+.owner-home-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:18px}
+.owner-home-card{display:flex;flex-direction:column;gap:6px;padding:20px;border-radius:16px;background:#fff;border:1px solid #dbe4ed;text-decoration:none;color:#1e3042;box-shadow:0 4px 18px rgba(15,35,45,.045)}
+.owner-home-card:hover,.owner-home-card:focus-visible{border-color:#0d7957;box-shadow:0 8px 22px rgba(15,95,72,.12);transform:translateY(-1px)}
+.owner-home-card-icon{font-size:23px;line-height:1.2;color:#0b6b50}
+.owner-home-card strong{font-size:16px}
+.owner-home-card small{color:#697b8c;font-size:12px}
+.owner-setting-group{border:1px solid #d6e0ea;border-radius:13px;margin:12px 18px;overflow:visible;background:#fff}
+.owner-setting-group>summary{cursor:pointer;padding:15px 17px;background:#f1f7f5;border-radius:13px;font-weight:800;color:#184b3e;list-style:revert;user-select:none}
+.owner-setting-group[open]>summary{border-bottom:1px solid #d6e0ea;border-radius:13px 13px 0 0}
+.owner-setting-group>.settings-grid,.owner-setting-group>.editable-list,.owner-setting-group>.promo-help{margin:14px}
+.owner-setting-group>.sub-heading{margin:12px 14px}
+.owner-saving-hint{color:#596d7a;font-size:12px;padding:4px 18px 0}
+.owner-free-wrapper{margin:15px 0}
+.owner-free-wrapper>.free-access-panel{margin:0;border:0;box-shadow:none}
+.owner-free-wrapper>.free-access-panel>.card-heading{padding:14px 18px}
+@media(max-width:860px){.owner-home-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:580px){.owner-home-cards{grid-template-columns:1fr}.owner-view-link{flex:1 1 calc(50% - 9px)}.owner-setting-group{margin:10px 8px}.owner-home-card{padding:15px}}
+
+.owner-view-nav[hidden]{display:none!important}

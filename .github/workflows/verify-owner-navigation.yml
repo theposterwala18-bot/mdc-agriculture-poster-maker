@@ -1,0 +1,39 @@
+name: Verify Owner Dashboard Navigation (no deployment)
+on:
+  push:
+    branches:
+      - feature/owner-dashboard-organized-2026-11-18
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Syntax and existing dashboard controls
+        run: |
+          node --check dist/owner-dashboard-navigation.js
+          node --check dist/owner-dashboard.js
+          node --check dist/owner-free-access.js
+          node --input-type=module <<'JS'
+          import fs from "node:fs";
+          const html=fs.readFileSync("dist/owner-dashboard.html","utf8");
+          const script=fs.readFileSync("dist/owner-dashboard-navigation.js","utf8");
+          const existing=fs.readFileSync("dist/owner-dashboard.js","utf8");
+          const mustPreserve=["dashboardContent","refreshDashboard","saveOwnerSettings","freeAccessForm","freeAccessGrant","freeAccessRows","allModulesFree","dailyFreeEnabled","dailyFreeLimit","defaultPrice","premiumPrice","unlockMinutes","paidDownloadLimit","promoSettings","moduleSettings","planSettings","paymentCount","paymentsBody","downloadsBody","downloadPeriod","downloadSearch","downloadFrom","downloadTo","customAnalyticsBody","noticePublish","siteNoticeForm"];
+          for(const id of mustPreserve)if(!html.includes('id="'+id+'"'))throw Error('Original control missing: '+id);
+          for(const key of ["home","settings","free-access","notices","analytics","payments","downloads","owner-setting-group","owner-free-wrapper"])if(!script.includes(key))throw Error('View or accordion missing: '+key);
+          if(!html.includes('owner-dashboard-navigation.js?v=1.0.0'))throw Error('Navigation script not included');
+          if(!existing.includes('saveOwnerSettings()') || !existing.includes('/owner/config/save'))throw Error('Existing save handler changed');
+          if(!script.includes('syncOwnerNavVisibility'))throw Error('Navigation must be gated by authenticated owner content');
+          if(script.includes('fetch(')||script.includes('localStorage.setItem('))throw Error('Navigation is visual only');
+          console.log('Original controls and no-backend-change navigation verified');
+          JS
+      - name: Existing website regression build
+        run: |
+          npm ci
+          npm run build

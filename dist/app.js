@@ -87,6 +87,14 @@ const templates = [
 
 const moduleGroups = [
   {
+    id: "document-tools",
+    name: "Document & Printing Tools",
+    icon: "🛠️",
+    modules: [
+      { id: "smart-image-studio", name: "Smart Image Studio", punjabi: "45 KB / 200 KB / 1 MB Compressor • Enhance • Batch ZIP", icon: "🖼️", available: true }
+    ]
+  },
+  {
     id: "sale",
     name: "Sale ਅਤੇ ਇਸ਼ਤਿਹਾਰ",
     icon: "🏷️",
@@ -182,7 +190,7 @@ function getActiveTemplate() {
 
 function renderModuleHub() {
   const holder = document.getElementById("moduleGroups");
-  const groupOrder = ["invitation", "grief-help", "sale", "public"];
+  const groupOrder = ["document-tools", "invitation", "grief-help", "sale", "public"];
   const orderedGroups = [...moduleGroups].sort((a, b) => groupOrder.indexOf(a.id) - groupOrder.indexOf(b.id));
   holder.innerHTML = orderedGroups.map((group) => `
     <section class="module-group" aria-labelledby="module-group-${group.id}">
@@ -210,6 +218,7 @@ function openModule(moduleId) {
     showToast(`${selected?.name || "ਇਹ module"} ਅਗਲੀ update ਵਿੱਚ ਬਣੇਗਾ।`);
     return;
   }
+  if (moduleId === "smart-image-studio") { window.location.href = "smart-image-studio.html"; return; }
   if (moduleId === "general-sale") {
     window.location.href = "general-sale.html";
     return;

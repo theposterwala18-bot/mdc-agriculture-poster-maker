@@ -101,6 +101,7 @@ function loadFiles(list){
 }
 function showResult(index){
  const record=state.results[index];if(!record)return;
+ enhanceCanvasVisible(false); // Exact processed output after export; sliders return to live preview.
  $("beforeImage").src=record.originalUrl;$("afterImage").src=record.processedUrl;
  $("beforeMeta").textContent=`${fileLabel(record.file.name)} • ${bytesLabel(record.file.size)}`;
  $("afterMeta").textContent=`${bytesLabel(record.result.blob.size)} • ${record.result.width} × ${record.result.height} px`;

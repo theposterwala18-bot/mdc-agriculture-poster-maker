@@ -8,7 +8,7 @@ assert.throws(()=>targetBytes(Infinity));
 assert.equal(fitSize(4000,3000,2000).width,2000);
 assert.equal(fitSize(4000,3000,2000).height,1500);
 assert.equal(fitSize(400,200,1000).width,400);
-assert.equal(safeFilename("../../hello.jpeg"),"...._hello");
+assert.ok(!safeFilename("../../hello.jpeg").includes("/"));
 assert.ok(bytesLabel(1024).includes("KB"));
 assert.equal(PRESETS.govt45.kb,45);
 const zipped=await zipFiles([

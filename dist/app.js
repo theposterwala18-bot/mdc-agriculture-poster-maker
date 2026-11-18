@@ -225,12 +225,14 @@ function openModule(moduleId) {
   document.getElementById("activeModuleTitle").textContent = selected.name;
   document.getElementById("moduleHub").classList.add("is-hidden");
   document.getElementById("posterWorkspace").classList.remove("is-hidden");
+  document.getElementById("workspaceBackButton").hidden=false;
   window.showModuleCounter?.("agri-sale", selected.name);
   window.scrollTo({ top: 0, behavior: "smooth" });
   renderPoster();
 }
 
 function showModuleHub() {
+  document.getElementById("workspaceBackButton").hidden=true;
   document.getElementById("posterWorkspace").classList.add("is-hidden");
   document.getElementById("moduleHub").classList.remove("is-hidden");
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1696,6 +1698,7 @@ function loadUserImage(file) {
 
 function bindEvents() {
   document.getElementById("modulesButton")?.addEventListener("click", showModuleHub);
+  document.getElementById("workspaceBackButton")?.addEventListener("click", showModuleHub);
 
   document.querySelectorAll("[data-key]").forEach((field) => {
     field.addEventListener("input", (event) => {

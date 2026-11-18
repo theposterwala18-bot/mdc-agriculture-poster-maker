@@ -53,6 +53,19 @@
     owner.querySelector(".card-heading")?.after(message);
   }
 
+  // Free Access remains on the SAME Settings page, collapsible, and can also be
+  // opened directly as its own focused view. Preserve its exact original section.
+  let freeWrapper=null;
+  if(free){
+    freeWrapper=document.createElement("details");
+    freeWrapper.className="owner-setting-group owner-free-wrapper";
+    freeWrapper.open=selected==="free-access";
+    const summaryTitle=document.createElement("summary");
+    summaryTitle.textContent="Free Access Manager — Emails & Expiry";
+    free.before(freeWrapper);
+    freeWrapper.append(summaryTitle,free);
+  }
+
   const menu = [
     ["home","Overview","layout-dashboard"],
     ["settings","Owner Settings","settings"],
@@ -94,7 +107,13 @@
   const viewMap = new Map([["settings",owner],["free-access",free],["notices",notice],
     ["analytics",analytics],["payments",payments],["downloads",downloads]]);
   for(const section of sections) {
-    section.classList.toggle("owner-view-hidden",selected==="home" || section!==viewMap.get(selected));
+    const visible = selected==="settings"
+      ? (section===owner || section===free)
+      : (selected!=="home" && section===viewMap.get(selected));
+    section.classList.toggle("owner-view-hidden",!visible);
+  }
+  if(freeWrapper){
+    freeWrapper.classList.toggle("owner-view-hidden",!(selected==="settings"||selected==="free-access"));
   }
   cards.classList.toggle("owner-view-hidden",selected!=="home");
   if (summary) summary.classList.toggle("owner-view-hidden",selected!=="home");
@@ -105,9 +124,14 @@
     section.addEventListener("input",()=>{dirty=true});
     section.addEventListener("change",()=>{dirty=true});
   }
-  document.getElementById("saveOwnerSettings")?.addEventListener("click",()=>{dirty=false});
-  document.getElementById("freeAccessGrant")?.addEventListener("click",()=>{dirty=false});
-  document.getElementById("noticePublish")?.addEventListener("click",()=>{dirty=false});
+  // Do not clear the dirty guard merely on Save click: saving could fail.
+  for(const [id,successText] of [["settingsMessage","success"],["freeAccessStatus","success"],["noticeFeedback","success"]]){
+    const el=document.getElementById(id);
+    if(el)new MutationObserver(()=>{
+      if(el.textContent.toLowerCase().includes(successText) &&
+         !el.classList.contains("error"))dirty=false;
+    }).observe(el,{childList:true,characterData:true,subtree:true,attributes:true,attributeFilter:["class"]});
+  }
   nav.addEventListener("click",event=>{
     const link=event.target.closest("a");
     if(link && dirty && !confirm("ਕੁਝ Settings ਅਜੇ Save ਨਹੀਂ ਹੋਈਆਂ ਹੋ ਸਕਦੀਆਂ। ਬਿਨਾਂ Save ਕੀਤੇ Page ਛੱਡਣਾ ਹੈ?"))event.preventDefault();

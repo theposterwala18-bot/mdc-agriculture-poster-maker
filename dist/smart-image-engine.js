@@ -75,12 +75,23 @@ export async function compressImage(file,options={},notify=()=>{}){
  try{
   const limit=Math.max(200,Math.min(9000,Number(options.maxEdge)||6000));
   const initial=fitSize(decoded.width,decoded.height,limit);
+  // Preserve original compressed bytes exactly when they already meet the target
+  // and the user requested no colour/resize effects. Never degrade a small photo.
+  if(file.type===mime && file.size<=budget &&
+     initial.width===decoded.width && initial.height===decoded.height &&
+     (Number(options.brightness)||100)===100 &&
+     (Number(options.contrast)||100)===100 &&
+     (Number(options.saturation)||100)===100 &&
+     !Number(options.sharpness)){
+    return {blob:file,width:decoded.width,height:decoded.height,
+      quality:1,met:true,originalSize:file.size,attempts:0,unchanged:true};
+  }
   // First preserve details. If necessary, reduce dimensions gradually rather
   // than pretending extreme 10 MB -> 45 KB is visually lossless.
   let best=null,quality=0,attempts=0;
   for(let edge=Math.max(initial.width,initial.height);edge>=160;edge=Math.max(159,Math.round(edge*.85))){
    const dims=fitSize(initial.width,initial.height,edge);
-   const canvas=createCanvas(dims.width,dims.height,decoded.image,options);
+   const canvas=createCanvas(dims.width,dims.height,decoded.image,{...options,background:mime==="image/jpeg"?"#fff":"transparent"});
    let candidate=null,cq=1;
    if(mime==="image/png"){
     candidate=await encode(canvas,mime);

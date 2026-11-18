@@ -44,7 +44,7 @@ jobs:
       - name: Ensure payment and owner backend have no modifications
         run: |
           git fetch --no-tags origin main --depth=1
-          if [ -n "$(git diff --name-only FETCH_HEAD...HEAD -- backend/payment-api.worker.js dist/poster-export.js dist/owner-dashboard.js dist/owner-free-access.js)" ]; then
+          if [ -n "$(git diff --name-only FETCH_HEAD HEAD -- backend/payment-api.worker.js dist/poster-export.js dist/owner-dashboard.js dist/owner-free-access.js)" ]; then
             echo "Protected payment, owner or export logic changed"; exit 1
           fi
       - name: Production build without deployment

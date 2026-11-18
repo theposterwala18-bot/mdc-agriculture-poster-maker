@@ -1695,7 +1695,7 @@ function loadUserImage(file) {
 }
 
 function bindEvents() {
-  document.getElementById("modulesButton").addEventListener("click", showModuleHub);
+  document.getElementById("modulesButton")?.addEventListener("click", showModuleHub);
 
   document.querySelectorAll("[data-key]").forEach((field) => {
     field.addEventListener("input", (event) => {

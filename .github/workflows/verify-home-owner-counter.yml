@@ -1,0 +1,42 @@
+name: Verify Home Navigation and Owner Visitor Visibility
+on:
+  push:
+    branches: [feature/home-clean-owner-visitors-2026-11-18]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22', cache: npm}
+      - name: Validate home only and owner-only counter
+        run: |
+          node --check dist/app.js
+          node --check dist/public-counter.js
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const read=x=>fs.readFileSync(x,'utf8');
+          const home=read('dist/index.html'),app=read('dist/app.js');
+          const counter=read('dist/public-counter.js'),css=read('dist/styles.css');
+          if(home.includes('id="indexHomeButton"')||home.includes('id="modulesButton"'))throw Error('Duplicate home nav still visible');
+          if(!app.includes('document.getElementById("modulesButton")?.addEventListener'))throw Error('Missing optional event handler');
+          for(const path of ['dist/index.html','dist/universal-poster.html','dist/death-bhog.html']){
+            const h=read(path);
+            if(!h.includes('class="public-counters header-counter" hidden'))throw Error(path+' initial counter not hidden');
+            if(!h.includes('public-counter.js?v=owner-only-1'))throw Error(path+' stale cached script');
+          }
+          for(const path of ['dist/universal-poster.html','dist/death-bhog.html','dist/general-sale.html']){
+            if(!read(path).includes('class="module-home-button"'))throw Error(path+' lost Back to Home');
+          }
+          if(!counter.includes('event.detail?.isOwner===true')||!counter.includes('counterOwnerVerified=false')||
+             !counter.includes('holder.hidden = !counterOwnerVerified'))throw Error('Owner session guard is missing');
+          if(!counter.includes('image.src = VISITOR_BADGE_URL'))throw Error('Existing visitor counting changed');
+          if(!css.includes('.public-counters[hidden]'))throw Error('Initial counter flash not blocked');
+          console.log('Navigation, owner-only display, and counting unchanged');
+          JS
+      - name: Existing web build
+        run: |
+          npm ci
+          npm run build

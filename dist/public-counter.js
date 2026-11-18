@@ -15,6 +15,28 @@ function installBrandAssets() {
 }
 
 installBrandAssets();
+// The visitor count is an owner-only DISPLAY. The existing hits.sh image
+// requests remain so that counting behavior does not silently change.
+// All counters are hidden unless the verified /auth/session result says owner.
+let counterOwnerVerified = false;
+function refreshCounterVisibility(){
+  document.querySelectorAll(".public-counters").forEach(el=>{el.hidden=!counterOwnerVerified});
+  document.querySelectorAll("[data-module-usage-counter]").forEach(el=>{
+    el.hidden=!counterOwnerVerified || !el.dataset.loadedModule;
+  });
+}
+window.addEventListener("tpw-server-session",event=>{
+  counterOwnerVerified=event.detail?.isOwner===true;
+  refreshCounterVisibility();
+});
+window.addEventListener("tpw-auth-changed",()=>{
+  counterOwnerVerified=false;
+  refreshCounterVisibility();
+});
+const existingSession=window.ThePosterWalaAuth?.getServerSession?.();
+counterOwnerVerified=existingSession?.isOwner===true;
+refreshCounterVisibility();
+
 
 document.querySelectorAll("[data-visitor-counter]").forEach((image) => {
   image.src = VISITOR_BADGE_URL;
@@ -55,7 +77,7 @@ window.showModuleCounter = (moduleId, moduleName = "") => {
   if (!holder || !image || holder.dataset.loadedModule === moduleId) return;
   const safeId = cleanModuleId(moduleId);
   holder.dataset.loadedModule = moduleId;
-  holder.hidden = false;
+  holder.hidden = !counterOwnerVerified;
   holder.setAttribute("aria-label", `${moduleName || moduleId} usage count`);
   image.hidden = false;
   image.alt = `${moduleName || moduleId} views`;

@@ -108,7 +108,8 @@ export async function enhanceImage(file,options={}){
  const decoded=await decodeImage(file);
  try{
   const zoom=[1,2].includes(Number(options.zoom))?Number(options.zoom):1;
-  const dims=fitSize(decoded.width,decoded.height,Math.min(6000,Math.max(decoded.width,decoded.height)*zoom));
+  const scale=Math.min(zoom,6000/Math.max(decoded.width,decoded.height));
+  const dims={width:Math.max(1,Math.round(decoded.width*scale)),height:Math.max(1,Math.round(decoded.height*scale))};
   if(dims.width*dims.height>MAX_PIXELS)throw Error("Upscale would exceed device-safe image size");
   const canvas=createCanvas(dims.width,dims.height,decoded.image,{...options,sharpness:Number(options.sharpness)||20});
   const mime=options.mime==="image/png"?"image/png":"image/jpeg";

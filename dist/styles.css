@@ -809,3 +809,6 @@ textarea:focus { border-color: #2d7357; box-shadow: 0 0 0 3px rgba(30, 106, 76, 
 
 .hero-promo-card.is-coming{cursor:default;opacity:.82}.hero-promo-empty{padding:10px;color:#d7e8de;font-size:.62rem;font-weight:800}
 @media(prefers-reduced-motion:reduce){.hero-custom-poster-card::after{animation:none!important}.hero-selected-slide{transition:none!important}}
+
+/* Hide visitor counts before server-verified owner session; prevent CSS display overrides. */
+.public-counters[hidden],.module-usage-counter[hidden]{display:none!important}

@@ -812,3 +812,5 @@ textarea:focus { border-color: #2d7357; box-shadow: 0 0 0 3px rgba(30, 106, 76, 
 
 /* Hide visitor counts before server-verified owner session; prevent CSS display overrides. */
 .public-counters[hidden],.module-usage-counter[hidden]{display:none!important}
+
+#workspaceBackButton[hidden]{display:none!important}

@@ -87,6 +87,9 @@
     nav.append(a);
   }
   content.before(nav);
+  const syncOwnerNavVisibility=()=>{nav.hidden=content.hidden};
+  syncOwnerNavVisibility();
+  new MutationObserver(syncOwnerNavVisibility).observe(content,{attributes:true,attributeFilter:["hidden"]});
 
   const cards = document.createElement("section");
   cards.className="owner-home-cards";

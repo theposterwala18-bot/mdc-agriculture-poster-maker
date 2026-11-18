@@ -1,0 +1,11 @@
+/* Independent navigation used exclusively by new Document & Printing Tools pages. */
+.tpw-tools-sidebar{position:fixed;inset:0 auto 0 0;width:228px;background:#092e27;color:#f1fff8;z-index:120;overflow-y:auto;box-shadow:3px 0 18px #09221920;padding:20px 12px;display:flex;flex-direction:column;gap:7px}
+.tpw-tools-brand{padding:14px 11px;margin-bottom:6px;text-decoration:none;color:white;font-weight:900;font-size:18px}
+.tpw-tools-sidebar h3{font-size:11px;color:#a2cab8;letter-spacing:.12em;text-transform:uppercase;margin:17px 10px 7px}
+.tpw-tools-link{border-radius:10px;display:flex;align-items:center;gap:9px;text-decoration:none;color:#d7ede1;padding:11px 12px;font:650 13px/1.3 system-ui}
+.tpw-tools-link:hover,.tpw-tools-link:focus-visible,.tpw-tools-link[aria-current=page]{color:#fff;background:#1a7357}
+.tpw-tools-tag{font-size:9px;border:1px solid #547b68;border-radius:6px;padding:2px 5px;margin-left:auto;opacity:.8}
+.tpw-tools-open{display:none;position:fixed;top:10px;left:10px;z-index:122;background:#134f3d;color:white;border:0;border-radius:10px;padding:10px 12px;font:750 12px system-ui}
+.tpw-tools-overlay{display:none}
+@media(min-width:951px){body.tpw-with-tools-nav{padding-left:228px}.tpw-tools-sidebar{display:flex}}
+@media(max-width:950px){.tpw-tools-open{display:block}.tpw-tools-sidebar{transform:translateX(-105%);transition:transform .18s ease;width:min(275px,85vw)}body.tpw-tools-nav-expanded .tpw-tools-sidebar{transform:translateX(0)}body.tpw-tools-nav-expanded .tpw-tools-overlay{display:block;position:fixed;inset:0;background:#001b1899;z-index:119}body.tpw-with-tools-nav .studio-header{padding-left:55px}}

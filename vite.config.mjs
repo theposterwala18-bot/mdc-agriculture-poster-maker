@@ -13,7 +13,8 @@ export default {
         "general-sale": resolve(projectRoot, "dist/general-sale.html"),
         "death-bhog": resolve(projectRoot, "dist/death-bhog.html"),
         "universal-poster": resolve(projectRoot, "dist/universal-poster.html"),
-        "owner-dashboard": resolve(projectRoot, "dist/owner-dashboard.html")
+        "owner-dashboard": resolve(projectRoot, "dist/owner-dashboard.html"),
+        "smart-image-studio": resolve(projectRoot, "dist/smart-image-studio.html")
       }
     }
   }

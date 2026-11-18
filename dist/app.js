@@ -91,7 +91,12 @@ const moduleGroups = [
     name: "Document & Printing Tools",
     icon: "🛠️",
     modules: [
-      { id: "smart-image-studio", name: "Smart Image Studio", punjabi: "45 KB / 200 KB / 1 MB Compressor • Enhance • Batch ZIP", icon: "🖼️", available: true }
+      { id: "smart-image-studio", name: "Smart Image Studio", punjabi: "45 KB / 200 KB / 1 MB Compressor • Enhance • Batch ZIP", icon: "🖼️", available: true },
+      { id: "tools-hub", name: "All Document Tools", punjabi: "PDF • Passport Photo • ID Card • Resume", icon: "🧰", available: true },
+      { id: "pdf-tools", name: "PDF Converter", punjabi: "Image to PDF • Merge • Split • Rotate", icon: "📄", available: true },
+      { id: "passport-photo", name: "Passport Photo Maker", punjabi: "Live crop • A4 print sheet", icon: "📷", available: true },
+      { id: "card-page-maker", name: "ID / Card Page Maker", punjabi: "Authentic cards Front / Back A4 printing", icon: "🪪", available: true },
+      { id: "resume-maker", name: "Resume Maker", punjabi: "Live CV preview • Print as PDF", icon: "📃", available: true }
     ]
   },
   {
@@ -219,6 +224,11 @@ function openModule(moduleId) {
     return;
   }
   if (moduleId === "smart-image-studio") { window.location.href = "smart-image-studio.html"; return; }
+  const toolPages={"tools-hub":"tools.html","pdf-tools":"pdf-tools.html",
+    "passport-photo":"passport-photo.html","card-page-maker":"card-page-maker.html",
+    "resume-maker":"resume-maker.html"};
+  if(toolPages[moduleId]){window.location.href=toolPages[moduleId];return;}
+
   if (moduleId === "general-sale") {
     window.location.href = "general-sale.html";
     return;

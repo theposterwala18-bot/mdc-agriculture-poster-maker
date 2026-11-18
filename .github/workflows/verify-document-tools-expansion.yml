@@ -1,0 +1,53 @@
+name: Validate Independent Document and Printing Tools
+on:
+  push:
+    branches:
+      - feature/tools-workspace-preview-pdf-2026-11-18
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Verify all new JS is valid
+        run: |
+          for file in dist/tools-navigation.js dist/smart-image-studio.js dist/pdf-tools.js dist/passport-photo.js dist/card-page-maker.js dist/resume-maker.js dist/app.js; do node --check "$file"; done
+      - name: Assert navigation and safe isolation
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const read=p=>fs.readFileSync(p,'utf8');
+          const files=['tools','pdf-tools','passport-photo','card-page-maker','resume-maker','smart-image-studio'];
+          const nav=read('dist/tools-navigation.js');
+          for(const name of files){if(!fs.existsSync('dist/'+name+'.html'))throw Error('Missing tool page: '+name)}
+          for(const page of files){if(!read('dist/'+page+'.html').includes('tools-navigation.js'))throw Error('Missing sidebar: '+page)}
+          if(!nav.includes('tpw-tools-sidebar')||nav.includes('Razorpay'))throw Error('Separate navigation missing');
+          const engine=read('dist/smart-image-studio.js');
+          for(const feature of ['scheduleLivePreview','liveEnhanceCanvas','sharpness','contrast','brightness','saturation'])if(!engine.includes(feature))throw Error('Enhance preview missing '+feature);
+          const pdf=read('dist/pdf-tools.js');
+          for(const feature of ['pageIndices','copyPages','embedPng','embedJpg','getRotation'])if(!pdf.includes(feature))throw Error('PDF operation missing '+feature);
+          const card=read('dist/card-page-maker.js');
+          if(!card.includes('securePdfViewer')||!card.includes('URL.createObjectURL'))throw Error('Browser PDF viewer missing');
+          if(!read('dist/resume-maker.js').includes('textContent'))throw Error('Resume input must be safely text only');
+          for(const sensitive of ['dist/poster-export.js','dist/owner-dashboard.js','dist/owner-free-access.js','backend/payment-api.worker.js'])
+            if(!fs.existsSync(sensitive))throw Error('Original protected file missing '+sensitive);
+          for(const path of ['dist/tools-pages.css','dist/tools-navigation.css'])
+            if(!fs.existsSync(path))throw Error('Missing CSS '+path);
+          if(!read('vite.config.mjs').includes('dist/resume-maker.html'))throw Error('Vite new pages missing');
+          console.log('Tools, navigation, privacy design and all existing backend files present');
+          JS
+      - name: Ensure payment and owner backend have no modifications
+        run: |
+          git fetch --no-tags origin main --depth=1
+          if [ -n "$(git diff --name-only FETCH_HEAD HEAD -- backend/payment-api.worker.js dist/poster-export.js dist/owner-dashboard.js dist/owner-free-access.js)" ]; then
+            echo "Protected payment, owner or export logic changed"; exit 1
+          fi
+      - name: Production build without deployment
+        run: |
+          npm ci
+          npm run build

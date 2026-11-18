@@ -14,7 +14,12 @@ export default {
         "death-bhog": resolve(projectRoot, "dist/death-bhog.html"),
         "universal-poster": resolve(projectRoot, "dist/universal-poster.html"),
         "owner-dashboard": resolve(projectRoot, "dist/owner-dashboard.html"),
-        "smart-image-studio": resolve(projectRoot, "dist/smart-image-studio.html")
+        "smart-image-studio": resolve(projectRoot, "dist/smart-image-studio.html"),
+        "tools": resolve(projectRoot, "dist/tools.html"),
+        "pdf-tools": resolve(projectRoot, "dist/pdf-tools.html"),
+        "passport-photo": resolve(projectRoot, "dist/passport-photo.html"),
+        "card-page-maker": resolve(projectRoot, "dist/card-page-maker.html"),
+        "resume-maker": resolve(projectRoot, "dist/resume-maker.html")
       }
     }
   }

@@ -3,7 +3,12 @@ const $=id=>document.getElementById(id);
 let image=null,sourceURL=null,sheetUrl=null,pdfUrl=null;
 const DPI=300,mmToPx=mm=>Math.round(mm/25.4*DPI);
 const status=(text,error=false)=>{$("passportStatus").textContent=text;$("passportStatus").classList.toggle("error",error)};
-const mm=()=>($("passportSize").value.split("x").map(Number));
+const mm=()=>{
+ const custom=$("passportSize").value==="custom";
+ const [w,h]=custom?[Number($("photoCustomW").value),Number($("photoCustomH").value)]:$("passportSize").value.split("x").map(Number);
+ if(!Number.isFinite(w)||!Number.isFinite(h)||w<15||h<15||w>150||h>150)throw Error("Photo size must be 15–150 mm.");
+ return [w,h];
+};
 function dispose(){for(const url of [sourceURL,sheetUrl,pdfUrl])if(url)URL.revokeObjectURL(url);sourceURL=sheetUrl=pdfUrl=null;}
 function crop(ctx,w,h){
  if(!image)return;
@@ -42,10 +47,10 @@ $("passportInput").addEventListener("change",()=>{
   image=img;
   $("passportSource").src=sourceURL;$("passportSource").hidden=false;
   $("makePhotos").disabled=false;preview();
-  status("Live crop ready. Drag the picture inside green frame, or use Face / Body presets.");
+  status("Live crop ready. Drag the picture inside green frame, or use Face / Body presets.");requestSheetPreview();
  };img.onerror=()=>status("Invalid photo",true);img.src=sourceURL;
 });
-for(const id of ["passportSize","photoZoom","panX","panY"])$(id).addEventListener("input",preview);
+for(const id of ["passportSize","photoZoom","panX","panY","photoCustomW","photoCustomH"])$(id).addEventListener("input",()=>{ $("customPhotoFields").hidden=$("passportSize").value!=="custom";try{preview()}catch(e){status(e.message,true)} });
 function resetFraming(zoom=100){
  $("photoZoom").value=zoom;$("panX").value=0;$("panY").value=0;preview();
 }
@@ -125,8 +130,8 @@ function requestSheetPreview(){
  });
 }
 bindPrintSettings("passport",requestSheetPreview);
-for(const id of ["copies","passportSize","photoZoom","panX","panY"])$(id).addEventListener("input",requestSheetPreview);
-$("passportInput").addEventListener("change",()=>setTimeout(requestSheetPreview,150));
+for(const id of ["copies","passportSize","photoZoom","panX","panY","photoCustomW","photoCustomH"])$(id).addEventListener("input",requestSheetPreview);
+
 let sheetMove=null;const sheetCanvas=$("passportSheetCanvas");
 sheetCanvas.addEventListener("pointerdown",e=>{if(!image)return;sheetMove={id:e.pointerId,x:e.clientX,y:e.clientY,ox:Number($("passportOffsetX").value),oy:Number($("passportOffsetY").value)};sheetCanvas.setPointerCapture(e.pointerId)});
 sheetCanvas.addEventListener("pointermove",e=>{

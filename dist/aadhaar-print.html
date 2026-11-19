@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="pa"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="index,follow"><title>Aadhaar Auto Print Layout | The Poster Wala</title>
-<link rel="stylesheet" href="tools-pages.css?v=1.0.0"><link rel="stylesheet" href="tools-navigation.css?v=1.0.0"><link rel="stylesheet" href="aadhaar-auto-layout.css?v=2.0.0"></head>
+<link rel="stylesheet" href="tools-pages.css?v=1.0.0"><link rel="stylesheet" href="tools-navigation.css?v=1.0.0"><link rel="stylesheet" href="aadhaar-auto-layout.css?v=2.1.0"></head>
 <body><main class="tool-shell aadhaar-workspace">
 <header class="tool-title"><span class="tool-tag">PRIVATE • ORIGINAL DOCUMENTS ONLY</span><h1>Aadhaar Auto Print Layout</h1><p>Original e-Aadhaar PDF ਤੋਂ Front/Back Select ਕਰੋ, A4 Sheet ਵਿੱਚ Automatically Fit ਕਰੋ ਅਤੇ PDF/PNG Download ਕਰੋ। Original Text, Photo, QR ਅਤੇ Number ਨਹੀਂ ਬਦਲੇ ਜਾਣਗੇ।</p></header>
 <div class="tool-caution">ਇਹ UIDAI ਦੀ Official Service ਨਹੀਂ ਹੈ। ਸਿਰਫ਼ ਆਪਣਾ ਜਾਂ Cardholder ਦੀ ਇਜਾਜ਼ਤ ਵਾਲਾ ਅਸਲੀ Document ਵਰਤੋ। PDF, Password ਅਤੇ Photos Browser ਵਿੱਚ ਹੀ Process ਹੁੰਦੇ ਹਨ, Server ਉੱਤੇ Upload ਨਹੀਂ।</div>
@@ -32,18 +32,18 @@
 <h2 style="margin-top:22px">3. Print Layout</h2>
 <label class="tool-field">Layout<select id="layoutPreset"><option value="kyc">Bank KYC — Front Above Back (One Page)</option><option value="1">1 Front/Back Pair</option><option value="2">2 Front/Back Pairs</option><option value="4" selected>4 Front/Back Pairs</option><option value="6">6 Front/Back Pairs</option></select></label>
 <div class="tool-form-grid">
-<label class="tool-field">Paper<select id="paperType"><option value="a4">A4</option><option value="letter">Letter</option></select></label>
+<label class="tool-field">Paper<select id="paperType"><option value="a3">A3</option><option value="a4" selected>A4</option><option value="a5">A5</option><option value="a6">A6</option><option value="letter">Letter</option><option value="legal">Legal</option><option value="executive">Executive</option><option value="2x2">Photo 2×2 in</option><option value="3.5x5">Photo 3.5×5 in</option><option value="4x6">Photo 4×6 in</option><option value="5x7">Photo 5×7 in</option><option value="6x8">Photo 6×8 in</option><option value="8x10">Photo 8×10 in</option><option value="8x12">Photo 8×12 in</option><option value="10x12">Photo 10×12 in</option><option value="12x18">Photo 12×18 in</option><option value="custom">Custom mm</option></select></label>
 <label class="tool-field">Orientation<select id="orientation"><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select></label>
-<label class="tool-field">Card Width (mm)<input id="cardWidth" type="number" value="85.6" min="40" max="190" step="0.1"></label>
+<label class="tool-field" id="customWidthField" hidden>Paper Width (mm)<input id="customPaperWidth" type="number" value="210" min="50" max="1000" step="0.1"></label><label class="tool-field" id="customHeightField" hidden>Paper Height (mm)<input id="customPaperHeight" type="number" value="297" min="50" max="1000" step="0.1"></label><label class="tool-field">Card Width (mm)<input id="cardWidth" type="number" value="85.6" min="40" max="190" step="0.1"></label>
 <label class="tool-field">Card Height (mm)<input id="cardHeight" type="number" value="54" min="25" max="150" step="0.1"></label>
 <label class="tool-field">Margin (mm)<input id="marginMm" type="number" value="10" min="3" max="35" step="1"></label>
 <label class="tool-field">Gap (mm)<input id="gapMm" type="number" value="5" min="0" max="20" step="1"></label>
 </div>
-<label class="aad-check"><input type="checkbox" id="cutGuides" checked> Cut guides around card placements</label>
+<fieldset class="aad-position-box"><legend>Print Position — click or drag in preview</legend><div class="aad-position-grid" id="positionGrid"><button data-pos="top-left" type="button" title="Top Left">↖</button><button data-pos="top-center" type="button" title="Top Center">↑</button><button data-pos="top-right" type="button" title="Top Right">↗</button><button data-pos="middle-left" type="button" title="Middle Left">←</button><button data-pos="center" type="button" title="Center">●</button><button data-pos="middle-right" type="button" title="Middle Right">→</button><button data-pos="bottom-left" type="button" title="Bottom Left">↙</button><button data-pos="bottom-center" type="button" title="Bottom Center">↓</button><button data-pos="bottom-right" type="button" title="Bottom Right">↘</button></div><p id="positionInfo" class="tool-help">Center</p></fieldset><label class="aad-check"><input type="checkbox" id="cutGuides" checked> Cut guides around card placements</label>
 <div class="tool-actions"><button class="tool-btn" type="button" id="makeLayout" disabled>Generate Print Layout</button><a class="tool-btn alt" id="aadhaarPng" hidden download="Aadhaar-Print-A4.png">Download PNG</a><a class="tool-btn alt" id="aadhaarPdfDownload" hidden download="Aadhaar-Print-A4.pdf">Download PDF</a></div>
 <p id="aadhaarStatus" role="status" class="tool-status">Select your genuine document to start.</p>
 </div>
-<div class="tool-card"><h2>4. Live Printable Preview</h2><p class="tool-files">A4 Preview ਵਿੱਚ ਜੋ ਦਿਖਦਾ ਹੈ, ਉਹੀ PDF/PNG Export ਹੋਵੇਗਾ। Print dialog ਵਿੱਚ Actual Size / 100% ਵਰਤੋ।</p>
+<div class="tool-card"><h2>4. Live Printable Preview</h2><p class="tool-files">Selected paper preview ਵਿੱਚ ਜੋ ਦਿਖਦਾ ਹੈ, ਉਹੀ PDF/PNG Export ਹੋਵੇਗਾ। Print dialog ਵਿੱਚ Actual Size / 100% ਵਰਤੋ।</p>
 <div class="aad-preview-wrap"><canvas id="layoutCanvas" aria-label="A4 printable card layout preview"></canvas></div>
 <p id="layoutInfo" class="tool-files">No print layout generated yet.</p>
 <div class="tool-caution">Auto selection ਸਿਰਫ਼ ਇੱਕ Suggestion ਹੈ, ਪੱਕੀ Detection ਨਹੀਂ। ਹਰੇਕ Document Layout ਵੱਖਰਾ ਹੋ ਸਕਦਾ ਹੈ—Download ਤੋਂ ਪਹਿਲਾਂ ਚੁਣੇ Front/Back ਵਿੱਚ Text, QR ਅਤੇ Photo ਪੂਰੇ ਹਨ ਜਾਂ ਨਹੀਂ, ਜ਼ਰੂਰ ਚੈੱਕ ਕਰੋ।</div>
@@ -58,6 +58,6 @@
 </main>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" defer></script>
-<script type="module" src="aadhaar-auto-layout.js?v=2.0.0"></script>
+<script type="module" src="aadhaar-auto-layout.js?v=2.1.0"></script>
 <script type="module" src="tools-navigation.js?v=1.2.0"></script>
 </body></html>

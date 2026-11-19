@@ -2,6 +2,9 @@
 // All PDF/image bytes and passwords stay in this browser. NEVER upload Aadhaar data.
 const $=id=>document.getElementById(id);
 const RENDER_DPI=300,mmPx=mm=>Math.round(mm*RENDER_DPI/25.4);
+const PAPER_MM={a3:[297,420],a4:[210,297],a5:[148,210],a6:[105,148],letter:[215.9,279.4],legal:[215.9,355.6],executive:[184.2,266.7],"2x2":[50.8,50.8],"3.5x5":[88.9,127],"4x6":[101.6,152.4],"5x7":[127,177.8],"6x8":[152.4,203.2],"8x10":[203.2,254],"8x12":[203.2,304.8],"10x12":[254,304.8],"12x18":[304.8,457.2]};
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+let placement={x:.5,y:.5},positionPreset="center",moveDrag=null;
 const state={source:null,sourceView:null,regions:[],active:0,pdf:null,loading:null,drag:null,previewFrame:0,urls:[],generated:false};
 const report=(msg,err=false)=>{$("aadhaarStatus").textContent=msg;$("aadhaarStatus").classList.toggle("error",err)};
 function clearURLs(){for(const u of state.urls)URL.revokeObjectURL(u);state.urls=[]}
@@ -15,7 +18,9 @@ function requireNumbers(){
 }
 function paper(){
  const landscape=$("orientation").value==="landscape";
- const [w,h]=$("paperType").value==="letter"?[215.9,279.4]:[210,297];
+ const key=$("paperType").value;
+ const [w,h]=key==="custom"?[Number($("customPaperWidth").value),Number($("customPaperHeight").value)]:(PAPER_MM[key]||PAPER_MM.a4);
+ if(!Number.isFinite(w)||!Number.isFinite(h)||w<50||w>1000||h<50||h>1000)throw Error("Paper size must be 50–1000 mm.");
  return landscape?[h,w]:[w,h];
 }
 function normalRegion(rect){
@@ -198,10 +203,11 @@ function drawPrint(ctx,pixelW,pixelH){
  const pairW=(mode==="kyc"?w:2*w+gap)*scale;
  const pairH=(mode==="kyc"?2*h+gap:h)*scale;
  const gapScaled=gap*scale,combinedH=count*pairH+(count-1)*gapScaled;
- const top=(ph-combinedH)/2;
+ const minX=spec.margin,minY=spec.margin,maxX=pw-spec.margin-pairW,maxY=ph-spec.margin-combinedH;
+ const baseX=minX+Math.max(0,maxX-minX)*placement.x,top=minY+Math.max(0,maxY-minY)*placement.y;
  const original=[front,back];
  for(let i=0;i<count;i++){
-  const baseX=(pw-pairW)/2,baseY=top+i*(pairH+gapScaled);
+  const baseY=top+i*(pairH+gapScaled);
   for(let j=0;j<2;j++){
    const x=baseX+(mode==="kyc"?0:j*(w+gap)*scale);
    const y=baseY+(mode==="kyc"?j*(h+gap)*scale:0);
@@ -228,8 +234,37 @@ function requestPreview(){
   }catch(error){$("layoutInfo").textContent=error.message}
  });
 }
-for(const id of ["layoutPreset","paperType","orientation","cardWidth","cardHeight","marginMm","gapMm","cutGuides"]){
- $(id).addEventListener("input",()=>{clearDownloads();requestPreview()});
+function savePrefs(){try{const ids=["layoutPreset","paperType","orientation","customPaperWidth","customPaperHeight","cardWidth","cardHeight","marginMm","gapMm"];localStorage.setItem("tpw-print-layout-v21",JSON.stringify({values:Object.fromEntries(ids.map(id=>[id,$(id).value])),cutGuides:$("cutGuides").checked,placement,positionPreset}))}catch{}}
+function refreshPositions(){
+ for(const b of document.querySelectorAll("#positionGrid button")){const active=b.dataset.pos===positionPreset;b.classList.toggle("active",active);b.setAttribute("aria-pressed",String(active))}
+ $("positionInfo").textContent=positionPreset==="custom"?"Custom position (dragged)":positionPreset.replace(/-/g," ");
+}
+function setPosition(name){
+ const point={top:0,middle:.5,bottom:1,left:0,center:.5,right:1};
+ const [v,h]=name==="center"?["middle","center"]:name.split("-");
+ placement={x:point[h],y:point[v]};positionPreset=name;refreshPositions();clearDownloads();requestPreview();savePrefs();
+}
+for(const b of document.querySelectorAll("#positionGrid button"))b.addEventListener("click",()=>setPosition(b.dataset.pos));
+function updateCustom(){const active=$("paperType").value==="custom";$("customWidthField").hidden=!active;$("customHeightField").hidden=!active;}
+try{const s=JSON.parse(localStorage.getItem("tpw-print-layout-v21")||"null");if(s){for(const [id,v] of Object.entries(s.values||{})){const el=$(id);if(!el||typeof v!=="string")continue;if(el.tagName==="SELECT"&&!Array.from(el.options).some(o=>o.value===v))continue;el.value=v} $("cutGuides").checked=s.cutGuides!==false;if(Number.isFinite(s.placement?.x)&&Number.isFinite(s.placement?.y))placement={x:clamp(s.placement.x,0,1),y:clamp(s.placement.y,0,1)};positionPreset=typeof s.positionPreset==="string"?s.positionPreset:"center"}}catch{}
+updateCustom();refreshPositions();
+const previewCanvas=$("layoutCanvas");
+previewCanvas.style.cursor="grab";previewCanvas.style.touchAction="none";
+previewCanvas.addEventListener("pointerdown",e=>{if(!validSource())return;e.preventDefault();moveDrag={id:e.pointerId,x:e.clientX,y:e.clientY,start:{...placement}};previewCanvas.setPointerCapture(e.pointerId);previewCanvas.style.cursor="grabbing"});
+previewCanvas.addEventListener("pointermove",e=>{
+ if(!moveDrag||e.pointerId!==moveDrag.id)return;
+ try{
+ const s=layoutSpec(),r=previewCanvas.getBoundingClientRect(),groupW=(s.mode==="kyc"?s.w:2*s.w+s.gap)*s.scale,groupH=s.count*(s.mode==="kyc"?2*s.h+s.gap:s.h)*s.scale+(s.count-1)*s.gap*s.scale;
+ const availableX=s.pw-2*s.margin-groupW,availableY=s.ph-2*s.margin-groupH;
+ if(availableX>0)placement.x=clamp(moveDrag.start.x+(e.clientX-moveDrag.x)/r.width*s.pw/availableX,0,1);
+ if(availableY>0)placement.y=clamp(moveDrag.start.y+(e.clientY-moveDrag.y)/r.height*s.ph/availableY,0,1);
+ positionPreset="custom";refreshPositions();clearDownloads();requestPreview();
+ }catch{}
+});
+function finishMove(e){if(moveDrag&&moveDrag.id===e.pointerId){moveDrag=null;previewCanvas.style.cursor="grab";savePrefs()}}
+previewCanvas.addEventListener("pointerup",finishMove);previewCanvas.addEventListener("pointercancel",finishMove);previewCanvas.addEventListener("lostpointercapture",finishMove);
+for(const id of ["layoutPreset","paperType","orientation","customPaperWidth","customPaperHeight","cardWidth","cardHeight","marginMm","gapMm","cutGuides"]){
+ $(id).addEventListener("input",()=>{updateCustom();clearDownloads();requestPreview();savePrefs()});
 }
 function toBlob(canvas,type="image/png"){
  return new Promise((ok,bad)=>canvas.toBlob(b=>b?ok(b):bad(Error("Cannot export image")),type));
@@ -238,19 +273,19 @@ function putDownload(id,blob,name){
  const link=$(id),url=URL.createObjectURL(blob);state.urls.push(url);link.href=url;link.download=name;link.hidden=false;
 }
 $("makeLayout").addEventListener("click",async()=>{
- const button=$("makeLayout");button.disabled=true;clearDownloads();report("Creating A4 print layout…");
+ const button=$("makeLayout");button.disabled=true;clearDownloads();report("Creating print layout…");
  try{
   const spec=layoutSpec(),canvas=makeCanvas(mmPx(spec.pw),mmPx(spec.ph));
   drawPrint(canvas.getContext("2d"),canvas.width,canvas.height);
-  const png=await toBlob(canvas);putDownload("aadhaarPng",png,"Aadhaar-Original-Print-A4.png");
+  const png=await toBlob(canvas),label=$("paperType").value.toUpperCase();putDownload("aadhaarPng",png,"Aadhaar-Original-Print-"+label+".png");
   if(!window.PDFLib)throw Error("PNG created, but PDF export library is unavailable.");
   const pdf=await window.PDFLib.PDFDocument.create();
   const embedded=await pdf.embedPng(await png.arrayBuffer());
   // PDF coordinate geometry is in points; actual physical size preserved.
   pdf.addPage([spec.pw*72/25.4,spec.ph*72/25.4]).drawImage(embedded,{x:0,y:0,width:spec.pw*72/25.4,height:spec.ph*72/25.4});
-  putDownload("aadhaarPdfDownload",new Blob([await pdf.save()],{type:"application/pdf"}),"Aadhaar-Original-Print-A4.pdf");
+  putDownload("aadhaarPdfDownload",new Blob([await pdf.save()],{type:"application/pdf"}),"Aadhaar-Original-Print-"+label+".pdf");
   state.generated=true;requestPreview();
-  report("Ready: A4 PDF + PNG. "+(spec.autoReduced?"Card size auto-reduced to fit the page.":"Card size preserved.")+" Print at Actual Size.");
+  report("Ready: "+label+" PDF + PNG. "+(spec.autoReduced?"Card size auto-reduced to fit the page.":"Card size preserved.")+" Print at Actual Size.");
  }catch(error){report(error.message||"Export failed",true)}
  finally{button.disabled=false}
 });

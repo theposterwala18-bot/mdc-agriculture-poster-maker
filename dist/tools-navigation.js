@@ -1,7 +1,7 @@
 // Navigation only for new tools: existing Poster Maker and Owner Dashboard untouched.
 const sections=[
  {name:"Main",items:[["⌂","Home Page","index.html"],["◫","Tools Dashboard","tools.html"]]},
- {name:"Image",items:[["▣","Smart Image Studio","smart-image-studio.html"],["▥","Passport Photo","passport-photo.html"]]},
+ {name:"Image",items:[["▣","Smart Image Studio","smart-image-studio.html"],["↗","HEIC to JPG","image-format-converter.html"],["✦","Free AI Upscale (External)","ai-upscale.html"],["▥","Passport Photo","passport-photo.html"]]},
  {name:"PDF & Printing",items:[["▤","PDF Converter","pdf-tools.html"],["▦","ID / Card Page Maker","card-page-maker.html"]]},
  {name:"Professional",items:[["☷","Resume Maker","resume-maker.html"]]}
 ];

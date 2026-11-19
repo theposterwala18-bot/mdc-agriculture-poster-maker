@@ -37,6 +37,11 @@ async function setupLivePreview(file){
 }
 function scheduleLivePreview(){
  if(state.mode!=="enhance"||!liveImage)return;
+ // Immediate CSS-filter fallback while canvas preview is being redrawn.
+ $("afterImage").src=$("beforeImage").src;
+ $("afterImage").style.filter=`brightness(${$("brightness").value}%) contrast(${$("contrast").value}%) saturate(${$("saturation").value}%)`;
+ $("afterImage").hidden=false;
+ $("liveEnhanceCanvas").hidden=true;
  clearTimeout(liveTimer);
  liveTimer=setTimeout(()=>{
   const image=liveImage,canvas=$("liveEnhanceCanvas"),edge=850;
@@ -44,12 +49,14 @@ function scheduleLivePreview(){
   canvas.width=Math.max(1,Math.round(image.naturalWidth*factor));
   canvas.height=Math.max(1,Math.round(image.naturalHeight*factor));
   const ctx=canvas.getContext("2d");
+  if(!ctx){$("afterMeta").textContent="Live CSS preview (canvas unsupported)";return}
   ctx.imageSmoothingQuality="high";
   ctx.filter=`brightness(${$("brightness").value}%) contrast(${$("contrast").value}%) saturate(${$("saturation").value}%)`;
   ctx.drawImage(image,0,0,canvas.width,canvas.height);ctx.filter="none";
   // Small-screen unsharp preview, never alters original uploaded file.
   const amount=Number($("sharpness").value)/100*.55;
   if(amount>0&&canvas.width*canvas.height<=800000){
+   try{
    const picture=ctx.getImageData(0,0,canvas.width,canvas.height),pixels=picture.data,copy=new Uint8ClampedArray(pixels);
    for(let y=1;y<canvas.height-1;y++)for(let x=1;x<canvas.width-1;x++){
     const j=(y*canvas.width+x)*4;
@@ -59,6 +66,7 @@ function scheduleLivePreview(){
     }
    }
    picture.data.set(copy);ctx.putImageData(picture,0,0);
+   }catch(error){console.warn("Sharpen preview unavailable on this device",error?.message)}
   }
   enhanceCanvasVisible(true);
   $("afterMeta").textContent="LIVE PREVIEW • Export applies chosen settings to full image";
@@ -78,6 +86,7 @@ function emptyResults(){
  td.colSpan=5;td.className="empty";td.textContent="Your results will appear here.";tr.append(td);
  $("resultRows").append(tr);
  $("beforeImage").removeAttribute("src");$("afterImage").removeAttribute("src");
+ $("afterImage").style.filter="none";
  $("beforeMeta").textContent="Choose a photo";$("afterMeta").textContent="Not processed";
  $("downloadZip").disabled=true;
 }
@@ -102,6 +111,7 @@ function loadFiles(list){
 function showResult(index){
  const record=state.results[index];if(!record)return;
  enhanceCanvasVisible(false); // Exact processed output after export; sliders return to live preview.
+ $("afterImage").style.filter="none";
  $("beforeImage").src=record.originalUrl;$("afterImage").src=record.processedUrl;
  $("beforeMeta").textContent=`${fileLabel(record.file.name)} • ${bytesLabel(record.file.size)}`;
  $("afterMeta").textContent=`${bytesLabel(record.result.blob.size)} • ${record.result.width} × ${record.result.height} px`;

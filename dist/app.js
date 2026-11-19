@@ -92,11 +92,7 @@ const moduleGroups = [
     icon: "🛠️",
     modules: [
       { id: "smart-image-studio", name: "Smart Image Studio", punjabi: "45 KB / 200 KB / 1 MB Compressor • Enhance • Batch ZIP", icon: "🖼️", available: true },
-      { id: "tools-hub", name: "All Document Tools", punjabi: "PDF • Passport Photo • ID Card • Resume", icon: "🧰", available: true },
-      { id: "pdf-tools", name: "PDF Converter", punjabi: "Image to PDF • Merge • Split • Rotate", icon: "📄", available: true },
-      { id: "passport-photo", name: "Passport Photo Maker", punjabi: "Live crop • A4 print sheet", icon: "📷", available: true },
-      { id: "card-page-maker", name: "ID / Card Page Maker", punjabi: "Authentic cards Front / Back A4 printing", icon: "🪪", available: true },
-      { id: "resume-maker", name: "Resume Maker", punjabi: "Live CV preview • Print as PDF", icon: "📃", available: true }
+      { id: "tools-hub", name: "All Document Tools", punjabi: "PDF • HEIC to JPG • Passport • Card Print • Resume", icon: "🧰", available: true }
     ]
   },
   {
@@ -195,7 +191,7 @@ function getActiveTemplate() {
 
 function renderModuleHub() {
   const holder = document.getElementById("moduleGroups");
-  const groupOrder = ["document-tools", "invitation", "grief-help", "sale", "public"];
+  const groupOrder = ["invitation", "grief-help", "sale", "public", "document-tools"];
   const orderedGroups = [...moduleGroups].sort((a, b) => groupOrder.indexOf(a.id) - groupOrder.indexOf(b.id));
   holder.innerHTML = orderedGroups.map((group) => `
     <section class="module-group" aria-labelledby="module-group-${group.id}">

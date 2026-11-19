@@ -1,0 +1,49 @@
+name: Validate clean homepage menu, HEIC and live enhance
+on:
+  push:
+    branches:
+      - feature/sidebar-heic-preview-2026-11-19
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22', cache: npm}
+      - name: Syntax and page consistency
+        run: |
+          for file in dist/app.js dist/home-tools-drawer.js dist/smart-image-studio.js dist/image-format-converter.js dist/tools-navigation.js; do node --check "$file"; done
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const read=p=>fs.readFileSync(p,'utf8');
+          const app=read('dist/app.js'),index=read('dist/index.html');
+          const docSection=app.split('id: "document-tools"')[1].split('id: "sale"')[0];
+          if((docSection.match(/available: true/g)||[]).length!==2)throw Error('Poster homepage must show exactly TWO Document cards');
+          for(const name of ['agri-sale','wedding','death','general-sale'])if(!app.includes('id: "'+name+'"'))throw Error('Original poster module missing '+name);
+          if(!index.includes('home-tools-drawer.js')||!index.includes('home-tools-drawer.css'))throw Error('Home drawer missing');
+          if(!read('dist/home-tools-drawer.js').includes('tpw-main-drawer-open'))throw Error('Drawer toggler missing');
+          const studio=read('dist/smart-image-studio.js');
+          for(const name of ['scheduleLivePreview','style.filter','getImageData','liveEnhanceCanvas','enhanceCanvasVisible'])if(!studio.includes(name))throw Error('Live preview fallback missing '+name);
+          const converter=read('dist/image-format-converter.js');
+          for(const name of ['window.heic2any','zipFiles','image/jpeg','image/png','image/webp'])if(!converter.includes(name))throw Error('HEIC/format converter missing '+name);
+          const html=read('dist/image-format-converter.html');
+          if(!html.includes('heic2any@0.0.4'))throw Error('HEIC runtime library missing');
+          if(!read('dist/tools.html').includes('image-format-converter.html'))throw Error('Tools hub missing HEIC');
+          if(!read('dist/ai-upscale.html').includes('EXTERNAL'))throw Error('AI link must be clearly external');
+          console.log('Home nav, deduplication, HEIC and preview safety checks passed');
+          JS
+      - name: Protect all old payments and owner controls
+        run: |
+          git fetch --no-tags origin main --depth=1
+          if [ -n "$(git diff --name-only FETCH_HEAD HEAD -- backend/payment-api.worker.js dist/poster-export.js dist/owner-dashboard.js dist/owner-free-access.js dist/auth.js dist/subscription-plans.js)" ]; then
+            echo "Protected payment, owner, authorization or export file changed"; exit 1
+          fi
+      - name: Existing compression and ZIP regression
+        run: |
+          node --test tests/smart-image-engine.test.mjs
+      - name: Production build, no deployment
+        run: |
+          npm ci
+          npm run build

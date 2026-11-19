@@ -1,0 +1,13 @@
+/* Poster homepage ONLY: off-canvas tools/section drawer, no layout shifts. */
+.tpw-main-drawer-button{position:fixed;left:14px;bottom:20px;z-index:200;display:inline-flex;align-items:center;gap:6px;background:#0f624b;color:#fff;border:1px solid #519481;border-radius:13px;box-shadow:0 5px 19px #103e2c50;padding:11px 14px;font-weight:850;cursor:pointer}
+.tpw-main-drawer{position:fixed;inset:0 auto 0 0;width:min(292px,85vw);transform:translateX(-110%);transition:transform .18s ease;background:#092e27;color:#fff;z-index:211;padding:20px 13px;overflow-y:auto;box-shadow:2px 0 24px #0018}
+.tpw-main-drawer-open .tpw-main-drawer{transform:translateX(0)}
+.tpw-main-drawer-overlay{position:fixed;inset:0;background:#001e17a3;z-index:210;display:none}
+.tpw-main-drawer-open .tpw-main-drawer-overlay{display:block}
+.tpw-main-drawer-header{display:flex;align-items:center;justify-content:space-between;gap:5px;padding:3px 5px 12px;font-weight:900;font-size:17px}
+.tpw-main-drawer-close{background:#174b3b;border:1px solid #538471;color:#fff;border-radius:9px;padding:8px 10px;font-size:20px;cursor:pointer}
+.tpw-main-drawer-label{font-size:11px;font-weight:850;letter-spacing:.11em;color:#a3c9b9;margin:19px 10px 8px}
+.tpw-main-drawer a{display:block;border-radius:9px;color:#e8f7ee;text-decoration:none;padding:11px 12px;font-size:14px;font-weight:700}
+.tpw-main-drawer a:hover,.tpw-main-drawer a:focus-visible{background:#177157}
+body.tpw-main-drawer-open{overflow:hidden}
+@media(max-width:620px){.tpw-main-drawer-button{bottom:16px;left:10px;padding:10px 12px;font-size:13px}}

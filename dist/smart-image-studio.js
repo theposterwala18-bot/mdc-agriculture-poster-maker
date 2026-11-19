@@ -16,61 +16,79 @@ function setMode(mode){
  if(!state.busy)message(mode==="compress"?"Select target KB and process.":"Move sliders to see the live preview before exporting.");
  if(mode==="enhance")setupLivePreview(state.files[0]);else{++liveToken;enhanceCanvasVisible(false)}
 }
-// Real-time non-AI adjustment preview. Kept under 850px to make sliders
-// responsive even on typical phones. Export remains full-resolution engine.
-let liveImage=null,liveToken=0,liveTimer=0;
+// Live effects use an instant preview (CSS filters) followed by a canvas preview
+// with sharpening. A canvas failure never blocks brightness/contrast/saturation.
+let liveImage=null,liveToken=0,liveFrame=0;
 function enhanceCanvasVisible(value){
- $("liveEnhanceCanvas").hidden=!value;
- $("afterImage").hidden=value;
+ const canvas=$("liveEnhanceCanvas"),picture=$("afterImage");
+ canvas.hidden=!value;
+ picture.hidden=value;
 }
-async function setupLivePreview(file){
- const token=++liveToken;liveImage=null;enhanceCanvasVisible(false);
+function previewSettings(){
+ return {brightness:Number($("brightness").value),contrast:Number($("contrast").value),
+   saturation:Number($("saturation").value),sharpness:Number($("sharpness").value)};
+}
+function setupLivePreview(file){
+ const token=++liveToken;liveImage=null;
+ if(liveFrame)cancelAnimationFrame(liveFrame);
+ enhanceCanvasVisible(false);
  if(!file||state.mode!=="enhance")return;
  const source=URL.createObjectURL(file),image=new Image();
  image.onload=()=>{
   URL.revokeObjectURL(source);
   if(token!==liveToken)return;
-  liveImage=image;scheduleLivePreview();
+  liveImage=image;
+  scheduleLivePreview();
  };
- image.onerror=()=>{URL.revokeObjectURL(source);if(token===liveToken)message("Live preview unsupported for this image",true)};
+ image.onerror=()=>{URL.revokeObjectURL(source);if(token===liveToken)message("Live preview unsupported by this browser",true)};
  image.src=source;
 }
 function scheduleLivePreview(){
  if(state.mode!=="enhance"||!liveImage)return;
- // Immediate CSS-filter fallback while canvas preview is being redrawn.
- $("afterImage").src=$("beforeImage").src;
- $("afterImage").style.filter=`brightness(${$("brightness").value}%) contrast(${$("contrast").value}%) saturate(${$("saturation").value}%)`;
- $("afterImage").hidden=false;
- $("liveEnhanceCanvas").hidden=true;
- clearTimeout(liveTimer);
- liveTimer=setTimeout(()=>{
-  const image=liveImage,canvas=$("liveEnhanceCanvas"),edge=850;
-  const factor=Math.min(1,edge/Math.max(image.naturalWidth,image.naturalHeight));
-  canvas.width=Math.max(1,Math.round(image.naturalWidth*factor));
-  canvas.height=Math.max(1,Math.round(image.naturalHeight*factor));
-  const ctx=canvas.getContext("2d");
-  if(!ctx){$("afterMeta").textContent="Live CSS preview (canvas unsupported)";return}
-  ctx.imageSmoothingQuality="high";
-  ctx.filter=`brightness(${$("brightness").value}%) contrast(${$("contrast").value}%) saturate(${$("saturation").value}%)`;
-  ctx.drawImage(image,0,0,canvas.width,canvas.height);ctx.filter="none";
-  // Small-screen unsharp preview, never alters original uploaded file.
-  const amount=Number($("sharpness").value)/100*.55;
-  if(amount>0&&canvas.width*canvas.height<=800000){
-   try{
-   const picture=ctx.getImageData(0,0,canvas.width,canvas.height),pixels=picture.data,copy=new Uint8ClampedArray(pixels);
-   for(let y=1;y<canvas.height-1;y++)for(let x=1;x<canvas.width-1;x++){
-    const j=(y*canvas.width+x)*4;
-    for(let c=0;c<3;c++){
-     const blur=(pixels[j-4+c]+pixels[j+4+c]+pixels[j-canvas.width*4+c]+pixels[j+canvas.width*4+c])/4;
-     copy[j+c]=Math.max(0,Math.min(255,pixels[j+c]+(pixels[j+c]-blur)*amount));
+ const {brightness,contrast,saturation,sharpness}=previewSettings();
+ const picture=$("afterImage");
+ // This changes immediately on every touch/input, including on iPhone Safari.
+ picture.src=$("beforeImage").src;
+ picture.style.filter=`brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%)`;
+ enhanceCanvasVisible(false);
+ $("afterMeta").textContent="LIVE: Brightness "+brightness+"% · Contrast "+contrast+"% · Colour "+saturation+"% · Sharpen "+sharpness+"%";
+ if(liveFrame)cancelAnimationFrame(liveFrame);
+ liveFrame=requestAnimationFrame(()=>{
+  liveFrame=0;
+  try{
+   const canvas=$("liveEnhanceCanvas"),edge=750,image=liveImage;
+   const factor=Math.min(1,edge/Math.max(image.naturalWidth,image.naturalHeight));
+   canvas.width=Math.max(1,Math.round(image.naturalWidth*factor));
+   canvas.height=Math.max(1,Math.round(image.naturalHeight*factor));
+   const ctx=canvas.getContext("2d",{willReadFrequently:sharpness>0});
+   if(!ctx)return;
+   ctx.imageSmoothingEnabled=true;
+   ctx.imageSmoothingQuality="high";
+   ctx.filter=`brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%)`;
+   ctx.drawImage(image,0,0,canvas.width,canvas.height);
+   ctx.filter="none";
+   if(sharpness>0){
+    const pixels=ctx.getImageData(0,0,canvas.width,canvas.height);
+    const data=pixels.data,changed=new Uint8ClampedArray(data),w=canvas.width,h=canvas.height;
+    const amount=sharpness/100*.65;
+    for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++){
+     const i=(y*w+x)*4;
+     for(let c=0;c<3;c++){
+      const blur=(data[i-4+c]+data[i+4+c]+data[i-w*4+c]+data[i+w*4+c])/4;
+      changed[i+c]=data[i+c]+(data[i+c]-blur)*amount;
+     }
     }
+    pixels.data.set(changed);
+    ctx.putImageData(pixels,0,0);
    }
-   picture.data.set(copy);ctx.putImageData(picture,0,0);
-   }catch(error){console.warn("Sharpen preview unavailable on this device",error?.message)}
+   // Show canvas only after successfully finishing the entire render.
+   enhanceCanvasVisible(true);
+  }catch(error){
+   // Already visible CSS preview remains as the safe fallback.
+   enhanceCanvasVisible(false);
+   console.warn("Enhancement preview fallback",error?.message);
   }
-  enhanceCanvasVisible(true);
-  $("afterMeta").textContent="LIVE PREVIEW • Export applies chosen settings to full image";
- },85);
+ });
 }
 function fileLabel(name){return name.length>28?name.slice(0,25)+"…":name}
 function dropUrls(){
@@ -101,10 +119,10 @@ function loadFiles(list){
   }
  }
  state.files=files;emptyResults();
- setupLivePreview(files[0]);
  $("processBtn").disabled=false;
  const first=files[0];
  $("beforeImage").src=urlFor(first);
+ setupLivePreview(files[0]);
  $("beforeMeta").textContent=`${fileLabel(first.name)} • ${bytesLabel(first.size)}`;
  message(`${files.length} image(s) ready. Adjust options and click Process Photos.`);
 }
@@ -199,7 +217,7 @@ $("downloadZip").addEventListener("click",()=>{
  document.body.append(link);link.click();link.remove();
 });
 $("resetBtn").addEventListener("click",()=>{
- ++liveToken;liveImage=null;clearTimeout(liveTimer);enhanceCanvasVisible(false);
+ ++liveToken;liveImage=null;if(liveFrame)cancelAnimationFrame(liveFrame);enhanceCanvasVisible(false);
  if(state.busy)return;state.files=[];$("studioFiles").value="";emptyResults();
  $("processBtn").disabled=true;message("Files cleared. Nothing has been uploaded.");
 });

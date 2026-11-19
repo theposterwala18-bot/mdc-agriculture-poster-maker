@@ -19,6 +19,7 @@ export default {
         "pdf-tools": resolve(projectRoot, "dist/pdf-tools.html"),
         "passport-photo": resolve(projectRoot, "dist/passport-photo.html"),
         "card-page-maker": resolve(projectRoot, "dist/card-page-maker.html"),
+        "aadhaar-print": resolve(projectRoot, "dist/aadhaar-print.html"),
         "resume-maker": resolve(projectRoot, "dist/resume-maker.html"),
         "image-format-converter": resolve(projectRoot, "dist/image-format-converter.html"),
         "ai-upscale": resolve(projectRoot, "dist/ai-upscale.html")

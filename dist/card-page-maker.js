@@ -45,7 +45,7 @@ bindPrintSettings("card",requestCardPreview);
 for(const id of ["cardSize","cardPairs","cardGap"])$(id).addEventListener("input",requestCardPreview);
 let moving=null;const sheet=$("cardPreviewCanvas");
 sheet.addEventListener("pointerdown",e=>{if(!front||!back)return;moving={id:e.pointerId,x:e.clientX,y:e.clientY,ox:Number($("cardOffsetX").value),oy:Number($("cardOffsetY").value)};sheet.setPointerCapture(e.pointerId)});
-sheet.addEventListener("pointermove",e=>{if(!moving||moving.id!==e.pointerId)return;const box=sheet.getBoundingClientRect(),p=printConfig("card");$("cardOffsetX").value=Math.round((moving.ox+(e.clientX-moving.x)/box.width*p.w)*10)/10;$("cardOffsetY").value=Math.round((moving.oy+(e.clientY-moving.y)/box.height*p.h)*10)/10;$("cardOffsetX").dispatchEvent(new Event("input"));$("cardOffsetY").dispatchEvent(new Event("input"))});
+sheet.addEventListener("pointermove",e=>{if(!moving||moving.id!==e.pointerId)return;const box=sheet.getBoundingClientRect(),p=printConfig("card");$("cardOffsetX").value=Math.max(-200,Math.min(200,Math.round((moving.ox+(e.clientX-moving.x)/box.width*p.w)*10)/10));$("cardOffsetY").value=Math.max(-200,Math.min(200,Math.round((moving.oy+(e.clientY-moving.y)/box.height*p.h)*10)/10));$("cardOffsetX").dispatchEvent(new Event("input"));$("cardOffsetY").dispatchEvent(new Event("input"))});
 for(const eventName of ["pointerup","pointercancel","lostpointercapture"])sheet.addEventListener(eventName,()=>moving=null);
 for(const id of ["cardFront","cardBack"])$(id).addEventListener("change",async()=>{
  try{const f=$("cardFront").files?.[0],b=$("cardBack").files?.[0];if(!f||!b)return;

@@ -1,6 +1,7 @@
+import {bindPrintSettings,printConfig,pdfPts,anchorXY} from "./smart-print-layout.js";
 const $=id=>document.getElementById(id);
 let generatedUrl=null;const report=(msg,error=false)=>{$("pdfStatus").textContent=msg;$("pdfStatus").classList.toggle("error",error)};
-const sizes={a4:[595.28,841.89],letter:[612,792]};
+
 function clear(){if(generatedUrl){URL.revokeObjectURL(generatedUrl);generatedUrl=null}$("pdfDownload").hidden=true;$("pdfPreview").replaceChildren()}
 function selections(){const mode=$("pdfMode").value;$("splitOpts").hidden=mode!=="split";$("rotateOpts").hidden=mode!=="rotate";$("imageOpts").hidden=mode!=="image";$("pdfFiles").value="";clear();$("pdfFiles").accept=mode==="image"?"image/jpeg,image/png,image/webp":".pdf,application/pdf";$("pdfFiles").multiple=["image","merge"].includes(mode)}
 $("pdfMode").addEventListener("change",selections);
@@ -36,14 +37,25 @@ async function createPdf(){
  if(files.some(f=>f.size>35*1024*1024))throw Error("Maximum file size 35 MB per file");
  const output=await lib.PDFDocument.create();
  if(mode==="image"){
-  const [pw,ph]=sizes[$("pdfPageSize").value]||sizes.a4;
+  const p=printConfig("pdf"),pw=pdfPts(p.w),ph=pdfPts(p.h);
   for(const file of files){
    const data=await toJpeg(file);
    const embedded=file.type==="image/png"?await output.embedPng(data):await output.embedJpg(data);
-   const page=output.addPage([pw,ph]);const margin=24;
-   const scale=Math.min((pw-margin*2)/embedded.width,(ph-margin*2)/embedded.height);
+   const page=output.addPage([pw,ph]),margin=pdfPts(p.margin);
+   const width=pw-2*margin,height=ph-2*margin;
+   if(width<=0||height<=0)throw Error("Margins are too large for this paper.");
+   const cover=$("pdfFit").value==="cover";
+   const scale=cover?Math.max(width/embedded.width,height/embedded.height):Math.min(width/embedded.width,height/embedded.height);
    const w=embedded.width*scale,h=embedded.height*scale;
-   page.drawImage(embedded,{x:(pw-w)/2,y:(ph-h)/2,width:w,height:h});
+   if(cover){
+    // Physical crop to the printable rectangle without stretching originals.
+    const {x,y}=anchorXY(p.position,pw,ph,width,height,margin,pdfPts(p.offsetX),-pdfPts(p.offsetY));
+    page.drawImage(embedded,{x:x+(width-w)/2,y:ph-y-height+(height-h)/2,width:w,height:h});
+    // Cover can extend beyond margins; image is clipped to the PDF page boundaries.
+   }else{
+    const position=anchorXY(p.position,pw,ph,w,h,margin,pdfPts(p.offsetX),-pdfPts(p.offsetY));
+    page.drawImage(embedded,{x:position.x,y:ph-position.y-h,width:w,height:h});
+   }
   }
  }else{
   for(const file of files){
@@ -73,5 +85,8 @@ $("makePdf").addEventListener("click",async()=>{
  }catch(error){report(error.message||"Conversion failed",true)}
  finally{button.disabled=false}
 });
+bindPrintSettings("pdf",()=>{clear();try{const p=printConfig("pdf");$("pdfPageInfo").textContent=p.w+" × "+p.h+" mm • "+p.position+" • "+p.margin+" mm margin • image to PDF only"}catch(e){$("pdfPageInfo").textContent=e.message}});
+$("pdfFit").addEventListener("change",clear);
+$("pdfFiles").addEventListener("change",clear);
 selections();
 window.addEventListener("pagehide",clear);

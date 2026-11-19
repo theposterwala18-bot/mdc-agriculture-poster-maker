@@ -1,0 +1,40 @@
+name: Verify Aadhaar Auto Print Layout (no deploy)
+on:
+  push:
+    branches: [feature/aadhaar-auto-layout-2026-11-19]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22', cache: npm}
+      - name: Syntax and original-document-only features
+        run: |
+          node --check dist/aadhaar-auto-layout.js
+          node --check dist/card-page-maker.js
+          node --input-type=module <<'JS'
+          import fs from "node:fs";
+          const read=f=>fs.readFileSync(f,"utf8");
+          const ui=read("dist/aadhaar-print.html"),script=read("dist/aadhaar-auto-layout.js");
+          for(const id of ["sourceType","aadhaarPdf","aadhaarFront","aadhaarBack","pdfPage","sourceCanvas","selectFront","selectBack","suggestSide","suggestStacked","layoutPreset","cardWidth","cardHeight","marginMm","gapMm","layoutCanvas","aadhaarPng","aadhaarPdfDownload","viewerPdf","originalFrame"])
+            if(!ui.includes('id="'+id+'"'))throw Error("Missing field: "+id);
+          for(const token of ["onPassword","pdfjsLib","renderPdfPage","pointerdown","pointermove","suggestRegions","extractRegion","drawPrint","requestPreview","drawFit","autoReduced","PDFDocument.create","embedPng","page.render","URL.revokeObjectURL"])
+            if(!script.includes(token))throw Error("Missing code: "+token);
+          if(!ui.includes("pdfjs-dist@3.11.174")||!ui.includes("pdf-lib@1.17.1"))throw Error("Pinned libraries missing");
+          if(/fetch\(|XMLHttpRequest|sendBeacon|localStorage|sessionStorage/i.test(script))throw Error("No PDF data transmission or storage allowed");
+          if(!read("vite.config.mjs").includes("dist/aadhaar-print.html"))throw Error("Original route removed");
+          console.log("Original-Aadhaar PDF selection, local password, card layout and preview present");
+          JS
+      - name: Verify no original card/payment/owner files changed
+        run: |
+          git fetch --no-tags origin main --depth=1
+          if [ -n "$(git diff --name-only FETCH_HEAD HEAD -- backend/payment-api.worker.js dist/poster-export.js dist/owner-dashboard.js dist/owner-free-access.js dist/auth.js dist/app.js dist/card-page-maker.js dist/card-page-maker.html dist/subscription-plans.js)" ]; then
+            echo "Protected payment, poster, original card or owner file changed"; exit 1
+          fi
+      - name: Full website build
+        run: |
+          npm ci
+          npm run build

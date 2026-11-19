@@ -24,3 +24,29 @@ export function anchorXY(pos,pageW,pageH,contentW,contentH,margin=0,dx=0,dy=0){
 }
 export function savePrintPrefs(key,values){try{localStorage.setItem("tpw-print-"+key,JSON.stringify(values))}catch{}}
 export function readPrintPrefs(key){try{return JSON.parse(localStorage.getItem("tpw-print-"+key)||"null")}catch{return null}}
+
+export function bindPrintSettings(prefix,onChange=()=>{}){
+ const ids=["Paper","Orient","CustomW","CustomH","Position","Margin","OffsetX","OffsetY"];
+ const prior=readPrintPrefs(prefix);
+ for(const suffix of ids){const el=document.getElementById(prefix+suffix);if(!el)continue;
+  if(prior&&Object.hasOwn(prior,suffix)&&typeof prior[suffix]==="string"){
+   const value=prior[suffix];if(el.tagName!=="SELECT"||[...el.options].some(o=>o.value===value))el.value=value;
+  }
+ }
+ function refresh(){
+  const custom=document.getElementById(prefix+"Paper").value==="custom";
+  document.getElementById(prefix+"CustomWField").hidden=!custom;
+  document.getElementById(prefix+"CustomHField").hidden=!custom;
+  const values=Object.fromEntries(ids.map(suffix=>[suffix,document.getElementById(prefix+suffix).value]));
+  savePrintPrefs(prefix,values);onChange();
+ }
+ for(const suffix of ids)document.getElementById(prefix+suffix).addEventListener("input",refresh);
+ refresh();
+}
+export function printConfig(prefix){
+ const get=suffix=>document.getElementById(prefix+suffix).value;
+ const [w,h]=paperMm(get("Paper"),get("Orient"),get("CustomW"),get("CustomH"));
+ const margin=Number(get("Margin")),offsetX=Number(get("OffsetX")),offsetY=Number(get("OffsetY"));
+ if(!Number.isFinite(margin)||margin<0||margin>25||!Number.isFinite(offsetX)||!Number.isFinite(offsetY)||Math.abs(offsetX)>200||Math.abs(offsetY)>200)throw Error("Invalid margin / position adjustment.");
+ return {w,h,margin,offsetX,offsetY,position:get("Position"),paper:get("Paper")};
+}

@@ -191,7 +191,7 @@ function getActiveTemplate() {
 
 function renderModuleHub() {
   const holder = document.getElementById("moduleGroups");
-  const groupOrder = ["document-tools", "invitation", "grief-help", "sale", "public"];
+  const groupOrder = ["invitation", "grief-help", "sale", "public", "document-tools"];
   const orderedGroups = [...moduleGroups].sort((a, b) => groupOrder.indexOf(a.id) - groupOrder.indexOf(b.id));
   holder.innerHTML = orderedGroups.map((group) => `
     <section class="module-group" aria-labelledby="module-group-${group.id}">

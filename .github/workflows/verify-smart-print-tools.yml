@@ -1,0 +1,26 @@
+name: Verify Smart Print Tools
+on:
+  pull_request:
+    paths:
+      - "dist/smart-print-layout.*"
+      - "dist/card-page-maker.*"
+      - "dist/passport-photo.*"
+      - "dist/pdf-tools.*"
+      - "tests/smart-print-layout.test.mjs"
+      - ".github/workflows/verify-smart-print-tools.yml"
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate module syntax
+        run: |
+          for f in dist/smart-print-layout.js dist/card-page-maker.js dist/passport-photo.js dist/pdf-tools.js; do
+            node --input-type=module --check < "$f"
+          done
+      - name: Verify document and photo print integration
+        run: node --test tests/smart-print-layout.test.mjs

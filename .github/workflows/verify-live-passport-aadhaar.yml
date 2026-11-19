@@ -1,0 +1,47 @@
+name: Verify live enhancement, passport framing, Aadhaar print isolation
+on:
+  push:
+    branches:
+      - feature/live-preview-passport-aadhaar-2026-11-19
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22', cache: npm}
+      - name: Syntax and UI regression
+        run: |
+          for f in dist/smart-image-studio.js dist/passport-photo.js dist/tools-navigation.js dist/card-page-maker.js dist/app.js; do node --check "$f"; done
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const read=x=>fs.readFileSync(x,'utf8');
+          const image=read('dist/smart-image-studio.js'),css=read('dist/smart-image-studio.css');
+          for(const k of ['scheduleLivePreview','previewSettings','requestAnimationFrame','enhanceCanvasVisible','cancelAnimationFrame','setupLivePreview(files[0])','getImageData'])if(!image.includes(k))throw Error('Missing enhancement feature: '+k);
+          if(!css.includes('.preview-cell img[hidden]'))throw Error('Mobile after-preview hidden CSS conflict not fixed');
+          const passport=read('dist/passport-photo.js'),html=read('dist/passport-photo.html');
+          for(const k of ['pointerdown','pointermove','setPointerCapture','faceClose','upperBody','fullPortrait','resetCrop','passportCropStatus','passportSource'])if(!passport.includes(k)||!html.includes(k) && !['pointerdown','pointermove','setPointerCapture'].includes(k))throw Error('Missing passport live framing: '+k);
+          if(!passport.includes('crop(small.getContext("2d"),w,h)'))throw Error('Print crop must match preview image');
+          const aadhaar=read('dist/aadhaar-print.html');
+          for(const k of ['cardFront','cardBack','securePdfInput','card-page-maker.js','Original','Privacy'])if(!aadhaar.includes(k))throw Error('Original authentic Aadhaar print missing: '+k);
+          if(aadhaar.includes('Aadhaar Generator')||aadhaar.includes('edit Aadhaar'))throw Error('Identity document alteration cannot be advertised');
+          if(!read('dist/tools.html').includes('aadhaar-print.html'))throw Error('Aadhaar page not linked');
+          if(!read('dist/tools-navigation.js').includes('aadhaar-print.html'))throw Error('Aadhaar menu link missing');
+          if(!read('vite.config.mjs').includes('dist/aadhaar-print.html'))throw Error('Aadhaar not built');
+          console.log('Live preview, touch crop, authentic Aadhaar print, navigation gates passed');
+          JS
+      - name: No modifications to payments, owner settings, existing poster workflows
+        run: |
+          git fetch --no-tags origin main --depth=1
+          if [ -n "$(git diff --name-only FETCH_HEAD HEAD -- backend/payment-api.worker.js dist/poster-export.js dist/owner-dashboard.js dist/owner-free-access.js dist/auth.js dist/subscription-plans.js dist/smart-image-engine.js dist/app.js)" ]; then
+            echo "Protected financial/export/owner/poster module modified"; exit 1
+          fi
+      - name: Original image compressor unit tests
+        run: |
+          node --test tests/smart-image-engine.test.mjs
+      - name: Website build (no deployment)
+        run: |
+          npm ci
+          npm run build

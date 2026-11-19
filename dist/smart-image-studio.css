@@ -2,3 +2,9 @@
 .preview-cell canvas{display:block;max-width:100%;height:230px;width:100%;object-fit:contain;margin:12px auto;background:repeating-conic-gradient(#e1e4e0 0 25%,#fff 0 50%) 50% / 20px 20px;border-radius:5px}
 .preview-cell canvas[hidden]{display:none!important}
 @media(max-width:620px){.preview-cell canvas{height:170px}}
+
+
+/* Ensure browser-hidden original/canvas never appears on top of the live After panel. */
+.preview-cell img[hidden],.preview-cell canvas[hidden]{display:none!important}
+.preview-cell #liveEnhanceCanvas{max-width:100%;display:block;width:100%;height:230px;object-fit:contain}
+@media(max-width:620px){.preview-cell #liveEnhanceCanvas{height:170px}}

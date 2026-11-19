@@ -8,8 +8,8 @@ function crop(ctx,w,h){
  if(!image)return;
  const ratio=Math.max(w/image.naturalWidth,h/image.naturalHeight)*Number($("photoZoom").value)/100;
  const drawW=image.naturalWidth*ratio,drawH=image.naturalHeight*ratio;
- const dx=(w-drawW)/2+(w-drawW)*Number($("panX").value)/200;
- const dy=(h-drawH)/2+(h-drawH)*Number($("panY").value)/200;
+ const dx=(w-drawW)/2+(drawW-w)*Number($("panX").value)/200;
+ const dy=(h-drawH)/2+(drawH-h)*Number($("panY").value)/200;
  ctx.fillStyle="white";ctx.fillRect(0,0,w,h);
  ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high";
  ctx.drawImage(image,dx,dy,drawW,drawH);
@@ -17,7 +17,18 @@ function crop(ctx,w,h){
 function preview(){
  if(!image)return;
  const [w,h]=mm(),canvas=$("passportPreview");canvas.width=mmToPx(w);canvas.height=mmToPx(h);
- crop(canvas.getContext("2d"),canvas.width,canvas.height);
+ const ctx=canvas.getContext("2d");
+ crop(ctx,canvas.width,canvas.height);
+ // Non-exported live composition guides: thirds and face-centering reference.
+ ctx.strokeStyle="rgba(244,255,250,.58)";
+ ctx.lineWidth=Math.max(2,canvas.width/220);
+ ctx.setLineDash([Math.max(7,canvas.width/28),Math.max(6,canvas.width/38)]);
+ for(const fraction of [1/3,2/3]){
+  ctx.beginPath();ctx.moveTo(0,canvas.height*fraction);ctx.lineTo(canvas.width,canvas.height*fraction);ctx.stroke();
+ }
+ ctx.beginPath();ctx.moveTo(canvas.width/2,0);ctx.lineTo(canvas.width/2,canvas.height);ctx.stroke();
+ ctx.setLineDash([]);
+ $("passportCropStatus").textContent="Live crop: "+w+" × "+h+" mm • Zoom "+$("photoZoom").value+"%. Drag photo to reposition.";
  for(const [id,out] of [["photoZoom","zoomText"],["panX","panXText"],["panY","panYText"]])$(out).textContent=$(id).value+(id==="photoZoom"?"%":"");
 }
 $("passportInput").addEventListener("change",()=>{
@@ -27,10 +38,51 @@ $("passportInput").addEventListener("change",()=>{
  sourceURL=URL.createObjectURL(file);
  const img=new Image();img.onload=()=>{
   if(img.naturalWidth*img.naturalHeight>32e6){status("Image resolution exceeds 32 MP",true);return}
-  image=img;$("makePhotos").disabled=false;preview();status("Adjust crop and generate A4 sheet.");
+  image=img;
+  $("passportSource").src=sourceURL;$("passportSource").hidden=false;
+  $("makePhotos").disabled=false;preview();
+  status("Live crop ready. Drag the picture inside green frame, or use Face / Body presets.");
  };img.onerror=()=>status("Invalid photo",true);img.src=sourceURL;
 });
 for(const id of ["passportSize","photoZoom","panX","panY"])$(id).addEventListener("input",preview);
+function resetFraming(zoom=100){
+ $("photoZoom").value=zoom;$("panX").value=0;$("panY").value=0;preview();
+}
+$("faceClose").addEventListener("click",()=>resetFraming(170));
+$("upperBody").addEventListener("click",()=>resetFraming(125));
+$("fullPortrait").addEventListener("click",()=>resetFraming(100));
+$("resetCrop").addEventListener("click",()=>resetFraming(100));
+const cropCanvas=$("passportPreview");
+let pointerStart=null;
+cropCanvas.addEventListener("pointerdown",event=>{
+ if(!image)return;
+ event.preventDefault();
+ cropCanvas.setPointerCapture(event.pointerId);
+ pointerStart={id:event.pointerId,x:event.clientX,y:event.clientY,
+   panX:Number($("panX").value),panY:Number($("panY").value)};
+ cropCanvas.style.cursor="grabbing";
+});
+cropCanvas.addEventListener("pointermove",event=>{
+ if(!pointerStart||pointerStart.id!==event.pointerId||!image)return;
+ event.preventDefault();
+ const rect=cropCanvas.getBoundingClientRect();
+ const ratio=Math.max(cropCanvas.width/image.naturalWidth,cropCanvas.height/image.naturalHeight)
+   *Number($("photoZoom").value)/100;
+ const extraW=image.naturalWidth*ratio-cropCanvas.width;
+ const extraH=image.naturalHeight*ratio-cropCanvas.height;
+ const dx=(event.clientX-pointerStart.x)/Math.max(1,rect.width);
+ const dy=(event.clientY-pointerStart.y)/Math.max(1,rect.height);
+ const px=extraW>0.1?pointerStart.panX+dx*(cropCanvas.width/extraW)*200:0;
+ const py=extraH>0.1?pointerStart.panY+dy*(cropCanvas.height/extraH)*200:0;
+ $("panX").value=Math.max(-100,Math.min(100,Math.round(px)));
+ $("panY").value=Math.max(-100,Math.min(100,Math.round(py)));
+ preview();
+});
+function stopPointer(){pointerStart=null;cropCanvas.style.cursor="grab"}
+cropCanvas.addEventListener("pointerup",stopPointer);
+cropCanvas.addEventListener("pointercancel",stopPointer);
+cropCanvas.addEventListener("lostpointercapture",stopPointer);
+
 const asBlob=(canvas,type="image/png",quality=.92)=>new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(Error("Image export failed")),type,quality));
 $("makePhotos").addEventListener("click",async()=>{
  if(!image)return;

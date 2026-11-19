@@ -8,7 +8,7 @@ heading.append(title,close);drawer.append(heading);
 const sections=[
  ["MAIN",[["Home Page","#moduleHub"],["All Document Tools","tools.html"],["Smart Image Studio","smart-image-studio.html"]]],
  ["POSTERS",[["Wedding & Invitations","#module-group-invitation"],["Death / Bhog","#module-group-grief-help"],["Sale Posters","#module-group-sale"],["Public Notices","#module-group-public"]]],
- ["EVERYDAY TOOLS",[["HEIC → JPG Converter","image-format-converter.html"],["PDF Converter","pdf-tools.html"],["Passport Photo","passport-photo.html"],["ID Card Page Maker","card-page-maker.html"],["Resume Maker","resume-maker.html"]]]
+ ["EVERYDAY TOOLS",[["HEIC → JPG Converter","image-format-converter.html"],["PDF Converter","pdf-tools.html"],["Passport Photo","passport-photo.html"],["ID Card Page Maker","card-page-maker.html"],["Aadhaar Original Print","aadhaar-print.html"],["Resume Maker","resume-maker.html"]]]
 ];
 for(const [name,links] of sections){
  const label=document.createElement("p");label.className="tpw-main-drawer-label";label.textContent=name;drawer.append(label);

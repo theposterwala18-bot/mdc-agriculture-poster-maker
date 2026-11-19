@@ -118,7 +118,7 @@ async function renderPdfPage(pageIndex){
  if(!state.pdf)return;
  const page=await state.pdf.getPage(pageIndex);
  const base=page.getViewport({scale:1});
- const scale=Math.min(2.2,1800/Math.max(base.width,base.height));
+ const scale=Math.min(3,2600/Math.max(base.width,base.height));
  const viewport=page.getViewport({scale});
  const canvas=makeCanvas(viewport.width,viewport.height);
  await page.render({canvasContext:canvas.getContext("2d"),viewport}).promise;
@@ -136,7 +136,7 @@ async function loadPdf(){
  destroyPdf();
  // The browser prompts for the genuine document's existing password if needed.
  // Neither user password nor PDF bytes leave this page.
- const loading=pdfjs.getDocument({data:new Uint8Array(await file.arrayBuffer()),useSystemFonts:true});
+ const loading=pdfjs.getDocument({data:new Uint8Array(await file.arrayBuffer()),useSystemFonts:true,isEvalSupported:false,enableScripting:false});
  state.loading=loading;
  loading.onPassword=(accept,reason)=>{
   const bad=reason===pdfjs.PasswordResponses.INCORRECT_PASSWORD;

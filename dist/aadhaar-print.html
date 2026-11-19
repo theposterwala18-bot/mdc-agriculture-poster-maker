@@ -1,1 +1,63 @@
-<!doctype html><html lang="pa"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Aadhaar Original Document Print Layout | The Poster Wala</title><link rel="stylesheet" href="tools-pages.css?v=1.0.0"><link rel="stylesheet" href="tools-navigation.css?v=1.0.0"></head><body><main class="tool-shell"><div class="tool-title"><span class="tool-tag">LOCAL DOCUMENTS • PRINT ONLY</span><h1>Aadhaar Document Print Layout</h1><p>Print only your own authentic Aadhaar/e-Aadhaar document: upload genuine front and back images for an A4 layout, or open the original password-protected e-Aadhaar PDF in your browser's PDF viewer.</p></div><p class="tool-caution"><strong>Privacy:</strong> Aadhaar images and e-Aadhaar PDFs stay on your own device, processed locally by your browser. Do not upload someone else's Aadhaar without their permission. Protect downloaded files after printing.</p><div class="tool-grid"><section class="tool-card"><h2>Authentic Aadhaar — Front & Back A4 Sheet</h2><label class="tool-field">Original Front Image<input id="cardFront" type="file" accept="image/png,image/jpeg,image/webp"></label><label class="tool-field">Original Back Image<input id="cardBack" type="file" accept="image/png,image/jpeg,image/webp"></label><label class="tool-field">Card Size (Print Layout Only)<select id="cardSize"><option value="85.6x54">ID / Bank Card 85.6 × 54 mm</option><option value="90x55">90 × 55 mm (large print)</option></select></label><label class="tool-field">Print Pairs<select id="cardPairs"><option value="1">1 pair</option><option value="2">2 pairs</option><option value="3">3 pairs</option><option value="4" selected>4 pairs</option></select></label><div class="tool-actions"><button id="cardGenerate" class="tool-btn" type="button">Generate A4 Layout</button><a id="cardDownload" class="tool-btn alt" hidden download="Card-Page-A4.png">Download PNG</a><a id="cardPdf" class="tool-btn alt" hidden download="Card-Page-A4.pdf">Download PDF</a></div><p id="cardStatus" role="status" class="tool-status">Choose authentic card front/back images.</p><hr><h2>Open Original Password-Protected e-Aadhaar PDF</h2><label class="tool-field">Choose your own PDF<input id="securePdfInput" type="file" accept=".pdf,application/pdf"></label><p class="tool-help">Your browser's built-in PDF viewer may prompt for the password. This page never collects or stores the password, and never removes PDF encryption. Print the unchanged original document from the viewer.</p><button id="showOriginalPdf" class="tool-btn alt" type="button">Open e-Aadhaar PDF Locally</button></section><section class="tool-card"><h2>Preview</h2><img id="cardPreview" class="tool-image" hidden alt="A4 card front and back sheet preview"><div class="tool-preview" id="securePdfViewer" hidden></div><p class="tool-caution">Only genuine documents supplied by the owner are accepted for arrangement. This tool does not generate Aadhaar cards, alter Aadhaar details, remove security features, validate identity, bypass PDF passwords, or provide an official Aadhaar service. Avoid printing or sharing Aadhaar without the cardholder's permission.</p></section></div></main><script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" defer></script><script type="module" src="card-page-maker.js?v=1.0.0"></script><script type="module" src="tools-navigation.js?v=1.2.0"></script></body></html>
+<!doctype html>
+<html lang="pa"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="index,follow"><title>Aadhaar Auto Print Layout | The Poster Wala</title>
+<link rel="stylesheet" href="tools-pages.css?v=1.0.0"><link rel="stylesheet" href="tools-navigation.css?v=1.0.0"><link rel="stylesheet" href="aadhaar-auto-layout.css?v=2.0.0"></head>
+<body><main class="tool-shell aadhaar-workspace">
+<header class="tool-title"><span class="tool-tag">PRIVATE • ORIGINAL DOCUMENTS ONLY</span><h1>Aadhaar Auto Print Layout</h1><p>Original e-Aadhaar PDF ਤੋਂ Front/Back Select ਕਰੋ, A4 Sheet ਵਿੱਚ Automatically Fit ਕਰੋ ਅਤੇ PDF/PNG Download ਕਰੋ। Original Text, Photo, QR ਅਤੇ Number ਨਹੀਂ ਬਦਲੇ ਜਾਣਗੇ।</p></header>
+<div class="tool-caution">ਇਹ UIDAI ਦੀ Official Service ਨਹੀਂ ਹੈ। ਸਿਰਫ਼ ਆਪਣਾ ਜਾਂ Cardholder ਦੀ ਇਜਾਜ਼ਤ ਵਾਲਾ ਅਸਲੀ Document ਵਰਤੋ। PDF, Password ਅਤੇ Photos Browser ਵਿੱਚ ਹੀ Process ਹੁੰਦੇ ਹਨ, Server ਉੱਤੇ Upload ਨਹੀਂ।</div>
+<div class="aad-tabs" role="tablist" aria-label="Aadhaar print tools">
+<button type="button" class="active" id="autoTab" aria-selected="true" role="tab">Auto Layout</button>
+<button type="button" id="originalTab" aria-selected="false" role="tab">View Original PDF</button>
+</div>
+<section id="autoPanel" role="tabpanel">
+<div class="tool-grid aad-grid">
+<div class="tool-card">
+<h2>1. Upload Original</h2>
+<label class="tool-field">Source Type<select id="sourceType"><option value="pdf">Original e-Aadhaar PDF</option><option value="images">Original Front + Back Images</option></select></label>
+<div id="pdfInputs"><label class="tool-field">Choose e-Aadhaar PDF<input type="file" id="aadhaarPdf" accept=".pdf,application/pdf"></label>
+<p class="tool-help">Password-protected PDF ਲਈ Browser ਵਿੱਚ Password ਪੁੱਛਿਆ ਜਾਵੇਗਾ। Password ਕਿਸੇ Server ਉੱਤੇ ਨਹੀਂ ਭੇਜਿਆ ਜਾਵੇਗਾ।</p>
+<button class="tool-btn" type="button" id="loadPdf">Load PDF & Select Cards</button>
+<label class="tool-field" style="margin-top:14px">PDF Page<select id="pdfPage" disabled><option value="1">Page 1</option></select></label>
+</div>
+<div id="imageInputs" hidden><label class="tool-field">Original Front Image<input type="file" id="aadhaarFront" accept="image/jpeg,image/png,image/webp"></label><label class="tool-field">Original Back Image<input type="file" id="aadhaarBack" accept="image/jpeg,image/png,image/webp"></label><button class="tool-btn" type="button" id="loadImages">Use Front/Back Images</button></div>
+<h2 style="margin-top:22px">2. Select Front & Back</h2>
+<p class="tool-help" id="selectionHelp">PDF Load ਹੋਣ ਤੋਂ ਬਾਅਦ Suggested Front/Back Boxes ਦਿਖਣਗੇ। ਜੇ ਚੋਣ ਗਲਤ ਹੈ ਤਾਂ Front ਜਾਂ Back ਚੁਣਕੇ Original Page ਉੱਤੇ Drag ਕਰਕੇ Crop Area ਬਣਾਓ।</p>
+<div class="aad-selection-controls">
+<button type="button" id="selectFront" class="active" aria-pressed="true">Select Front</button>
+<button type="button" id="selectBack" aria-pressed="false">Select Back</button>
+<button type="button" id="suggestSide">Suggest Side-by-Side</button>
+<button type="button" id="suggestStacked">Suggest Stacked</button>
+<button type="button" id="resetRegions">Reset Selection</button></div>
+<div class="aad-source-wrap"><canvas id="sourceCanvas" aria-label="Original PDF page with adjustable card selection boxes" tabindex="0"></canvas></div>
+<p id="selectionMessage" class="tool-files">Load PDF or images to begin.</p>
+<h2 style="margin-top:22px">3. Print Layout</h2>
+<label class="tool-field">Layout<select id="layoutPreset"><option value="kyc">Bank KYC — Front Above Back (One Page)</option><option value="1">1 Front/Back Pair</option><option value="2">2 Front/Back Pairs</option><option value="4" selected>4 Front/Back Pairs</option><option value="6">6 Front/Back Pairs</option></select></label>
+<div class="tool-form-grid">
+<label class="tool-field">Paper<select id="paperType"><option value="a4">A4</option><option value="letter">Letter</option></select></label>
+<label class="tool-field">Orientation<select id="orientation"><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select></label>
+<label class="tool-field">Card Width (mm)<input id="cardWidth" type="number" value="85.6" min="40" max="190" step="0.1"></label>
+<label class="tool-field">Card Height (mm)<input id="cardHeight" type="number" value="54" min="25" max="150" step="0.1"></label>
+<label class="tool-field">Margin (mm)<input id="marginMm" type="number" value="10" min="3" max="35" step="1"></label>
+<label class="tool-field">Gap (mm)<input id="gapMm" type="number" value="5" min="0" max="20" step="1"></label>
+</div>
+<label class="aad-check"><input type="checkbox" id="cutGuides" checked> Cut guides around card placements</label>
+<div class="tool-actions"><button class="tool-btn" type="button" id="makeLayout" disabled>Generate Print Layout</button><a class="tool-btn alt" id="aadhaarPng" hidden download="Aadhaar-Print-A4.png">Download PNG</a><a class="tool-btn alt" id="aadhaarPdfDownload" hidden download="Aadhaar-Print-A4.pdf">Download PDF</a></div>
+<p id="aadhaarStatus" role="status" class="tool-status">Select your genuine document to start.</p>
+</div>
+<div class="tool-card"><h2>4. Live Printable Preview</h2><p class="tool-files">A4 Preview ਵਿੱਚ ਜੋ ਦਿਖਦਾ ਹੈ, ਉਹੀ PDF/PNG Export ਹੋਵੇਗਾ। Print dialog ਵਿੱਚ Actual Size / 100% ਵਰਤੋ।</p>
+<div class="aad-preview-wrap"><canvas id="layoutCanvas" aria-label="A4 printable card layout preview"></canvas></div>
+<p id="layoutInfo" class="tool-files">No print layout generated yet.</p>
+<div class="tool-caution">Auto selection ਸਿਰਫ਼ ਇੱਕ Suggestion ਹੈ, ਪੱਕੀ Detection ਨਹੀਂ। ਹਰੇਕ Document Layout ਵੱਖਰਾ ਹੋ ਸਕਦਾ ਹੈ—Download ਤੋਂ ਪਹਿਲਾਂ ਚੁਣੇ Front/Back ਵਿੱਚ Text, QR ਅਤੇ Photo ਪੂਰੇ ਹਨ ਜਾਂ ਨਹੀਂ, ਜ਼ਰੂਰ ਚੈੱਕ ਕਰੋ।</div>
+</div>
+</div>
+</section>
+<section id="originalPanel" class="tool-card" role="tabpanel" hidden>
+<h2>Original PDF Viewer (Unmodified)</h2><label class="tool-field">Select Original PDF<input id="viewerPdf" type="file" accept=".pdf,application/pdf"></label>
+<button type="button" id="openOriginal" class="tool-btn">Open Original PDF Locally</button>
+<p class="tool-help">Viewer ਤੁਹਾਡੇ Browser ਦਾ ਹੈ, ਜੋ ਲੋੜ ਪੈਣ 'ਤੇ ਅਸਲੀ PDF ਦਾ Password ਪੁੱਛ ਸਕਦਾ ਹੈ। ਇੱਥੇ ਕੋਈ Original Content Edit ਜਾਂ Password Remove ਨਹੀਂ ਹੁੰਦਾ।</p>
+<div id="originalFrame" class="tool-preview"></div></section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" defer></script>
+<script type="module" src="aadhaar-auto-layout.js?v=2.0.0"></script>
+<script type="module" src="tools-navigation.js?v=1.2.0"></script>
+</body></html>

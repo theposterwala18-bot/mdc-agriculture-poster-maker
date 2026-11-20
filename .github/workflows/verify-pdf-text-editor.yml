@@ -1,0 +1,28 @@
+name: Verify PDF Text Editor
+on:
+  pull_request:
+    paths:
+      - "dist/pdf-text-editor.*"
+      - "dist/pdf-tools.*"
+      - "dist/tools.html"
+      - "dist/tools-navigation.js"
+      - "vite.config.mjs"
+      - "tests/pdf-text-editor.test.mjs"
+      - ".github/workflows/verify-pdf-text-editor.yml"
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript and build configuration syntax
+        run: |
+          node --input-type=module --check < dist/pdf-text-editor.js
+          node --input-type=module --check < dist/pdf-tools.js
+          node --input-type=module --check < dist/tools-navigation.js
+          node --check vite.config.mjs
+      - name: Validate new editor integration
+        run: node --test tests/pdf-text-editor.test.mjs

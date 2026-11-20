@@ -17,6 +17,7 @@ export default {
         "smart-image-studio": resolve(projectRoot, "dist/smart-image-studio.html"),
         "tools": resolve(projectRoot, "dist/tools.html"),
         "pdf-tools": resolve(projectRoot, "dist/pdf-tools.html"),
+        "pdf-text-editor": resolve(projectRoot, "dist/pdf-text-editor.html"),
         "passport-photo": resolve(projectRoot, "dist/passport-photo.html"),
         "card-page-maker": resolve(projectRoot, "dist/card-page-maker.html"),
         "aadhaar-print": resolve(projectRoot, "dist/aadhaar-print.html"),

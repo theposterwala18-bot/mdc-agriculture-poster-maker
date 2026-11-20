@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id);
 let generatedUrl=null;const report=(msg,error=false)=>{$("pdfStatus").textContent=msg;$("pdfStatus").classList.toggle("error",error)};
 
 function clear(){if(generatedUrl){URL.revokeObjectURL(generatedUrl);generatedUrl=null}$("pdfDownload").hidden=true;$("pdfPreview").replaceChildren()}
-function selections(){const mode=$("pdfMode").value;$("splitOpts").hidden=mode!=="split";$("rotateOpts").hidden=mode!=="rotate";$("imageOpts").hidden=mode!=="image";$("pdfFiles").value="";clear();$("pdfFiles").accept=mode==="image"?"image/jpeg,image/png,image/webp":".pdf,application/pdf";$("pdfFiles").multiple=["image","merge"].includes(mode)}
+function selections(){const mode=$("pdfMode").value;if(mode==="edit"){window.location.assign("pdf-text-editor.html");return}$("splitOpts").hidden=mode!=="split";$("rotateOpts").hidden=mode!=="rotate";$("imageOpts").hidden=mode!=="image";$("pdfFiles").value="";clear();$("pdfFiles").accept=mode==="image"?"image/jpeg,image/png,image/webp":".pdf,application/pdf";$("pdfFiles").multiple=["image","merge"].includes(mode)}
 $("pdfMode").addEventListener("change",selections);
 export function pageIndices(range,max){
  if(!Number.isInteger(max)||max<1)throw Error("Empty PDF");

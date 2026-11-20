@@ -60,12 +60,11 @@ function drawPatch(ctx,patch,pw,ph){
   ctx.fillStyle=info.color||"#111111";ctx.textBaseline="top";
   const align=info.align||"left";ctx.textAlign=align;
   const bx=align==="center"?x+w/2:align==="right"?x+w:x;
-  let fontScale=1;
   const lines=String(patch.text).split("\n");
   const widest=Math.max(0,...lines.map(line=>ctx.measureText(line).width));
   // Avoid the old silent font shrink-to-45% bug. If the text doesn't fit,
   // keep the requested size and show the overflow warning in the UI.
-  if(widest>w)fontScale=1;
+  // Do not shrink the selected font size to fit its former PDF text fragment.
   const lineHeight=actualPx*1.15;
   for(let i=0;i<lines.length;i++){
    const baseline=y+i*lineHeight;

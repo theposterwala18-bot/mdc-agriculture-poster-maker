@@ -11,12 +11,13 @@ const clonePatches=()=>JSON.parse(JSON.stringify(state.patches));
 function releaseDownloads(){for(const u of state.urls)URL.revokeObjectURL(u);state.urls=[];$("downloadEdited").hidden=true;$("downloadEdited").removeAttribute("href")}
 function history(){state.undo.push(clonePatches());if(state.undo.length>35)state.undo.shift();state.redo.length=0;releaseDownloads();refreshHistory()}
 function refreshHistory(){$("undoEdit").disabled=!state.undo.length;$("redoEdit").disabled=!state.redo.length}
-function commit(next){history();state.patches=next;drawEdits();status("Unsaved edits. Check the preview and export when ready.")}
+function commit(next){history();state.patches=next;liveDraft=null;drawEdits();status("Unsaved edits. Check the preview and export when ready.")}
 function recordPatch(patch){
  const data=clonePatches();if(!data[state.page])data[state.page]=[];
  data[state.page].push(patch);commit(data);state.selection={kind:"patch",id:patch.id,page:state.page};drawEdits();syncSelection();
 }
 let patchSerial=0;
+let liveDraft=null; // visual-only edit until Apply is pressed
 const uid=()=>++patchSerial;
 function updateSelectedPatch(edit){
  const s=state.selection;if(!s||s.kind!=="patch")return;
@@ -24,8 +25,8 @@ function updateSelectedPatch(edit){
  if(!item)return;Object.assign(item,edit);commit(next);
 }
 function deleteSelectedPatch(){const s=state.selection;if(!s||s.kind!=="patch")return;const next=clonePatches();next[s.page]=(next[s.page]||[]).filter(p=>p.id!==s.id);state.selection=null;commit(next)}
-function undo(){if(!state.undo.length)return;state.redo.push(clonePatches());state.patches=state.undo.pop();state.selection=null;drawEdits();syncSelection();refreshHistory();releaseDownloads()}
-function redo(){if(!state.redo.length)return;state.undo.push(clonePatches());state.patches=state.redo.pop();state.selection=null;drawEdits();syncSelection();refreshHistory();releaseDownloads()}
+function undo(){liveDraft=null;if(!state.undo.length)return;state.redo.push(clonePatches());state.patches=state.undo.pop();state.selection=null;drawEdits();syncSelection();refreshHistory();releaseDownloads()}
+function redo(){liveDraft=null;if(!state.redo.length)return;state.undo.push(clonePatches());state.patches=state.redo.pop();state.selection=null;drawEdits();syncSelection();refreshHistory();releaseDownloads()}
 $("undoEdit").addEventListener("click",undo);$("redoEdit").addEventListener("click",redo);
 document.addEventListener("keydown",e=>{if(!(e.ctrlKey||e.metaKey)||e.altKey)return;if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName||""))return;if(e.key.toLowerCase()==="z"){e.preventDefault();e.shiftKey?redo():undo()}else if(e.key.toLowerCase()==="y"){e.preventDefault();redo()}});
 function setMode(mode){state.mode=mode;state.selection=null;syncSelection();const paper=$("editPaper");for(const k of ["select","add","cover"]){$(k+"Mode").classList.toggle("mode-active",mode===k);paper.classList.toggle(k+"-mode",mode===k)}drawEdits();$("selectionInfo").textContent=mode==="select"?"Click original text; each extracted text run can be edited.":mode==="add"?"Click a point on the page to add new text.":"Drag a rectangle to cover an area on the page; edited page is flattened on export."}
@@ -34,30 +35,57 @@ function formatFromControls(){return {font:$("editFont").value,size:Number($("ed
 function validFormat(f){if(!Number.isFinite(f.size)||f.size<5||f.size>96)throw Error("Font size must be 5–96 pt.")}
 function pageScale(){return Number($("editZoom").value)}
 function styleFor(item){const f=item.font;return f==="auto"?(item.sourceFont||"Arial, sans-serif"):f}
+function fontFamilyFor(patch){
+ const name=patch.format?.font;
+ if(name&&name!=="auto")return '"'+name.replace(/["\\]/g,"")+'", sans-serif';
+ // Never use an arbitrary PDF-internal font identifier as a CSS font name.
+ const original=String(patch.sourceFont||"");
+ if(/Times|serif/i.test(original))return '"Times New Roman", serif';
+ if(/Courier|mono/i.test(original))return '"Courier New", monospace';
+ return 'Arial, sans-serif';
+}
 function drawPatch(ctx,patch,pw,ph){
- const r=patch.rect,x=r.x*pw,y=r.y*ph,w=r.w*pw,h=r.h*ph,info=patch.format||{};
- ctx.save();ctx.fillStyle=info.bg||"#ffffff";ctx.fillRect(x-1,y-1,w+2,h+2);
+ const r=patch.rect,original=patch.originalRect||r,info=patch.format||{};
+ const x=r.x*pw,y=r.y*ph,w=r.w*pw,h=r.h*ph;
+ const ox=original.x*pw,oy=original.y*ph,ow=original.w*pw,oh=original.h*ph;
+ ctx.save();
+ ctx.fillStyle=info.bg||"#ffffff";
+ // Only cover the original character bounds; widening the editable area
+ // must not erase nearby PDF content.
+ if(patch.type==="replace"||patch.type==="cover")ctx.fillRect(ox-.6,oy-.6,ow+1.2,oh+1.2);
  if(patch.type!=="cover"&&patch.text){
-  const fontPt=clamp(Number(info.size)||12,5,96),px=fontPt*pw/(state.exportPageWidth||pw/Math.max(.001,pageScale()))*1.0;
-  // Screen page has an independent scale from the exported canvas.
-  const actualPx=fontPt*pw/(patch.pageWidthPt||pw); // pt -> page pixels
-  ctx.font=(info.bold?"bold ":"")+actualPx+"px "+styleFor({...info,sourceFont:patch.sourceFont});
-  ctx.fillStyle=info.color||"#111111";
-  ctx.textBaseline="top";ctx.textAlign=info.align||"left";
-  const bx=info.align==="center"?x+w/2:info.align==="right"?x+w:x;
-  const lines=patch.text.split("\n"),lineHeight=actualPx*1.17;
+  const pt=clamp(Number(info.size)||12,5,96);
+  const actualPx=pt*pw/(patch.pageWidthPt||pw);
+  ctx.font=(info.bold?"bold ":"")+actualPx+"px "+fontFamilyFor(patch);
+  ctx.fillStyle=info.color||"#111111";ctx.textBaseline="top";
+  const align=info.align||"left";ctx.textAlign=align;
+  const bx=align==="center"?x+w/2:align==="right"?x+w:x;
+  const lines=String(patch.text).split("\n");
+  const widest=Math.max(0,...lines.map(line=>ctx.measureText(line).width));
+  // Avoid the old silent font shrink-to-45% bug. If the text doesn't fit,
+  // keep the requested size and show the overflow warning in the UI.
+  // Do not shrink the selected font size to fit its former PDF text fragment.
+  const lineHeight=actualPx*1.15;
   for(let i=0;i<lines.length;i++){
-   if(y+i*lineHeight>ph)break;
-   // Replacement may be longer than the original; shrink to fit within its box if needed.
-   const text=lines[i];let size=actualPx;const maxW=Math.max(4,w-(patch.type==="replace"?0:2));
-   if(patch.type==="replace"&&ctx.measureText(text).width>maxW){size=actualPx*Math.max(.45,maxW/ctx.measureText(text).width);ctx.font=(info.bold?"bold ":"")+size+"px "+styleFor({...info,sourceFont:patch.sourceFont})}
-   ctx.fillText(text,bx,y+i*lineHeight);
-   ctx.font=(info.bold?"bold ":"")+actualPx+"px "+styleFor({...info,sourceFont});
+   const baseline=y+i*lineHeight;
+   if(baseline>ph)break;
+   ctx.fillText(lines[i],bx,baseline);
   }
  }
  ctx.restore();
 }
 function applyPatches(ctx,page,w,h){for(const patch of entries(page))drawPatch(ctx,patch,w,h)}
+function rectangleForText(item){
+ // Widen only the editable text region, never the background cover.
+ // Room to the right allows longer replacements at the selected font size.
+ const r=item.rect;
+ return {x:r.x,y:r.y,w:Math.max(r.w,Math.min(.98-r.x,Math.max(r.w,.42))),h:Math.max(r.h,.018)};
+}
+function currentTextWidth(pt,text,pageWidthPt,canvasWidth,font,bold){
+ const c=document.createElement("canvas").getContext("2d");
+ c.font=(bold?"bold ":"")+(pt*canvasWidth/pageWidthPt)+"px "+font;
+ return Math.max(0,...String(text).split("\n").map(line=>c.measureText(line).width));
+}
 function hitRects(){const layer=$("editHitLayer");layer.replaceChildren();
  if(state.mode!=="select")return;
  for(const item of state.items){
@@ -65,13 +93,26 @@ function hitRects(){const layer=$("editHitLayer");layer.replaceChildren();
   button.style.left=(item.rect.x*100)+"%";button.style.top=(item.rect.y*100)+"%";button.style.width=(item.rect.w*100)+"%";button.style.height=(item.rect.h*100)+"%";
   button.title=item.text;button.setAttribute("aria-label","Edit: "+item.text.slice(0,90));
   if(state.selection?.kind==="item"&&state.selection.id===item.id)button.classList.add("selected");
-  button.addEventListener("click",()=>{state.selection={kind:"item",id:item.id,page:state.page};syncSelection();drawEdits()});layer.append(button);
+  button.addEventListener("click",()=>{
+   const existing=entries(state.page).find(p=>p.sourceItemId===item.id);
+   state.selection=existing?{kind:"patch",id:existing.id,page:state.page}:{kind:"item",id:item.id,page:state.page};
+   liveDraft=null;syncSelection();drawEdits();
+  });layer.append(button);
  }
 }
 function drawEdits(){
  const canvas=$("editCanvas");if(!state.source||!canvas.width)return;
  const ctx=canvas.getContext("2d");ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(state.source,0,0,canvas.width,canvas.height);
- if(!$("showOriginal").checked)applyPatches(ctx,state.page,canvas.width,canvas.height);
+ if(!$("showOriginal").checked){
+  applyPatches(ctx,state.page,canvas.width,canvas.height);
+  if(liveDraft){ // redraw draft on top of its committed state after restoring source
+   const committed=entries(state.page);
+   if(state.selection?.kind==="patch"&&state.selection.page===state.page){
+    ctx.drawImage(state.source,0,0,canvas.width,canvas.height);
+    for(const patch of committed)drawPatch(ctx,patch.id===state.selection.id?liveDraft:patch,canvas.width,canvas.height);
+   }else drawPatch(ctx,liveDraft,canvas.width,canvas.height);
+  }
+ }
  const layer=$("editAnnotations");layer.replaceChildren();
  if($("showOriginal").checked){$("editHitLayer").hidden=true;return}
  $("editHitLayer").hidden=false;hitRects();
@@ -87,10 +128,12 @@ function currentSelected(){const s=state.selection;if(!s||s.page!==state.page)re
 function syncSelection(){
  const selected=currentSelected();$("applyText").disabled=!(state.pdf&&selected);
  $("removeText").disabled=!(state.pdf&&selected);
- if(!selected){$("editText").value="";return}
+ if(!selected){$("editText").value="";liveDraft=null;return}
  $("editText").value=selected.kind==="item"?selected.text:(selected.text||"");
  const size=selected.format?.size||selected.size||12;$("editFontSize").value=clamp(Math.round(size*2)/2,5,96);
  if(selected.format){$("editColor").value=selected.format.color;$("coverColor").value=selected.format.bg;$("editFont").value=selected.format.font;$("editAlign").value=selected.format.align;$("editBold").value=selected.format.bold?"bold":"normal"}
+ else{$("editFont").value="auto";$("editBold").value="normal";$("editAlign").value="left";$("editColor").value="#111111";$("coverColor").value="#ffffff"}
+ updateSizeHint();
 }
 async function loadDocument(){
  const f=$("editFile").files?.[0];if(!f)return;
@@ -142,19 +185,53 @@ async function renderPage(){
 }
 function makePatch(source,text,type){
  const f=formatFromControls();validFormat(f);
- return {id:uid(),type,rect:{...source.rect},original:source.text||"",text,format:f,sourceFont:source.sourceFont||"Arial",pageWidthPt:source.pageWidthPt||state.source.width/pageScale()};
+ return {id:uid(),type,rect:type==="replace"?rectangleForText(source):{...source.rect},originalRect:{...source.rect},sourceItemId:source.kind==="item"?source.id:source.sourceItemId,original:source.text||"",text,format:f,sourceFont:source.sourceFont||"Arial",pageWidthPt:source.pageWidthPt||state.source.width/pageScale()};
 }
 $("applyText").addEventListener("click",()=>{
  try{const selected=currentSelected();if(!selected)return;
   const text=$("editText").value;if(text.length>1000)throw Error("Text must be under 1,000 characters.");
-  if(selected.kind==="item"){recordPatch(makePatch(selected,text,"replace"))}
+  if(selected.kind==="item"){
+   const already=entries(state.page).find(p=>p.sourceItemId===selected.id);
+   if(already){state.selection={kind:"patch",id:already.id,page:state.page};updateSelectedPatch({text,format:formatFromControls()})}
+   else recordPatch(makePatch(selected,text,"replace"));
+  }
   else updateSelectedPatch({text,type:selected.type==="cover"?"add":selected.type,format:formatFromControls()});
   $("editPageInfo").textContent="Changes previewed. Export PDF to save.";
  }catch(e){status(e.message,true)}
 });
+function updateSizeHint(){
+ const el=$("selectionInfo"),selected=currentSelected();
+ if(!selected)return;
+ const size=Number($("editFontSize").value);
+ if(!Number.isFinite(size)||size<5||size>96){el.textContent="Font size must be between 5–96 pt.";return}
+ const text=$("editText").value||"",pageWidth=selected.pageWidthPt||state.source?.width/pageScale()||595;
+ const rect=selected.kind==="item"?rectangleForText(selected):selected.rect;
+ const width=currentTextWidth(size,text,pageWidth,state.source?.width||595,fontFamilyFor({format:formatFromControls(),sourceFont:selected.sourceFont}),$("editBold").value==="bold");
+ const available=rect.w*(state.source?.width||595);
+ el.textContent="Live "+size+" pt • "+(width>available?"Text may extend beyond its box. Use shorter text or reposition.":"Text fits selected box.")+" Click Apply to save changes.";
+}
+function updateLiveDraft(){
+ const selected=currentSelected();if(!selected||$("showOriginal").checked)return;
+ const f=formatFromControls();
+ if(!Number.isFinite(f.size)||f.size<5||f.size>96)return;
+ if(selected.kind==="item"){
+  const source=makePatch(selected,$("editText").value,"replace");
+  source.id="draft";liveDraft=source;
+ }else{
+  liveDraft={...selected,text:$("editText").value,type:selected.type==="cover"?"add":selected.type,format:f};
+ }
+ updateSizeHint();drawEdits();
+}
+for(const id of ["editText","editFontSize","editFont","editColor","coverColor","editAlign","editBold"]){
+ $(id).addEventListener("input",updateLiveDraft);
+}
 $("removeText").addEventListener("click",()=>{
  const selected=currentSelected();if(!selected)return;
- if(selected.kind==="item")recordPatch(makePatch(selected,"","cover"));
+ if(selected.kind==="item"){
+   const old=entries(state.page).find(p=>p.sourceItemId===selected.id);
+   if(old){state.selection={kind:"patch",id:old.id,page:state.page};updateSelectedPatch({text:"",type:"cover"})}
+   else recordPatch(makePatch(selected,"","cover"));
+  }
  else deleteSelectedPatch();
 });
 function normalizedPointer(event){const r=$("editPaper").getBoundingClientRect();return {x:clamp((event.clientX-r.left)/r.width,0,1),y:clamp((event.clientY-r.top)/r.height,0,1)}}
@@ -184,7 +261,7 @@ function batchReplace(replaceFn){
  let count=0;
  for(const item of state.items){const newText=replaceFn(item.text);if(newText===item.text)continue;
   if(newText.length>1000)continue;
-  const oldPatch=current.find(p=>p.type==="replace"&&p.original===item.text&&Math.abs(p.rect.x-item.rect.x)<.0001&&Math.abs(p.rect.y-item.rect.y)<.0001);
+  const oldPatch=current.find(p=>p.sourceItemId===item.id);
   const patch=makePatch(item,newText,"replace");
   if(oldPatch){patch.id=oldPatch.id;current.splice(current.indexOf(oldPatch),1)}
   current.push(patch);count++;

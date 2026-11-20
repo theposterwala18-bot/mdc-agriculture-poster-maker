@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pa"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Edit PDF Text | The Poster Wala</title>
+<meta name="description" content="Private browser-based PDF text corrections, date edits and layout cleanup with before/after preview.">
+<link rel="stylesheet" href="tools-pages.css?v=1.0.0"><link rel="stylesheet" href="tools-navigation.css?v=1.0.0"><link rel="stylesheet" href="pdf-text-editor.css?v=1.0.0"></head>
+<body><main class="tool-shell pdf-edit-shell"><header class="tool-title"><span class="tool-tag">PRIVATE • LOCAL PDF EDITOR</span><h1>PDF Text Editor</h1><p>Text select ਕਰੋ, spelling / date / spacing ਠੀਕ ਕਰੋ, remove ਕਰੋ ਜਾਂ ਨਵਾਂ text ਜੋੜੋ। Live Before / After ਵੇਖੋ।</p></header>
+<p class="tool-caution"><strong>Important:</strong> ਇਹ tool ਆਪਣੀਆਂ ਜਾਂ edit ਕਰਨ ਦੀ ਇਜਾਜ਼ਤ ਵਾਲੀਆਂ ਆਮ PDFs ਲਈ ਹੈ। Aadhaar, ID, certificates, bank statements ਜਾਂ ਹੋਰ official records ਵਿੱਚ identity, date, amount ਜਾਂ ਹੋਰ ਤੱਥ ਬਦਲਣ ਲਈ ਨਹੀਂ। Edited pages high-resolution image ਵਜੋਂ PDF ਵਿੱਚ flatten ਹੁੰਦੇ ਹਨ, ਇਸ ਕਰਕੇ edited text searchable/selectable ਨਹੀਂ ਰਹਿੰਦਾ ਅਤੇ fonts ਹਮੇਸ਼ਾ exact match ਨਹੀਂ ਹੋ ਸਕਦੇ। Original file unchanged ਰਹਿੰਦੀ ਹੈ।</p>
+<div class="pdf-edit-grid">
+<section class="tool-card pdf-edit-panel">
+<h2>1. Upload & Select</h2>
+<label class="tool-field">Choose PDF (max 25 MB / 40 pages)<input id="editFile" type="file" accept=".pdf,application/pdf"></label>
+<div class="tool-form-grid"><label class="tool-field">Page<select id="editPage" disabled><option value="1">Page 1</option></select></label><label class="tool-field">Preview Zoom<select id="editZoom"><option value="1">100%</option><option value="1.5" selected>150%</option><option value="2">200%</option></select></label></div>
+<div class="tool-actions"><button type="button" class="tool-btn alt" id="selectMode">Select Text</button><button type="button" class="tool-btn alt" id="addMode">+ Add Text</button><button type="button" class="tool-btn alt" id="coverMode">Cover Area</button></div>
+<p class="tool-files" id="selectionInfo">Upload PDF, then click an existing text run. For scanned PDFs, use Add Text or Cover Area.</p>
+<hr><h2>2. Text Editing</h2>
+<label class="tool-field">Selected / New Text<textarea id="editText" rows="3" placeholder="Click PDF text or Add Text to place new text"></textarea></label>
+<div class="tool-form-grid"><label class="tool-field">Font Size (pt)<input id="editFontSize" type="number" min="5" max="96" step=".5" value="12"></label><label class="tool-field">Font Family<select id="editFont"><option value="auto">Auto (closest browser font)</option><option value="Arial">Arial</option><option value="Times New Roman">Times New Roman</option><option value="Courier New">Courier New</option><option value="Noto Sans Gurmukhi">Noto Sans Gurmukhi</option><option value="sans-serif">Sans Serif</option></select></label>
+<label class="tool-field">Text Color<input id="editColor" type="color" value="#111111"></label><label class="tool-field">Cover Color<input id="coverColor" type="color" value="#ffffff"></label>
+<label class="tool-field">Alignment<select id="editAlign"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select></label>
+<label class="tool-field">Bold<select id="editBold"><option value="normal">Regular</option><option value="bold">Bold</option></select></label></div>
+<div class="tool-actions"><button type="button" class="tool-btn" id="applyText" disabled>Apply Replace / Add</button><button type="button" class="tool-btn alt" id="removeText" disabled>Remove Selected</button><button type="button" class="tool-btn alt" id="undoEdit" disabled>Undo</button><button type="button" class="tool-btn alt" id="redoEdit" disabled>Redo</button></div>
+<hr><h2>3. Find & Quick Fix</h2>
+<label class="tool-field">Find (current page)<input id="findText" type="text" placeholder="Old text / date"></label><label class="tool-field">Replace with<input id="replaceText" type="text" placeholder="New text / date"></label>
+<div class="tool-actions"><button type="button" class="tool-btn alt" id="findReplace" disabled>Replace Matches on Page</button><button type="button" class="tool-btn alt" id="cleanSpaces" disabled>Clean Double Spaces</button></div>
+<p class="tool-files">Search matches individual PDF text runs, not words split across multiple runs. Review each result before export.</p>
+<hr><h2>4. Save</h2>
+<label class="tool-field">Edited Page Quality<select id="outputQuality"><option value="150">150 DPI (smaller file)</option><option value="200" selected>200 DPI (balanced)</option><option value="300">300 DPI (best print)</option></select></label>
+<div class="tool-actions"><button type="button" class="tool-btn" id="saveEditedPdf" disabled>Export Edited PDF</button><a id="downloadEdited" class="tool-btn alt" hidden download="ThePosterWala-Edited.pdf">Download PDF</a></div><p id="editorStatus" class="tool-status" role="status" aria-live="polite">Choose a PDF to begin.</p>
+</section>
+<section class="tool-card pdf-edit-preview-panel"><div class="pdf-edit-preview-header"><h2>Live Preview</h2><label class="pdf-edit-original-toggle"><input type="checkbox" id="showOriginal"> Show Original</label></div>
+<div id="pdfEditorViewport" class="pdf-edit-viewport"><div id="editPaper" class="pdf-edit-paper"><canvas id="editCanvas"></canvas><div id="editHitLayer" class="pdf-edit-hit-layer"></div><div id="editAnnotations" class="pdf-edit-annotations"></div></div><p id="editPlaceholder">Upload a PDF to start editing.</p></div>
+<p class="tool-files" id="editPageInfo">Click editable text on the page. Scans may have no selectable text without OCR.</p>
+</section></div></main>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" defer></script>
+<script type="module" src="pdf-text-editor.js?v=1.0.0"></script><script type="module" src="tools-navigation.js?v=1.2.0"></script></body></html>

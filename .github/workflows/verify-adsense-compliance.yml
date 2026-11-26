@@ -1,0 +1,34 @@
+name: Verify AdSense Public Compliance Pages
+on:
+  pull_request:
+    paths:
+      - "dist/index.html"
+      - "dist/custom-service.html"
+      - "dist/about.html"
+      - "dist/contact.html"
+      - "dist/privacy-policy.html"
+      - "dist/terms.html"
+      - "dist/legal-pages.css"
+      - "dist/ads.txt"
+      - "dist/sitemap.xml"
+      - "dist/robots.txt"
+      - "dist/tools-navigation.js"
+      - "dist/tools.html"
+      - "vite.config.mjs"
+      - "tests/adsense-compliance.test.mjs"
+      - ".github/workflows/verify-adsense-compliance.yml"
+  workflow_dispatch:
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Public page policy and link tests
+        run: node --test tests/adsense-compliance.test.mjs
+      - name: Navigation and build syntax
+        run: |
+          node --input-type=module --check < dist/tools-navigation.js
+          node --check vite.config.mjs

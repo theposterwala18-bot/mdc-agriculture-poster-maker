@@ -3,6 +3,7 @@ const sections=[
  {name:"Main",items:[["⌂","Home Page","index.html"],["◫","Tools Dashboard","tools.html"]]},
  {name:"Image",items:[["▣","Smart Image Studio","smart-image-studio.html"],["↗","HEIC to JPG","image-format-converter.html"],["✦","Free AI Upscale (External)","ai-upscale.html"],["▥","Passport Photo","passport-photo.html"]]},
  {name:"PDF & Printing",items:[["▤","PDF Converter","pdf-tools.html"],["✎","Edit PDF Text","pdf-text-editor.html"],["▦","ID / Card Page Maker","card-page-maker.html"],["▤","Aadhaar Original Print","aadhaar-print.html"]]},
+ {name:"Information",items:[["ℹ","About Us","about.html"],["✉","Contact","contact.html"],["◈","Privacy Policy","privacy-policy.html"],["☷","Terms","terms.html"]]},
  {name:"Professional",items:[["☷","Resume Maker","resume-maker.html"]]}
 ];
 const nav=document.createElement("nav");nav.className="tpw-tools-sidebar";nav.setAttribute("aria-label","Document and Printing Tools");
